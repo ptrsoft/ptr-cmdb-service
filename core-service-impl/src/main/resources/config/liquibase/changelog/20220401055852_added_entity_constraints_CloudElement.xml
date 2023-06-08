@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity CloudElement.
+    -->
+    <changeSet id="20220401055852-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="product_enclave_id_id"
+                                 baseTableName="cloud_element"
+                                 constraintName="fk_cloud_element__product_enclave_id_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="product_enclave"/>
+
+        <addForeignKeyConstraint baseColumnNames="cloud_environment_id_id"
+                                 baseTableName="cloud_element"
+                                 constraintName="fk_cloud_element__cloud_environment_id_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="cloud_environment"/>
+    </changeSet>
+</databaseChangeLog>

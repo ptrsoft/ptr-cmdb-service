@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity ProductBilling.
+    -->
+    <changeSet id="20220408082931-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="product_id"
+                                 baseTableName="product_billing"
+                                 constraintName="fk_product_billing__product_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="product"/>
+        <addForeignKeyConstraint baseColumnNames="department_id"
+                                 baseTableName="product_billing"
+                                 constraintName="fk_product_billing__department_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="department"/>
+        <addForeignKeyConstraint baseColumnNames="deployment_environment_id"
+                                 baseTableName="product_billing"
+                                 constraintName="fk_product_billing__deployment_environment_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="deployment_environment"/>
+    </changeSet>
+</databaseChangeLog>

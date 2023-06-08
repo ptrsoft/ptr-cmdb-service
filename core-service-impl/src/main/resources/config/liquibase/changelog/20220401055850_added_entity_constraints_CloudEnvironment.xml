@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity CloudEnvironment.
+    -->
+    <changeSet id="20220401055850-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="cloud_id"
+                                 baseTableName="cloud_environment"
+                                 constraintName="fk_cloud_environment__cloud_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="cloud"/>
+
+        <addForeignKeyConstraint baseColumnNames="department_id"
+                                 baseTableName="cloud_environment"
+                                 constraintName="fk_cloud_environment__department_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="department"/>
+    </changeSet>
+</databaseChangeLog>
