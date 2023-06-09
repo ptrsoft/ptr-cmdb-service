@@ -1,6 +1,6 @@
 openapi: 3.0.3 # version of the specification
 info:
-  title: CloudAsset-OPEN-API-Set
+  title: CMDB-OPEN-API-COLLECTION
   version: 1.0.0
   description: Service API specification to support Database operations
 
@@ -29,9 +29,11 @@ servers:
 
 tags:
   - name: Organization
-    description: To perform CRUD operations on organization table schema
+    description: perform CRUD operations on organization table
   - name: Department
-    description: To perform CRUD operations on department table schema
+    description: perform CRUD operations on department table
+  - name: CloudEnvironment
+    description: perform CRUD operations on cloud-environment table
 
 paths:
   /organizations:
@@ -286,6 +288,132 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-environments:
+    get:
+      tags:
+        - CloudEnvironment
+      summary: Fetch list of CloudEnvironments
+      operationId: getCloudEnvironmentList
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    post:
+      tags:
+        - CloudEnvironment
+      summary: Add cloud-environment
+      operationId: addCloudEnvironment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudEnvironmentDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudEnvironmentDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    patch:
+      tags:
+        - CloudEnvironment
+      summary: Update cloud-environment
+      operationId: updateCloudEnvironment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudEnvironmentDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudEnvironmentDTO'
+        201:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-environments/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          format: int64
+        required: true
+    get:
+      tags:
+        - CloudEnvironment
+      summary: Fetch a cloud-environment of given id
+      operationId: getCloudEnvironment
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-environments/search:
+    get:
+      tags:
+        - CloudEnvironment
+      summary: Search cloud-environments data
+      operationId: searchCloudEnvironment
+      parameters:
+        - name: cloudEnvironmentDto
+          in: query
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudEnvironmentDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -327,5 +455,36 @@ components:
         updatedOn:
           type: string
         organizationId:
+          type: integer
+          format: int64
+    CloudEnvironmentDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        description:
+          type: string
+        accountId:
+          type: string
+        cloud:
+          type: string
+        displayName:
+          type: string
+        roleArn:
+          type: string
+        externalId:
+          type: string
+        status:
+          type: string
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdOn:
+          type: string
+        updatedOn:
+          type: string
+        departmentId:
           type: integer
           format: int64

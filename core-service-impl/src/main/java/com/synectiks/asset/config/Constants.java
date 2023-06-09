@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.synectiks.asset.business.domain.Dashboard;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -36,7 +35,7 @@ public final class Constants {
 
     public static final String CLOUD_TYPE_AWS = "AWS";
     public static final String VPC = "VPC";
-    public static final Map<String, Map<String, Map<String, List<Dashboard>> > > ENABLED_DASHBOARD_CACHE = new HashMap<String, Map<String, Map<String, List<Dashboard>> > >();
+//    public static final Map<String, Map<String, Map<String, List<Dashboard>> > > ENABLED_DASHBOARD_CACHE = new HashMap<String, Map<String, Map<String, List<Dashboard>> > >();
 
     public static final List<String> AWS_DISCOVERED_ASSETS = new ArrayList<>();
 
@@ -53,9 +52,11 @@ public final class Constants {
     public static final String DATE_FORMAT_MM_DD_YYYY = "MM-dd-yyyy";
     public static final String DATE_FORMAT_DD_MM_YYYY = "dd-MM-yyyy";
     public static final String DATE_FORMAT_DD_MM_YYYY_HH_MM_SS = "dd-MM-yyyy H:mm:s";
+    public static final String DATE_FORMAT_YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd hh:mm:ss";
     
     
-    public static final String DEFAULT_DATE_FORMAT =  DATE_FORMAT_MM_DD_YYYY;
+    public static final String DEFAULT_DATE_FORMAT =  DATE_FORMAT_YYYY_MM_DD;
+    public static final String DEFAULT_DATETIME_FORMAT =  DATE_FORMAT_YYYY_MM_DD_HH_MM_SS;
 
     public static final String PERFORMANCE  = "performance";
     public static final String AVAILABILITY = "availability";

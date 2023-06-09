@@ -1,7 +1,8 @@
 package com.synectiks.asset.mapper;
 
 import com.synectiks.asset.api.model.OrganizationDTO;
-import com.synectiks.asset.business.domain.Organization;
+import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.domain.Organization;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -15,8 +16,8 @@ public interface OrganizationMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
-    @Mapping(target = "createdOn", dateFormat = "yyyy-MM-dd hh:mm:ss")
-    @Mapping(target = "updatedOn", dateFormat = "yyyy-MM-dd hh:mm:ss")
+    @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
+    @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     OrganizationDTO toDto(Organization organization);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

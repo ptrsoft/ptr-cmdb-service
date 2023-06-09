@@ -2,8 +2,8 @@ package com.synectiks.asset.controller;
 
 import com.synectiks.asset.api.controller.OrganizationsApi;
 import com.synectiks.asset.api.model.OrganizationDTO;
-import com.synectiks.asset.business.domain.Organization;
-import com.synectiks.asset.business.service.OrganizationService;
+import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.service.OrganizationService;
 import com.synectiks.asset.mapper.OrganizationMapper;
 import com.synectiks.asset.repository.OrganizationRepository;
 import com.synectiks.asset.web.rest.validation.Validator;

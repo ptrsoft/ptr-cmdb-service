@@ -2,8 +2,8 @@ package com.synectiks.asset.controller;
 
 import com.synectiks.asset.api.controller.DepartmentsApi;
 import com.synectiks.asset.api.model.DepartmentDTO;
-import com.synectiks.asset.business.domain.Department;
-import com.synectiks.asset.business.service.DepartmentService;
+import com.synectiks.asset.domain.Department;
+import com.synectiks.asset.service.DepartmentService;
 import com.synectiks.asset.mapper.DepartmentMapper;
 import com.synectiks.asset.repository.DepartmentRepository;
 import com.synectiks.asset.web.rest.validation.Validator;

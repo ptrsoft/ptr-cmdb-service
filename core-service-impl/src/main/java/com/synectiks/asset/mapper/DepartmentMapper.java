@@ -1,8 +1,11 @@
 package com.synectiks.asset.mapper;
 
+import com.synectiks.asset.api.model.CloudEnvironmentDTO;
 import com.synectiks.asset.api.model.DepartmentDTO;
-import com.synectiks.asset.business.domain.Department;
-import com.synectiks.asset.business.domain.Organization;
+import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.domain.CloudEnvironment;
+import com.synectiks.asset.domain.Department;
+import com.synectiks.asset.domain.Organization;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -16,8 +19,8 @@ public interface DepartmentMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
-    @Mapping(target = "createdOn", dateFormat = "yyyy-MM-dd hh:mm:ss")
-    @Mapping(target = "updatedOn", dateFormat = "yyyy-MM-dd hh:mm:ss")
+    @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
+    @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "organizationId", source = "organization.id")
     DepartmentDTO toDto(Department department);
 
@@ -57,11 +60,16 @@ public interface DepartmentMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     default Department dtoToEntityForUpdate(DepartmentDTO departmentDTO, @MappingTarget Department department){
+        Department temp = copyDtoToEntity(departmentDTO, department);
         if(departmentDTO.getOrganizationId() != null){
-            department.setOrganization(Organization.builder().id(departmentDTO.getOrganizationId()).build());
+            temp.setOrganization(Organization.builder().id(departmentDTO.getOrganizationId()).build());
         }
-        return department;
+        return temp;
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    Department copyDtoToEntity(DepartmentDTO departmentDTO, @MappingTarget Department department);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     default Department dtoToEntityForSearch(DepartmentDTO departmentDTO){
