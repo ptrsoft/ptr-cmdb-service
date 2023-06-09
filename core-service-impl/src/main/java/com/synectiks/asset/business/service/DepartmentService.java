@@ -1,11 +1,8 @@
 package com.synectiks.asset.business.service;
 
 import com.synectiks.asset.business.domain.Department;
-import com.synectiks.asset.business.domain.Organization;
-import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.repository.DepartmentRepository;
 import com.synectiks.asset.util.JsonAndObjectConverterUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -46,39 +41,39 @@ public class DepartmentService {
 		return d;
 	}
 
-	public Optional<Department> partialUpdate(Department department) {
-		logger.debug("Request to partially update Department : {}", department);
-
-		return departmentRepository.findById(department.getId()).map(existingDepartment -> {
-			if (department.getName() != null) {
-				existingDepartment.setName(department.getName());
-			}
-			if (department.getStatus() != null) {
-				existingDepartment.setStatus(department.getStatus());
-			}
-			if (department.getCreatedOn() != null) {
-				existingDepartment.setCreatedOn(department.getCreatedOn());
-			}
-			if (department.getCreatedBy() != null) {
-				existingDepartment.setCreatedBy(department.getCreatedBy());
-			}
-			if (department.getUpdatedOn() != null) {
-				existingDepartment.setUpdatedOn(department.getUpdatedOn());
-			}
-			if (department.getUpdatedBy() != null) {
-				existingDepartment.setUpdatedBy(department.getUpdatedBy());
-			}
-//			Map<String, String> filter = new HashMap<>();
-//			filter.put("departmentId", String.valueOf(existingDepartment.getId()));
-//			try {
-//				List<Product> pList = serviceAllocationService.getProducts(filter);
-//				existingDepartment.setProducts(pList);
-//			} catch (IOException e) {
-//				logger.error("Error in getting products ", e.getMessage());
+//	public Optional<Department> partialUpdate(Department department) {
+//		logger.debug("Request to partially update Department : {}", department);
+//
+//		return departmentRepository.findById(department.getId()).map(existingDepartment -> {
+//			if (department.getName() != null) {
+//				existingDepartment.setName(department.getName());
 //			}
-			return existingDepartment;
-		}).map(departmentRepository::save);
-	}
+//			if (department.getStatus() != null) {
+//				existingDepartment.setStatus(department.getStatus());
+//			}
+//			if (department.getCreatedOn() != null) {
+//				existingDepartment.setCreatedOn(department.getCreatedOn());
+//			}
+//			if (department.getCreatedBy() != null) {
+//				existingDepartment.setCreatedBy(department.getCreatedBy());
+//			}
+//			if (department.getUpdatedOn() != null) {
+//				existingDepartment.setUpdatedOn(department.getUpdatedOn());
+//			}
+//			if (department.getUpdatedBy() != null) {
+//				existingDepartment.setUpdatedBy(department.getUpdatedBy());
+//			}
+////			Map<String, String> filter = new HashMap<>();
+////			filter.put("departmentId", String.valueOf(existingDepartment.getId()));
+////			try {
+////				List<Product> pList = serviceAllocationService.getProducts(filter);
+////				existingDepartment.setProducts(pList);
+////			} catch (IOException e) {
+////				logger.error("Error in getting products ", e.getMessage());
+////			}
+//			return existingDepartment;
+//		}).map(departmentRepository::save);
+//	}
 
 	@Transactional(readOnly = true)
 	public List<Department> findAll() {
@@ -122,43 +117,43 @@ public class DepartmentService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<Department> search(Map<String, String> filter) throws IOException {
+	public List<Department> search(Department department)  {
 		logger.debug("Request to get all departments on given filters");
 
-		Organization organization = null;
-		if (!StringUtils.isBlank(filter.get(Constants.ORGANIZATION_ID))) {
-			organization = new Organization();
-			organization.setId(Long.parseLong(filter.get(Constants.ORGANIZATION_ID)));
-			organization.setCreatedOn(null);
-			organization.setUpdatedOn(null);
-			filter.remove(Constants.ORGANIZATION_ID);
-		}
+//		Organization organization = null;
+//		if (!StringUtils.isBlank(filter.get(Constants.ORGANIZATION_ID))) {
+//			organization = new Organization();
+//			organization.setId(Long.parseLong(filter.get(Constants.ORGANIZATION_ID)));
+//			organization.setCreatedOn(null);
+//			organization.setUpdatedOn(null);
+//			filter.remove(Constants.ORGANIZATION_ID);
+//		}
+//
+//		if (!StringUtils.isBlank(filter.get(Constants.ORGANIZATION_NAME))) {
+//			if(organization != null) {
+//				organization.setName(filter.get(Constants.ORGANIZATION_NAME));
+//			}else {
+//				organization = new Organization();
+//				organization.setName(filter.get(Constants.ORGANIZATION_NAME));
+//			}
+//			organization.setCreatedOn(null);
+//			organization.setUpdatedOn(null);
+//			filter.remove(Constants.ORGANIZATION_NAME);
+//		}
 		
-		if (!StringUtils.isBlank(filter.get(Constants.ORGANIZATION_NAME))) {
-			if(organization != null) {
-				organization.setName(filter.get(Constants.ORGANIZATION_NAME));
-			}else {
-				organization = new Organization();
-				organization.setName(filter.get(Constants.ORGANIZATION_NAME));
-			}
-			organization.setCreatedOn(null);
-			organization.setUpdatedOn(null);
-			filter.remove(Constants.ORGANIZATION_NAME);
-		}
-		
-		Department department = jsonAndObjectConverterUtil.convertSourceObjectToTarget(Constants.instantiateMapper(), filter, Department.class);
-
-		// unset default value if createdOn is not coming in filter
-		if (StringUtils.isBlank(filter.get(Constants.CREATED_ON))) {
-			department.setCreatedOn(null);
-		}
-		// unset default value if updatedOn is not coming in filter
-		if (StringUtils.isBlank(filter.get(Constants.UPDATED_ON))) {
-			department.setUpdatedOn(null);
-		}
-		if (organization != null) {
-			department.setOrganization(organization);
-		}
+//		Department department = jsonAndObjectConverterUtil.convertSourceObjectToTarget(Constants.instantiateMapper(), filter, Department.class);
+//
+//		// unset default value if createdOn is not coming in filter
+//		if (StringUtils.isBlank(filter.get(Constants.CREATED_ON))) {
+//			department.setCreatedOn(null);
+//		}
+//		// unset default value if updatedOn is not coming in filter
+//		if (StringUtils.isBlank(filter.get(Constants.UPDATED_ON))) {
+//			department.setUpdatedOn(null);
+//		}
+//		if (organization != null) {
+//			department.setOrganization(organization);
+//		}
 		List<Department> list = departmentRepository.findAll(Example.of(department), Sort.by(Sort.Direction.DESC, "name"));
 		
 //		Map<String, String> prdFilter = new HashMap<>();
