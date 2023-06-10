@@ -33,7 +33,9 @@ tags:
   - name: Department
     description: perform CRUD operations on department table
   - name: CloudEnvironment
-    description: perform CRUD operations on cloud-environment table
+    description: perform CRUD operations on cloud_environment table
+  - name: CloudElementSummary
+    description: perform CRUD operations on cloud_element_summary table
 
 paths:
   /organizations:
@@ -414,6 +416,132 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-element-summary:
+    get:
+      tags:
+        - CloudElementSummary
+      summary: Fetch list of CloudElementSummary
+      operationId: getCloudElementSummaryList
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementSummaryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    post:
+      tags:
+        - CloudElementSummary
+      summary: Add cloud-element-summary
+      operationId: addCloudElementSummary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudElementSummaryDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudElementSummaryDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudElementSummaryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    patch:
+      tags:
+        - CloudElementSummary
+      summary: Update cloud-element-summary
+      operationId: updateCloudElementSummary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudElementSummaryDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudElementSummaryDTO'
+        201:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudElementSummaryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-element-summary/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          format: int64
+        required: true
+    get:
+      tags:
+        - CloudElementSummary
+      summary: Fetch a cloud-element-summary of given id
+      operationId: getCloudElementSummary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudElementSummaryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-element-summary/search:
+    get:
+      tags:
+        - CloudElementSummary
+      summary: Search cloud-element-summary data
+      operationId: searchCloudElementSummary
+      parameters:
+        - name: cloudElementSummaryDto
+          in: query
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudElementSummaryDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementSummaryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -486,5 +614,24 @@ components:
         updatedOn:
           type: string
         departmentId:
+          type: integer
+          format: int64
+    CloudElementSummaryDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        summaryJson:
+          type: object
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdOn:
+          type: string
+        updatedOn:
+          type: string
+        cloudEnvironmentId:
           type: integer
           format: int64
