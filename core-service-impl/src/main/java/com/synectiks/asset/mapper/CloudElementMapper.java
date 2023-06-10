@@ -21,7 +21,7 @@ public interface CloudElementMapper {
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "cloudEnvironmentId", source = "cloudEnvironment.id")
-    CloudElementDTO toDto(CloudElement cloudElementSummary);
+    CloudElementDTO toDto(CloudElement cloudElement);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     default CloudElement toEntity(CloudElementDTO cloudElementDTO){

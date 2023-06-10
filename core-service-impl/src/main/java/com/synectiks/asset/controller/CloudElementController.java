@@ -1,11 +1,11 @@
 package com.synectiks.asset.controller;
 
-import com.synectiks.asset.api.controller.CloudElementApi;
+import com.synectiks.asset.api.controller.CloudElementsApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.mapper.CloudElementMapper;
-import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.repository.CloudElementRepository;
+import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class CloudElementController implements CloudElementApi {
+public class CloudElementController implements CloudElementsApi {
 
     private final Logger logger = LoggerFactory.getLogger(CloudElementController.class);
 
@@ -32,9 +33,6 @@ public class CloudElementController implements CloudElementApi {
 
     @Autowired
     private CloudElementService cloudElementService;
-
-//    @Autowired
-//    private CloudEnvironmentService cloudEnvironmentService;
 
     @Autowired
     private CloudElementRepository cloudElementRepository;
