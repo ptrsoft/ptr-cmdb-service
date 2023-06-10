@@ -31,29 +31,16 @@ public class OrganizationService {
         return organizationRepository.save(organization);
     }
 
-
-
     @Transactional(readOnly = true)
     public List<Organization> findAll(){
     	logger.debug("Get all Organizations");
-    	List<Organization> list = organizationRepository.findAll();
-//    	Map<String, String> filter = new HashMap<>();
-//    	for(Organization o: list) {
-//    		filter.clear();
-//    		for(Department d: o.getDepartments()) {
-//    			filter.clear();
-//    			filter.put("departmentId", String.valueOf(d.getId()));
-//    			d.setProducts(serviceAllocationService.getProducts(filter));
-//    		}
-//    	}
-    	return list;
+        return organizationRepository.findAll();
     }
 
     @Transactional(readOnly = true)
     public Optional<Organization> findOne(Long id) {
     	logger.debug("Get Organization : {}", id);
-    	Optional<Organization> o = organizationRepository.findById(id);
-    	return o;
+        return organizationRepository.findById(id);
     }
 
     public void delete(Long id) {
@@ -64,40 +51,9 @@ public class OrganizationService {
     @Transactional(readOnly = true)
     public List<Organization> search(Organization organization) {
     	logger.debug("Search organizations on given filters");
-//    	String landingZone = null;
-//    	if (!StringUtils.isBlank(filter.get(Constants.LANDING_ZONE))) {
-//    		landingZone = filter.get(Constants.LANDING_ZONE);
-//			filter.remove(Constants.LANDING_ZONE);
-//		}
-//
-//        Organization organization = jsonAndObjectConverterUtil.convertSourceObjectToTarget(Constants.instantiateMapper(), filter, Organization.class);
-//
-//        //unset default value if createdOn is not coming in filter
-//        if(StringUtils.isBlank(filter.get(Constants.CREATED_ON))){
-//            organization.setCreatedOn(null);
-//        }
-//        //unset default value if updatedOn is not coming in filter
-//        if(StringUtils.isBlank(filter.get(Constants.UPDATED_ON))){
-//            organization.setUpdatedOn(null);
-//        }
-        List<Organization> list = organizationRepository.findAll(Example.of(organization), Sort.by(Sort.Direction.DESC, "name"));
-//        Map<String, String> prdfilter = new HashMap<>();
-//    	for(Organization o: list) {
-//    		filter.clear();
-//    		for(Department d: o.getDepartments()) {
-//    			prdfilter.clear();
-//    			prdfilter.put("departmentId", String.valueOf(d.getId()));
-//    			if(!StringUtils.isBlank(landingZone)) {
-//    				prdfilter.put("landingZone", landingZone);
-//    			}
-//    			d.setProducts(serviceAllocationService.getProducts(prdfilter));
-//    		}
-//    	}
-    	return list;
+        return organizationRepository.findAll(Example.of(organization), Sort.by(Sort.Direction.DESC, "name"));
     }
-    
-    
-    
+
     public List<String> getProducts(Long orgId) throws IOException {
     	logger.debug("Request to get list of products of an Organization");
     	return organizationRepository.getProduct(orgId);

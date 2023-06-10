@@ -21,10 +21,7 @@ public class CloudElementSummaryService {
 		
 	@Autowired
 	private CloudElementSummaryRepository cloudElementSummaryRepository;
-	
-	@Autowired
-	private CloudEnvironmentService cloudEnvironmentService;
-	
+
 	public Optional<CloudElementSummary> findOne(Long id) {
 		logger.info("Get cloud element summary by id: {}", id);
 		return cloudElementSummaryRepository.findById(id);
@@ -52,7 +49,7 @@ public class CloudElementSummaryService {
 	}
 
 	public List<CloudElementSummary> search(CloudElementSummary cloudElementSummary) {
-		logger.info("Search cloud element");
+		logger.info("Search cloud element summary");
 		return cloudElementSummaryRepository.findAll(Example.of(cloudElementSummary), Sort.by(Direction.DESC, "id"));
 	}
 	
