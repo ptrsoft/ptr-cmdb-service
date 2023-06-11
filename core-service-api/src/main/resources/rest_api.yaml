@@ -40,6 +40,8 @@ tags:
     description: perform CRUD operations on cloud_element table
   - name: MicroService
     description: perform CRUD operations on micro_service table
+  - name: DeploymentEnvironment
+    description: perform CRUD operations on deployment_environment table
 
 paths:
   /organizations:
@@ -148,7 +150,7 @@ paths:
       summary: Search organizations data
       operationId: search
       parameters:
-        - name: organizationDto
+        - name: organizationDTO
           in: query
           required: false
           content:
@@ -274,7 +276,7 @@ paths:
       summary: Search departments data
       operationId: searchDepartment
       parameters:
-        - name: departmentDto
+        - name: departmentDTO
           in: query
           required: false
           content:
@@ -400,7 +402,7 @@ paths:
       summary: Search cloud-environments data
       operationId: searchCloudEnvironment
       parameters:
-        - name: cloudEnvironmentDto
+        - name: cloudEnvironmentDTO
           in: query
           required: false
           content:
@@ -526,7 +528,7 @@ paths:
       summary: Search cloud-element-summary data
       operationId: searchCloudElementSummary
       parameters:
-        - name: cloudElementSummaryDto
+        - name: cloudElementSummaryDTO
           in: query
           required: false
           content:
@@ -652,7 +654,7 @@ paths:
       summary: Search cloud-element data
       operationId: searchCloudElement
       parameters:
-        - name: cloudElementDto
+        - name: cloudElementDTO
           in: query
           required: false
           content:
@@ -798,7 +800,132 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-
+  /deployment-environments:
+    get:
+      tags:
+        - DeploymentEnvironment
+      summary: Fetch list of deployment-environments
+      operationId: getDeploymentEnvironmentList
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    post:
+      tags:
+        - DeploymentEnvironment
+      summary: Add deployment-environment
+      operationId: addDeploymentEnvironment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    patch:
+      tags:
+        - DeploymentEnvironment
+      summary: Update deployment-environment
+      operationId: updateDeploymentEnvironment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+        201:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /deployment-environments/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          format: int64
+        required: true
+    get:
+      tags:
+        - DeploymentEnvironment
+      summary: Fetch a deployment-environment of given id
+      operationId: getDeploymentEnvironment
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /deployment-environments/search:
+    get:
+      tags:
+        - DeploymentEnvironment
+      summary: Search deployment-environment data
+      operationId: searchDeploymentEnvironment
+      parameters:
+        - name: deploymentEnvironmentDTO
+          in: query
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeploymentEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -981,3 +1108,21 @@ components:
         deploymentEnvironmentId:
           type: integer
           format: int64
+    DeploymentEnvironmentDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        status:
+          type: string
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdOn:
+          type: string
+        updatedOn:
+          type: string
