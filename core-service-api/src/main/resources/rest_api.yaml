@@ -42,6 +42,8 @@ tags:
     description: perform CRUD operations on micro_service table
   - name: DeploymentEnvironment
     description: perform CRUD operations on deployment_environment table
+  - name: OrgWiseQuery
+    description: get organization wise data
 
 paths:
   /organizations:
@@ -926,6 +928,118 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organizations/{orgId}/cloud-environments/count:
+    get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization wise account's resource counts
+      operationId: getResourceCountsByOrg
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvironmentCountQueryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/cloud/{cloud}/cloud-environments/count:
+    get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization and cloud wise account's resource counts
+      operationId: getResourceCountsByOrgAndCloud
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: cloud
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentCountQueryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/cloud-environments/summary:
+    get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization wise account's resource summary
+      operationId: getResourceSummaryByOrg
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvironmentQueryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/cloud/{cloud}/cloud-environments/summary:
+    get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization and cloud wise account's resource summary
+      operationId: getResourceSummaryByOrgAndCloud
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: cloud
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvironmentQueryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -1126,3 +1240,48 @@ components:
           type: string
         updatedOn:
           type: string
+    EnvironmentCountQueryDTO:
+      type: object
+      properties:
+        environments:
+          type: integer
+          format: int64
+        assets:
+          type: integer
+          format: int64
+        alerts:
+          type: integer
+          format: int64
+        totalbilling:
+          type: integer
+          format: int64
+        cloud:
+          type: string
+    EnvironmentSummaryQueryDTO:
+      type: object
+      properties:
+        cloud:
+          type: string
+        landingZone:
+          type: string
+        productEnclave:
+          type: integer
+          format: int64
+        product:
+          type: integer
+          format: int64
+        appService:
+          type: integer
+          format: int64
+        dataService:
+          type: integer
+          format: int64
+    EnvironmentQueryDTO:
+      type: object
+      properties:
+        cloud:
+          type: string
+        environmentSummaryList:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvironmentSummaryQueryDTO'
