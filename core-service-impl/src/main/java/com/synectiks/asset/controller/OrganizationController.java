@@ -59,6 +59,13 @@ public class OrganizationController implements OrganizationsApi {
 	public ResponseEntity<OrganizationDTO> addOrganization(OrganizationDTO organizationDTO){
 		logger.debug("REST request to add Organization : {}", organizationDTO);
 		validator.validateNotNull(organizationDTO.getId(), ENTITY_NAME);
+
+		Organization org = OrganizationMapper.INSTANCE.dtoToEntityForSearch(organizationDTO);
+		List<Organization> organizationList = organizationService.search(org);
+		if(organizationList.size() > 0){
+			logger.warn("Organization already exists");
+			return ResponseEntity.ok(OrganizationMapper.INSTANCE.entityToDto(organizationList.get(0)));
+		}
 		Organization organization = OrganizationMapper.INSTANCE.dtoToEntity(organizationDTO);
 		organization = organizationService.save(organization);
 		OrganizationDTO result = OrganizationMapper.INSTANCE.entityToDto(organization);

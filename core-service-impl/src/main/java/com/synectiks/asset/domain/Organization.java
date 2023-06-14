@@ -41,5 +41,7 @@ public class Organization extends AbstractAuditingEntity implements Serializable
     @JsonIgnoreProperties(value = { "organization" }, allowSetters = true)
     private Set<Department> departments = new HashSet<>();
 
+    @Column(name = "security_service_org_id")
+    private Long securityServiceOrgId;
 
 }
