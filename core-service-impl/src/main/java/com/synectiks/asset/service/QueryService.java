@@ -1,5 +1,6 @@
 package com.synectiks.asset.service;
 
+import com.synectiks.asset.api.model.MicroServiceDTO;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
@@ -59,4 +60,25 @@ public class QueryService {
         }
         return environmentDtoList;
     }
+
+	public List<String> getOrganizationProducts(Long orgId) {
+		 logger.debug("Getting organization wise product list for an organization. Org Id: {}", orgId);
+	     return queryRepository.getProduct(orgId);
+	}
+
+	public List<String> getOrgWiseLandingZone(Long orgId) {
+		// TODO Auto-generated method stub
+		 logger.debug("Getting organization wise landing-zone list for an organization. Org Id: {}", orgId);
+	     return queryRepository.getOrgLandingZone(orgId);
+	}
+
+	public List<String> getOrgWiseProductEnclave(Long orgId) {
+		logger.debug("Getting organization wise product-enclave list for an organization. Org Id: {}", orgId);
+	     return queryRepository.getOrgWiseProductEnclave(orgId);
+	}
+
+	public List<MicroServiceDTO> getOrgWiseServices(Long orgId) {
+		logger.debug("Getting organization wise services list for an organization. Org Id: {}", orgId);
+	     return queryRepository.getOrgWiseServices(orgId);
+	}
 }

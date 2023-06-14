@@ -44,7 +44,30 @@ tags:
     description: perform CRUD operations on deployment_environment table
   - name: OrgWiseQuery
     description: get organization wise data
-
+  - name: OrgDepWiseQuery
+    description: get organization and department wise data
+  - name: OrgProductWiseQuery
+    description: get  organization and products wise data
+  - name: OrgEnvironmentWiseQuery
+    description: get  organization and environments wise data
+  - name: OrgProductEnvironmentWiseQuery
+    description: get organization and products and environments wise data
+  - name: OrgServiceWiseQuery
+    description: get organization and  service wise data
+  - name: OrgLandingZoneWiseQuery
+    description: get organization and landing-zone service wise 
+  - name: OrgServiceSlaWiseQuery
+    description: get organization and services-sla service wise data
+  - name: OrgDepProductWiseQuery
+    description: get organization and department and product wise data
+  - name: OrgDepProductEnvironmentWiseQuery
+    description: get organization and department and product and environment wise data
+  - name: OrgDepServiceWiseQuery
+    description: get organization and  department service wise data
+  - name: OrgDepLandingZoneWiseQuery
+    description: get organization and  department service wise data
+  - name: OrgDepServiceSlaWiseQuery
+    description: get organization and department and services-sla service wise data
 paths:
   /organizations:
     get:
@@ -1036,6 +1059,1182 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/EnvironmentQueryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/products:
+    get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization wise products
+      operationId: getOrgWiseProducts
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/landing-zone:
+     get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization wise landing-zone
+      operationId: getOrgWiseLandingZone
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/product-enclave:
+     get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization wise product-enclave
+      operationId: getOrgWiseProductEnclave
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services:
+     get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization wise services
+      operationId: getOrgWiseServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/products:
+     get:
+      tags:
+        - OrgDepWiseQuery
+      summary: Get organization and department wise products
+      operationId: getOrgDepProductWiseServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/landing-zone:
+     get:
+      tags:
+        - OrgDepWiseQuery
+      summary: Get organization and department wise landing-zone
+      operationId: getOrgDepLandingZoneWiseServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudEnvironmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/product-enclave:
+     get:
+      tags:
+        - OrgDepWiseQuery
+      summary: Get organization and department wise product-enclave
+      operationId: getOrgDepProductEncWiseServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services:
+     get:
+      tags:
+        - OrgDepWiseQuery
+      summary: Get organization and department wise services
+      operationId: getOrgDepServicesWiseServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/products/{product}/services:
+     get:
+      tags:
+        - OrgProductWiseQuery
+      summary: Get organization and product wise services
+      operationId: getOrgProductServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/environments/{env}/services:
+     get:
+      tags:
+        - OrgEnvironmentWiseQuery
+      summary: Get organization and environment wise services
+      operationId: getOrgEnvServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: env
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/products/{product}/environments/{env}/services:
+     get:
+      tags:
+        - OrgProductEnvironmentWiseQuery
+      summary: Get organization and products and environment wise services
+      operationId: getOrgProductEnvServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: env
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/service-type/{serviceType}/services:
+     get:
+      tags:
+        - OrgServiceWiseQuery
+      summary: Get organization and service wise services-type
+      operationId: getOrgServiceTypeServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceType
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{serviceName}/service-cost:
+     get:
+      tags:
+        - OrgServiceWiseQuery
+      summary: Get organization and service wise services-cost
+      operationId: getOrgServiceCostServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{serviceName}/service-cost/daily:
+     get:
+      tags:
+        - OrgServiceWiseQuery
+      summary: Get organization and service wise services-daily-cost
+      operationId: getOrgServiceDailyCostServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{serviceName}/service-cost/weekly:
+     get:
+      tags:
+        - OrgServiceWiseQuery
+      summary: Get organization and service wise services-weekly-cost
+      operationId: getOrgServiceWeeklyCostServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{serviceName}/service-cost/monthly:
+     get:
+      tags:
+        - OrgServiceWiseQuery
+      summary: Get organization and service wise services-monthly-cost
+      operationId: getOrgServiceMonthlyCostServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/landing-zone/{landingZone}/services:
+     get:
+      tags:
+        - OrgLandingZoneWiseQuery
+      summary: Get organization and landing-zone wise services
+      operationId: getOrgLandingZoneServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/landing-zone/{landingZone}/products:
+     get:
+      tags:
+        - OrgLandingZoneWiseQuery
+      summary: Get organization and landing-zone wise services product
+      operationId: getOrgLandingZoneMicroServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{name}/service-sla:
+     get:
+      tags:
+        - OrgServiceSlaWiseQuery
+      summary: Get organization and service-name wise services service-sla
+      operationId: getOrgServiceSlaServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{serviceName}/service/cureent-sla:
+     get:
+      tags:
+        - OrgServiceSlaWiseQuery
+      summary: Get organization and service-name wise services service-cureent-sla
+      operationId: getOrgServiceCureentSlaServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{serviceName}/service/weekly-sla:
+     get:
+      tags:
+        - OrgServiceSlaWiseQuery
+      summary: Get organization and service-name wise services service-weekly-sla
+      operationId: getOrgServiceWeeklySlaServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/services/{serviceName}/service/monthly-sla:
+     get:
+      tags:
+        - OrgServiceSlaWiseQuery
+      summary: Get organization and service-name wise services service-monthly-sla
+      operationId: getOrgServiceMonthlySlaServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/products/{product}/services:
+     get:
+      tags:
+        - OrgDepProductWiseQuery
+      summary: Get organization and department and product wise services 
+      operationId: getOrgDepProductServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/environments/{env}/services:
+     get:
+      tags:
+        - OrgDepProductEnvironmentWiseQuery
+      summary: Get organization and department  and environment wise services 
+      operationId: getOrgDepEnvironmentServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: env
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/products/{product}/environments/{env}/services:
+     get:
+      tags:
+        - OrgDepProductEnvironmentWiseQuery
+      summary: Get organization and department and product and environment wise services 
+      operationId: getOrgDepProductEnvironmentServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: env
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/service-type/{serviceType}/services:
+     get:
+      tags:
+        - OrgDepServiceWiseQuery
+      summary: Get organization and department wise services 
+      operationId: getOrgDepServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceType
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost:
+     get:
+      tags:
+        - OrgDepServiceWiseQuery
+      summary: Get organization and department wise services-cost 
+      operationId: getOrgDepServicesCost
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost/daily:
+     get:
+      tags:
+        - OrgDepServiceWiseQuery
+      summary: Get organization and department wise services-daily-cost 
+      operationId: getOrgDepServicesDailyCost
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost/weekly:
+     get:
+      tags:
+        - OrgDepServiceWiseQuery
+      summary: Get organization and department wise services-weekly-cost 
+      operationId: getOrgDepServicesWeeklyCost
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost/monthly:
+     get:
+      tags:
+        - OrgDepServiceWiseQuery
+      summary: Get organization and department wise services-monthly-cost 
+      operationId: getOrgDepServicesMonthlyCost
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/landing-zone/{landingZone}/services:
+     get:
+      tags:
+        - OrgDepLandingZoneWiseQuery
+      summary: Get organization and department and landingZone wise services
+      operationId: getOrgDepLandingZoneService
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/landing-zone/{landingZone}/products:
+     get:
+      tags:
+        - OrgDepLandingZoneWiseQuery
+      summary: Get organization and department and products wise services
+      operationId: getOrgDepProductsService
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{name}/service-sla:
+     get:
+      tags:
+        - OrgDepServiceSlaWiseQuery
+      summary: Get organization and department wise services-sla
+      operationId: getOrgDepServiceSla
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service/cureent-sla:
+     get:
+      tags:
+        - OrgDepServiceSlaWiseQuery
+      summary: Get organization and department wise services-cureent-sla
+      operationId: getOrgDepServiceCureentSla
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service/weekly-sla:
+     get:
+      tags:
+        - OrgDepServiceSlaWiseQuery
+      summary: Get organization and department wise services-weekly-sla
+      operationId: getOrgDepServiceWeeklySla
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service/monthly-sla:
+     get:
+      tags:
+        - OrgDepServiceSlaWiseQuery
+      summary: Get organization and department wise services-monthly-sla
+      operationId: getOrgDepServiceMonthlySla
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: depId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: serviceName
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MicroServiceDTO'
         404:
           description: "Service Not found"
         500:

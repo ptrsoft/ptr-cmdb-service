@@ -1,14 +1,16 @@
 package com.synectiks.asset.repository;
 
-import com.synectiks.asset.domain.Organization;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.synectiks.asset.api.model.MicroServiceDTO;
+import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
 
 /**
  * Spring Data SQL repository for the query database.
@@ -95,5 +97,43 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
             "group by cnv.cloud, ceo.landing_zone, ceo.product_enclave";
     @Query(value = ORG_AND_CLOUD_WISE_ENV_SUMMARY_QUERY, nativeQuery = true)
     public List<EnvironmentSummaryQueryObj> getEnvironmentSummary(@Param("orgId") Long orgId, @Param("cloud") String cloud);
+	
+    
+    String PRODUCT_QUERY = "select distinct replace (cast(jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') -> 'associatedProduct' as text), '\"', '') as products from cloud_element ce, cloud_environment cnv, department dep, organization org where org.id =:orgId and org.id = dep.organization_id and dep.id = cnv.department_id and cnv.id = ce.cloud_environment_id and replace(cast(ce.hardware_location -> 'landingZone' as text),'\"','') = cnv.account_id\r\n";
+
+	@Query(value = PRODUCT_QUERY, nativeQuery = true)
+	public List<String> getProduct(@Param("orgId") Long orgId);
+
+	
+	String LANDING_ZONE_QUERY = "select cnv .account_id  \r\n"
+			+ "from cloud_environment cnv, department dep, organization org\r\n"
+			+ "where org.id = dep.organization_id\r\n"
+			+ "and dep.id = cnv.department_id\r\n"
+			+ "and org.id =:orgId \r\n"
+			+ "";
+
+	@Query(value = LANDING_ZONE_QUERY, nativeQuery = true)
+	public List<String> getOrgLandingZone(@Param("orgId") Long orgId);
+
+	
+	String PRODUCT_ENC_QUERY = "select  replace(cast(ce.hardware_location -> 'productEnlave' as text), '\"', '') as products_enclave\r\n"
+			+ "from cloud_element ce,cloud_environment cnv, department dep, organization org\r\n"
+			+ "where org.id = dep.organization_id\r\n"
+			+ "and dep.id = cnv.department_id\r\n"
+			+ "and cnv.id = ce.cloud_environment_id\r\n"
+			+ "and org.id =:orgId ";
+
+	@Query(value = PRODUCT_ENC_QUERY, nativeQuery = true)
+	public List<String>getOrgWiseProductEnclave(@Param("orgId") Long orgId);
+
+
+		String ORG_MICRO_SERVICES_QUERY ="select distinct ms.* as service  \r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId";
+		@Query(value = ORG_MICRO_SERVICES_QUERY, nativeQuery = true)
+		public List<MicroServiceDTO> getOrgWiseServices(@Param("orgId")Long orgId);
+
 
 }

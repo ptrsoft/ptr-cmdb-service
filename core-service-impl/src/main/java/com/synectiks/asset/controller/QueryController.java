@@ -1,13 +1,7 @@
 package com.synectiks.asset.controller;
 
-import com.synectiks.asset.api.controller.QueryApi;
-import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
-import com.synectiks.asset.api.model.EnvironmentQueryDTO;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
-import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
-import com.synectiks.asset.service.QueryService;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.synectiks.asset.api.controller.QueryApi;
+import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
+import com.synectiks.asset.api.model.EnvironmentQueryDTO;
+import com.synectiks.asset.api.model.MicroServiceDTO;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
+import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
+import com.synectiks.asset.service.QueryService;
 
 @RestController
 @RequestMapping("/api")
@@ -57,4 +59,35 @@ public class QueryController implements QueryApi {
 		List<EnvironmentQueryDTO> environmentQueryDTOList = EnvironmentQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
 		return ResponseEntity.ok(environmentQueryDTOList);
 	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgWiseProducts(Long orgId) {
+		logger.debug("REST request to Get organization wise products for an organization: Org Id: {}", orgId);
+		List<String> organizationProductsQueryObjList = queryService.getOrganizationProducts(orgId);
+//		List<EnvironmentCountQueryDTO> environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDtoList(environmentCountQueryObjList);
+		return ResponseEntity.ok(organizationProductsQueryObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgWiseLandingZone(Long orgId) {
+		logger.debug("REST request to Get organization wise landing-zone for an organization: Org Id: {}", orgId);
+		List<String> organizationLandingZoneQueryObjList = queryService.getOrgWiseLandingZone(orgId);
+		return ResponseEntity.ok(organizationLandingZoneQueryObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgWiseProductEnclave(Long orgId) {
+		logger.debug("REST request to Get organization wise product enclaves for an organization: Org Id: {}", orgId);
+		List<String> organizationProductEnclaveQueryObjList = queryService.getOrgWiseProductEnclave(orgId);
+		return ResponseEntity.ok(organizationProductEnclaveQueryObjList);
+	}
+	
+//	@Override
+//	public ResponseEntity<List<MicroServiceDTO>> getOrgWiseServices(Long orgId) {
+//		logger.debug("REST request to Get organization wise services for an organization: Org Id: {}", orgId);
+//		List<MicroServiceDTO> organizationServicesQueryObjList = queryService.getOrgWiseServices(orgId);
+//		List<EnvironmentCountQueryDTO> environmentCountQueryDTOList = ServicesQueryMapper.INSTANCE.toDtoList(organizationServicesQueryObjList);
+//		return ResponseEntity.ok(organizationServicesQueryObjList);
+//	}
+
 }
