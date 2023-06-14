@@ -2247,6 +2247,9 @@ components:
         id:
           type: integer
           format: int64
+        securityServiceOrgId:
+          type: integer
+          format: int64
         name:
           type: string
         createdBy:
