@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.synectiks.asset.api.model.MicroServiceDTO;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
@@ -127,13 +127,198 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	public List<String>getOrgWiseProductEnclave(@Param("orgId") Long orgId);
 
 
-		String ORG_MICRO_SERVICES_QUERY ="select distinct ms.* as service  \r\n"
+	String ORG_MICRO_SERVICES_QUERY ="select distinct ms.* as service  \r\n"
+			+ "from micro_service ms , department dep, organization org\r\n"
+			+ "where org.id = dep.organization_id\r\n"
+			+ "and ms.department_id = dep.id\r\n"
+			+ "and org.id = :orgId\r\n";
+		@Query(value = ORG_MICRO_SERVICES_QUERY, nativeQuery = true)
+		public List<Object> getOrgWiseServices(@Param("orgId")Long orgId);
+		
+		String ORG_DEPPRODUCT_QUERY = "select distinct replace (cast(jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') -> 'associatedProduct' as text), '\"', '') as products from cloud_element ce, cloud_environment cnv, department dep, organization org where org.id =:orgId and dep.id =:depId and org.id = dep.organization_id and dep.id = cnv.department_id and cnv.id = ce.cloud_environment_id and replace(cast(ce.hardware_location -> 'landingZone' as text),'\"','') = cnv.account_id ";
+		@Query(value = ORG_DEPPRODUCT_QUERY, nativeQuery = true)
+		List<String> getOrgDepProductWiseServices(@Param("orgId")Long orgId, @Param("depId") Long depId);
+		
+		String DEPARTMENY_LANDING_ZONE_QUERY = "select cnv.account_id  \r\n"
+				+ "from cloud_environment cnv, department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and dep.id = cnv.department_id\r\n"
+				+ "and org.id =:orgId  and dep.id =:depId";
+
+		@Query(value = DEPARTMENY_LANDING_ZONE_QUERY, nativeQuery = true)
+		public List<String> getDepartmentLandingZones(@Param("orgId") Long orgId,@Param("depId") Long depId);
+
+		String DEPARTMENT_PRODUCT_ENC_QUERY = "select  replace(cast(ce.hardware_location -> 'productEnlave' as text), '\"', '') as products_enclave\r\n"
+				+ "from cloud_element ce,cloud_environment cnv, department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and dep.id = cnv.department_id\r\n"
+				+ "and cnv.id = ce.cloud_environment_id\r\n"
+				+ "and org.id =:orgId \r\n"
+				+ "and dep .id =:depId";
+
+		@Query(value = DEPARTMENT_PRODUCT_ENC_QUERY, nativeQuery = true)
+		public List<String> getOrganizationDepartmentsProductEnclave(@Param("orgId") Long orgId,@Param("depId") Long depId);
+
+		String ORG_DEPARTMENT_MICRO_SERVICES_QUERY ="select distinct ms.* as service  \r\n"
 				+ "from micro_service ms , department dep, organization org\r\n"
 				+ "where org.id = dep.organization_id\r\n"
 				+ "and ms.department_id = dep.id\r\n"
-				+ "and org.id = :orgId";
-		@Query(value = ORG_MICRO_SERVICES_QUERY, nativeQuery = true)
-		public List<MicroServiceDTO> getOrgWiseServices(@Param("orgId")Long orgId);
-
+				+ "and org.id = :orgId\r\n"
+				+ "and dep .id =:depId";
+		@Query(value = ORG_DEPARTMENT_MICRO_SERVICES_QUERY, nativeQuery = true)
+		public List<Object> getOrganizationDepartmentsMicroServices(@Param("orgId")Long orgId, @Param("depId")Long depId);
+	
+		String ORG_PRODUCT_MICRO_SERVICES_QUERY ="select distinct ms.product  as service  \r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms.product =:product ";
+		@Query(value = ORG_PRODUCT_MICRO_SERVICES_QUERY, nativeQuery = true)
+		public List<String> getOrgProductServices(@Param("orgId")Long orgId, @Param("product")String product);
+		
+		String ORG_SERVICETYPE_MICRO_SERVICES_QUERY ="select distinct ms.product  as service  \r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms.service_type  =:serviceType";
+		@Query(value = ORG_SERVICETYPE_MICRO_SERVICES_QUERY, nativeQuery = true)
+		public List<String> getOrganizationServiceTypeMicroServices(@Param("orgId")Long orgId, @Param("serviceType")String serviceType);
+		
+		
+		String ORG_SERVICES_NAME_COST_SERVICES_QUERY ="select distinct ms.cost_json "
+				+ "from micro_service ms , department dep, organization org "
+				+ "where org.id = dep.organization_id "
+				+ "and ms.department_id = dep.id "
+				+ "and org.id = :orgId "
+				+ "and ms.name = :serviceName";
+		@Query(value = ORG_SERVICES_NAME_COST_SERVICES_QUERY, nativeQuery = true)
+		public List<Object> getOrganizationServiceNameMicroServices(@Param("orgId")Long orgId,@Param("serviceName") String serviceName);
+		
+		String ORG_SERVICES_NAME_COST_SERVICES_DAILY_QUERY ="select distinct ms.cost_json->'DAILYCOST' as  daily_cost "
+				+ "from micro_service ms , department dep, organization org "
+				+ "where org.id = dep.organization_id "
+				+ "and ms.department_id = dep.id "
+				+ "and org.id = :orgId "
+				+ "and ms.name = :serviceName";
+		@Query(value = ORG_SERVICES_NAME_COST_SERVICES_DAILY_QUERY, nativeQuery = true)
+		public List<Object> getOrgServiceDailyCostServices(@Param("orgId")Long orgId,@Param("serviceName") String serviceName);
+		
+		String ORG_SERVICES_NAME_COST_SERVICES_WEEKLY_QUERY ="select distinct ms.cost_json->'WEEKLYCOST' as  weekly_cost\r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms .\"name\" =:serviceName";
+		@Query(value = ORG_SERVICES_NAME_COST_SERVICES_WEEKLY_QUERY, nativeQuery = true)
+		public List<Object> getOrganizationServiceNameWeeklyMicroServices(@Param("orgId")Long orgId,@Param("serviceName") String serviceName);
+		
+		String ORG_SERVICES_NAME_COST_SERVICES_MONTHLY_QUERY ="select distinct ms.cost_json->'MONTHLYCOST' as  monthly_cost\r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms .\"name\" =:serviceName";
+		@Query(value = ORG_SERVICES_NAME_COST_SERVICES_MONTHLY_QUERY, nativeQuery = true)
+		public List<Object> getOrgServiceMonthlyCostServices(@Param("orgId")Long orgId,@Param("serviceName") String serviceName);
+		
+		String ORG_LANDINGZONE_SERVICES_NAME_SERVICES_QUERY ="select distinct  ms.name \r\n"
+				+ "from  micro_service ms ,cloud_element ce,cloud_environment cnv, department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and dep.id = cnv.department_id\r\n"
+				+ "and cnv.id = ce.cloud_environment_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and ms.department_id = cnv.department_id \r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and cnv.account_id =:landingZone";
+		@Query(value = ORG_LANDINGZONE_SERVICES_NAME_SERVICES_QUERY, nativeQuery = true)
+		public List<String> getOrgLandingZoneServices(@Param("orgId")Long orgId, @Param("landingZone")String landingZone);
+		
+		String ORG_LANDINGZONE_PRODUCT_NAME_SERVICES_QUERY ="select distinct  ms.product \r\n"
+				+ "from  micro_service ms ,cloud_element ce,cloud_environment cnv, department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and dep.id = cnv.department_id\r\n"
+				+ "and cnv.id = ce.cloud_environment_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and ms.department_id = cnv.department_id \r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and cnv.account_id =:landingZone";
+		@Query(value = ORG_LANDINGZONE_PRODUCT_NAME_SERVICES_QUERY, nativeQuery = true)
+		public List<String> getOrgLandingZoneMicroServices(@Param("orgId")Long orgId, @Param("landingZone")String landingZone);
+	
+		String ORG_SERVICETYPE_MICRO_SERVICES_SLA_QUERY ="select distinct ms.sla_json  \r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms .name =:serviceName";
+		@Query(value = ORG_SERVICETYPE_MICRO_SERVICES_SLA_QUERY, nativeQuery = true)
+		public List<Object> getOrgServiceSlaServices(@Param("orgId")Long orgId, @Param("serviceName")String serviceName);
+		
+		String ORG_SERVICETYPE_MICRO_SERVICES_CURRENT_SLA_QUERY ="select distinct ms.sla_json ->'CURRENTSLA' as  current_sla\r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms .name =:serviceName\r\n";
+		@Query(value = ORG_SERVICETYPE_MICRO_SERVICES_CURRENT_SLA_QUERY, nativeQuery = true)
+		public List<Object> getOrganizationServiceCurrentSlaMicroServices(@Param("orgId")Long orgId, @Param("serviceName")String serviceName);
+		
+		String ORG_SERVICETYPE_MICRO_SERVICES_WEEKLY_SLA_QUERY ="select distinct ms.sla_json->'WEEKLYSLA' as  weekly_sla\r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms .\"name\" =:serviceName";
+		@Query(value = ORG_SERVICETYPE_MICRO_SERVICES_WEEKLY_SLA_QUERY, nativeQuery = true)
+		public List<Object> getOrgServiceWeeklySlaServices(@Param("orgId")Long orgId, @Param("serviceName")String serviceName);
+		
+		String ORG_SERVICETYPE_MICRO_SERVICES_MONTHLY_SLA_QUERY ="select distinct ms.sla_json->'MONTHLYSLA' as  monthly_sla\r\n"
+				+ "from micro_service ms , department dep, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms .\"name\" =:serviceName";
+		@Query(value = ORG_SERVICETYPE_MICRO_SERVICES_MONTHLY_SLA_QUERY, nativeQuery = true)
+		public List<Object> getOrgServiceMonthlySlaServices(@Param("orgId")Long orgId, @Param("serviceName")String serviceName);
+		
+		String ORG_ENV_MICRO_SERVICES_QUERY ="select distinct ms.environment  as service  \r\n"
+				+ "from micro_service ms , department dep, deployment_environment denv , organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and denv.id = ms.deployment_environment_id \r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and  denv.id =:env";
+		@Query(value = ORG_ENV_MICRO_SERVICES_QUERY, nativeQuery = true)
+		public List<String> getOrganizationEnvMicroServices(@Param("orgId")Long orgId, @Param("env") Long env);
+		
+		
+		String ORG_PRODUCT_ENV_MICRO_SERVICES_QUERY ="select distinct ms.*  as service   \r\n"
+				+ "from micro_service ms , department dep,deployment_environment denv, organization org\r\n"
+				+ "where org.id = dep.organization_id\r\n"
+				+ "and ms.department_id = dep.id\r\n"
+				+ "and denv.id = ms.deployment_environment_id \r\n"
+				+ "and org.id = :orgId\r\n"
+				+ "and ms.product =:product\r\n"
+				+ "and  denv.id =:env";
+		@Query(value = ORG_PRODUCT_ENV_MICRO_SERVICES_QUERY, nativeQuery = true)
+		public List<Object> getOrgProductEnvServices(@Param("orgId")Long orgId, @Param("product")String product,@Param("env") Long env);
+		
+	
+		
+	
+		
+		
+	
+		
+	
+		
+		
+	
+		
+	
+		
+		
 
 }

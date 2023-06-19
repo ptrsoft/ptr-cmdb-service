@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.synectiks.asset.api.controller.QueryApi;
 import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
-import com.synectiks.asset.api.model.MicroServiceDTO;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentQueryObj;
 import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
@@ -82,12 +81,138 @@ public class QueryController implements QueryApi {
 		return ResponseEntity.ok(organizationProductEnclaveQueryObjList);
 	}
 	
-//	@Override
-//	public ResponseEntity<List<MicroServiceDTO>> getOrgWiseServices(Long orgId) {
-//		logger.debug("REST request to Get organization wise services for an organization: Org Id: {}", orgId);
-//		List<MicroServiceDTO> organizationServicesQueryObjList = queryService.getOrgWiseServices(orgId);
+	@Override
+	public ResponseEntity<List<Object>> getOrgWiseServices(Long orgId) {
+		logger.debug("REST request to Get organization wise services for an organization: Org Id: {}", orgId);
+		List<Object> organizationServicesQueryObjList = queryService.getOrgWiseServices(orgId);
 //		List<EnvironmentCountQueryDTO> environmentCountQueryDTOList = ServicesQueryMapper.INSTANCE.toDtoList(organizationServicesQueryObjList);
-//		return ResponseEntity.ok(organizationServicesQueryObjList);
-//	}
+		return ResponseEntity.ok(organizationServicesQueryObjList);
+	}
 
+	@Override
+	public ResponseEntity<List<String>> getOrgDepProductWiseServices(Long orgId,Long depId) {
+		logger.debug("REST request to Get organization and department wise product  for an organization: Org Id: {}", orgId);
+		List<String> orgaDepObjList = queryService.getOrgDepProductWiseServices(orgId,depId);
+		return ResponseEntity.ok(orgaDepObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgDepLandingZoneWiseServices(Long orgId,Long depId) {
+		logger.debug("REST request to Get organization and department wise landing zone for an organization: Org Id: {}", orgId);
+		List<String> orgaDepObjList = queryService.getOrgDepLandingZoneWiseServices(orgId,depId);
+		return ResponseEntity.ok(orgaDepObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgDepProductEncWiseServices(Long orgId,Long depId) {
+		logger.debug("REST request to Get organization and department wise product- enclaves for an organization: Org Id: {}", orgId);
+		List<String> orgaDepObjList = queryService.getOrgDepProductEncWiseServices(orgId,depId);
+		return ResponseEntity.ok(orgaDepObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServicesWiseServices(Long orgId,Long depId) {
+		logger.debug("REST request to Get organization and department wise services for an organization: Org Id: {}", orgId);
+		List<Object> orgaDepObjList = queryService.getOrgDepServicesWiseServices(orgId,depId);
+		return ResponseEntity.ok(orgaDepObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgProductServices(Long orgId,String product) {
+		logger.debug("REST request to Get organization and product wise services for an organization: Org Id: {}", orgId);
+		List<String> microServiceList = queryService.getOrgProductServices(orgId,product);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgEnvServices(Long orgId,Long env) {
+		logger.debug("REST request to Get organization and env wise services for an organization: Org Id: {}", orgId,env);
+		List<String> microServiceList = queryService.getOrgEnvServices(orgId,env);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgProductEnvServices(Long orgId, String product,Long env) {
+		logger.debug("REST request to Get organization and product and env wise services for an organization: Org Id: {}", orgId,product,env);
+		List<Object> microServiceList = queryService.getOrgProductEnvServices(orgId,product,env);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgServiceTypeServices(Long orgId,String serviceType) {
+		logger.debug("REST request to Get organization and service name wise services for an organization: Org Id: {}", orgId,serviceType);
+		List<String> microServiceList = queryService.getOrgServiceTypeServices(orgId,serviceType);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceCostServices(Long orgId,String serviceName) {
+		logger.debug("REST request to Get organization and serviceName wise services-cost for an organization: Org Id: {}", orgId,serviceName);
+		List<Object> microServiceList = queryService.getOrgServiceCostServices(orgId,serviceName);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceDailyCostServices(Long orgId,String serviceName) {
+		logger.debug("REST request to Get organization and serviceName wise services-daily-cost for an organization: Org Id: {}", orgId,serviceName);
+		List<Object> microServiceList = queryService.getOrgServiceDailyCostServices(orgId,serviceName);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceWeeklyCostServices(Long orgId,String serviceName) {
+		logger.debug("REST request to Get organization and serviceName wise services-wekekly-cost for an organization: Org Id: {}", orgId,serviceName);
+		List<Object> microServiceList = queryService.getOrgServiceWeeklyCostServices(orgId,serviceName);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceMonthlyCostServices(Long orgId,String serviceName) {
+		logger.debug("REST request to Get organization and serviceName wise services-monthly-cost for an organization: Org Id: {}", orgId,serviceName);
+		List<Object> microServiceList = queryService.getOrgServiceMonthlyCostServices(orgId,serviceName);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgLandingZoneServices(Long orgId,String landingZone) {
+		logger.debug("REST request to Get organization and landingZone wise  serivces for an organization: Org Id: {}", orgId,landingZone);
+		List<String> microServiceList = queryService.getOrgLandingZoneServices(orgId,landingZone);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgLandingZoneMicroServices(Long orgId,String landingZone) {
+		logger.debug("REST request to Get organization and landingZone wise  produicts for an organization: Org Id: {}", orgId,landingZone);
+		List<String> microServiceList = queryService.getOrgLandingZoneMicroServices(orgId,landingZone);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceSlaServices(Long orgId,String name) {
+		logger.debug("REST request to Get organization and service name wise  service-sla for an organization: Org Id: {}", orgId,name);
+		List<Object> microServiceList = queryService.getOrgServiceSlaServices(orgId,name);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceCureentSlaServices(Long orgId,String serviceName) {
+		logger.debug("REST request to Get organization and service name wise  service-cureent-sla for an organization: Org Id: {}", orgId,serviceName);
+		List<Object> microServiceList = queryService.getOrgServiceCureentSlaServices(orgId,serviceName);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceWeeklySlaServices(Long orgId,String serviceName) {
+		logger.debug("REST request to Get organization and service name wise  service-weekly-sla for an organization: Org Id: {}", orgId,serviceName);
+		List<Object> microServiceList = queryService.getOrgServiceWeeklySlaServices(orgId,serviceName);
+       return ResponseEntity.ok(microServiceList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgServiceMonthlySlaServices(Long orgId,String serviceName) {
+		logger.debug("REST request to Get organization and service name wise  service-monthly-sla for an organization: Org Id: {}", orgId,serviceName);
+		List<Object> microServiceList = queryService.getOrgServiceMonthlySlaServices(orgId,serviceName);
+       return ResponseEntity.ok(microServiceList);
+	}
 }

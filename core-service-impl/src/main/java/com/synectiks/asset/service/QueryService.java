@@ -1,20 +1,20 @@
 package com.synectiks.asset.service;
 
-import com.synectiks.asset.api.model.MicroServiceDTO;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
-import com.synectiks.asset.repository.QueryRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
+import com.synectiks.asset.repository.QueryRepository;
 
 @Service
 public class QueryService {
@@ -77,8 +77,106 @@ public class QueryService {
 	     return queryRepository.getOrgWiseProductEnclave(orgId);
 	}
 
-	public List<MicroServiceDTO> getOrgWiseServices(Long orgId) {
+	public List<Object> getOrgWiseServices(Long orgId) {
 		logger.debug("Getting organization wise services list for an organization. Org Id: {}", orgId);
 	     return queryRepository.getOrgWiseServices(orgId);
 	}
+
+	public List<String> getOrgDepProductWiseServices(Long orgId, Long depId) {
+		logger.debug("Getting organization and deparment wise services list for an organization. Org Id: {}", orgId,depId);
+	     return queryRepository.getOrgDepProductWiseServices(orgId,depId);
+	}
+
+	public List<String> getOrgDepLandingZoneWiseServices(Long orgId, Long depId) {
+		logger.debug("Request to get list of landing zone of an Department an Organization");
+    	return queryRepository.getDepartmentLandingZones(orgId,depId);
+	}
+
+	public List<String> getOrgDepProductEncWiseServices(Long orgId, Long depId) {
+		logger.debug("Request to get list of product enclaves of an Department an Organization");
+    	return queryRepository.getOrganizationDepartmentsProductEnclave(orgId,depId);
+	}
+
+	public List<Object> getOrgDepServicesWiseServices(Long orgId, Long depId) {
+		logger.debug("Request to get list of services of an department an Organization");
+		return queryRepository.getOrganizationDepartmentsMicroServices(orgId, depId);
+	}
+
+	
+	public List<String> getOrgProductServices(Long orgId, String product) {
+
+		logger.debug("Request to get list of services  of an Organization an Products");
+			return queryRepository.getOrgProductServices(orgId, product);
+		}
+
+	public List<String> getOrgServiceTypeServices(Long orgId, String serviceType) {
+		logger.debug("Request to get list of services  of an Organization an serviceType");
+			return queryRepository.getOrganizationServiceTypeMicroServices(orgId,serviceType);
+	}
+
+	public List<Object> getOrgServiceCostServices(Long orgId, String serviceName) {
+		logger.debug("Request to get list of services-cost of an serviceName  an Organization");
+		return queryRepository.getOrganizationServiceNameMicroServices(orgId,serviceName);
+	}
+
+	public List<Object> getOrgServiceDailyCostServices(Long orgId, String serviceName) {
+		logger.debug("Request to get list of services-cost-daily of an serviceName  an Organization");
+		return queryRepository.getOrgServiceDailyCostServices(orgId,serviceName);
+	}
+
+	public List<Object> getOrgServiceWeeklyCostServices(Long orgId, String serviceName) {
+		logger.debug("Request to get list of services-cost-weekly of an serviceName  an Organization");
+		return queryRepository.getOrganizationServiceNameWeeklyMicroServices(orgId,serviceName);
+	}
+
+	public List<Object> getOrgServiceMonthlyCostServices(Long orgId, String serviceName) {
+		logger.debug("Request to get list of services-cost-monthly of an serviceName  an Organization");
+		return queryRepository.getOrgServiceMonthlyCostServices(orgId,serviceName);
+	}
+
+	public List<String> getOrgLandingZoneServices(Long orgId, String landingZone) {
+		logger.debug("Request to get list of services of  an landingZone  an Organization");
+		return queryRepository.getOrgLandingZoneServices(orgId,landingZone);
+	}
+
+	public List<String> getOrgLandingZoneMicroServices(Long orgId, String landingZone) {
+		logger.debug("Request to get list of services of  an landingZone  an Organization");
+		return queryRepository.getOrgLandingZoneMicroServices(orgId,landingZone);
+	}
+
+	public List<Object> getOrgServiceSlaServices(Long orgId, String name) {
+		logger.debug("Request to get list of services-sla of an serviceName  an Organization");
+		return queryRepository.getOrgServiceSlaServices(orgId,name);
+	}
+
+	public List<Object> getOrgServiceCureentSlaServices(Long orgId, String serviceName) {
+		logger.debug("Request to get list of services-cureent-sla of an serviceName  an Organization");
+		return queryRepository.getOrganizationServiceCurrentSlaMicroServices(orgId,serviceName);
+	}
+
+	public List<Object> getOrgServiceWeeklySlaServices(Long orgId, String serviceName) {
+		logger.debug("Request to get list of services-weekly-sla of an serviceName  an Organization");
+		return queryRepository.getOrgServiceWeeklySlaServices(orgId,serviceName);
+	}
+
+	public List<Object> getOrgServiceMonthlySlaServices(Long orgId, String serviceName) {
+		logger.debug("Request to get list of services-monthly-sla of an serviceName  an Organization");
+		return queryRepository.getOrgServiceMonthlySlaServices(orgId,serviceName);
+	}
+
+	public List<String> getOrgEnvServices(Long orgId, Long env) {
+		logger.debug("Request to get list of services  of an Organization an Env");
+		return queryRepository.getOrganizationEnvMicroServices(orgId, env);
+	}
+
+	public List<Object> getOrgProductEnvServices(Long orgId, String product, Long env) {
+		logger.debug("Request to get list of services  of an Organization an product an Env");
+			return queryRepository.getOrgProductEnvServices(orgId,product ,env);
+	}
+
+	
+
+
 }
+
+
