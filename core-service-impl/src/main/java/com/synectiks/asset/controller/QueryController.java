@@ -215,4 +215,95 @@ public class QueryController implements QueryApi {
 		List<Object> microServiceList = queryService.getOrgServiceMonthlySlaServices(orgId,serviceName);
        return ResponseEntity.ok(microServiceList);
 	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgDepProductServices(Long orgId,Long depId,String product) {
+		logger.debug("REST request to Get organization and department and product wise services   for an organization: Org Id: {}", orgId);
+		List<String> orgaDepObjList = queryService.getOrgDepProductServices(orgId,depId,product);
+		return ResponseEntity.ok(orgaDepObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgDepEnvironmentServices(Long orgId,Long depId,Long env) {
+		logger.debug("REST request to Get organization and department and env wise services   for an organization: Org Id: {}", orgId,depId,env);
+		List<String> orgaDepEnvObj = queryService.getOrgDepEnvironmentServices(orgId,depId,env);
+		return ResponseEntity.ok(orgaDepEnvObj);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgDepServices(Long orgId,Long depId,String serviceType) {
+		logger.debug("REST request to Get organization and department and service name and  wise services for an organization: Org Id: {}", orgId,depId,serviceType);
+		List<String> orgaDepServiceObjList = queryService.getOrgDepServices(orgId,depId,serviceType);
+		return ResponseEntity.ok(orgaDepServiceObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServicesCost(Long orgId,Long depId,String serviceName) {
+		logger.debug("REST request to Get organization and department and service name and  wise services-cost for an organization: Org Id: {}", orgId,depId,serviceName);
+		List<Object> orgaDepServiceCostObjList = queryService.getOrgDepServicesCost(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepServiceCostObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServicesDailyCost(Long orgId,Long depId,String serviceName) {
+		logger.debug("REST request to Get organization and department and service name and  wise services-daliy-cost for an organization: Org Id: {}", orgId,depId,serviceName);
+		List<Object> orgaDepDaliyCostObjList = queryService.getOrgDepServicesDailyCost(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepDaliyCostObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServicesWeeklyCost(Long orgId,Long depId,String serviceName) {
+		logger.debug("REST request to Get organization and department and service name and  wise services-weekly-cost for an organization: Org Id: {}", orgId,depId,serviceName);
+		List<Object> orgaDepWeeklyObjList = queryService.getOrgDepServicesWeeklyCost(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepWeeklyObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServicesMonthlyCost(Long orgId,Long depId,String serviceName) {
+		logger.debug("REST request to Get organization and department and service name and  wise services-monthly-cost for an organization: Org Id: {}", orgId,depId,serviceName);
+		List<Object> orgaDepMonthlyObjList = queryService.getOrgDepServicesMonthlyCost(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepMonthlyObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgDepLandingZoneService(Long orgId,Long depId,String landingZone) {
+		logger.debug("REST request to Get organization and department and service name and landingZone wise services for an organization: Org Id: {}", orgId,depId,landingZone);
+		List<String> orgaDepLandingZoneObjList = queryService.getOrgDepLandingZoneService(orgId,depId,landingZone);
+		return ResponseEntity.ok(orgaDepLandingZoneObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> getOrgDepProductsService(Long orgId,Long depId,String landingZone) {
+		logger.debug("REST request to Get organization and department and service name and landingZone wise services for an organization: Org Id: {}", orgId,depId,landingZone);
+		List<String> orgaDepLandingZoneObjList = queryService.getOrgDepProductsService(orgId,depId,landingZone);
+		return ResponseEntity.ok(orgaDepLandingZoneObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServiceSla(Long orgId,Long depId,String name) {
+		logger.debug("REST request to Get organization and department and service name  wise services-sla for an organization: Org Id: {}", orgId,depId,name);
+		List<Object> orgaDepSlaObjList = queryService.getOrgDepServiceSla(orgId,depId,name);
+		return ResponseEntity.ok(orgaDepSlaObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServiceCureentSla(Long orgId,Long depId,String serviceName) {
+		logger.debug("REST request to Get organization and department and service name  wise services-cureent-sla for an organization: Org Id: {}", orgId,depId,serviceName);
+		List<Object> orgaDepSlaObjList = queryService.getOrgDepServiceCureentSla(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepSlaObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServiceWeeklySla(Long orgId,Long depId,String serviceName) {
+		logger.debug("REST request to Get organization and department and service name  wise services-weekly-sla for an organization: Org Id: {}", orgId,depId,serviceName);
+		List<Object> orgaDepSlaObjList = queryService.getOrgDepServiceWeeklySla(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepSlaObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<Object>> getOrgDepServiceMonthlySla(Long orgId,Long depId,String serviceName) {
+		logger.debug("REST request to Get organization and department and service name  wise services-monthly-sla for an organization: Org Id: {}", orgId,depId,serviceName);
+		List<Object> orgaDepSlaObjList = queryService.getOrgDepServiceMonthlySla(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepSlaObjList);
+	}
 }

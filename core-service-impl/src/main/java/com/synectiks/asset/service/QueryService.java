@@ -174,6 +174,75 @@ public class QueryService {
 			return queryRepository.getOrgProductEnvServices(orgId,product ,env);
 	}
 
+	public List<String> getOrgDepProductServices(Long orgId, Long depId, String product) {
+		logger.debug("Request to get list of services of an department an product an Organization");
+			return queryRepository.getOrganizationDepartmentsProductMicroServices(orgId, depId,product);	}
+
+	public List<String> getOrgDepEnvironmentServices(Long orgId, Long depId, Long env) {
+		logger.debug("Request to get list of services of an department  an env an Organization");
+			return queryRepository.getOrganizationDepartmentsEnvMicroServices(orgId, depId,env);
+	}
+
+	public List<Object> getOrgDepProductEnvironmentServices(Long orgId, Long depId,String product, Long env) {
+		logger.debug("Request to get list of services of an department an product an env an Organization");
+			return queryRepository.getOrganizationDepartmentsProductEnvMicroServices(orgId,depId,product,env);
+	}
+
+	public List<String> getOrgDepServices(Long orgId, Long depId, String serviceType) {
+		logger.debug("Request to get list of services of an department an serviceType  an Organization");
+			return queryRepository.getOrganizationDepartmentsServiceTypeMicroServices(orgId,depId,serviceType);
+	}
+
+	public List<Object> getOrgDepServicesCost(Long orgId, Long depId, String serviceName) {
+		logger.debug("Request to get list of services-cost of an depId an serviceName  an Organization");
+		return queryRepository.getOrganizationDepartmentsServiceNameMicroServices(orgId,depId,serviceName);
+	}
+
+	public List<Object> getOrgDepServicesDailyCost(Long orgId, Long depId, String serviceName) {
+		logger.debug("Request to get list of services-cost-daily of an depId an serviceName  an Organization");
+		return queryRepository.getOrgDepServicesDailyCost(orgId,depId,serviceName);
+	}
+
+	public List<Object> getOrgDepServicesWeeklyCost(Long orgId, Long depId, String serviceName) {
+		logger.debug("Request to get list of services-cost-weekly of an depId an serviceName  an Organization");
+		return queryRepository.getOrgDepServicesWeeklyCost(orgId,depId,serviceName);
+	}
+
+	public List<Object> getOrgDepServicesMonthlyCost(Long orgId, Long depId, String serviceName) {
+		logger.debug("Request to get list of services-cost-monthly of an depId an serviceName  an Organization");
+		return queryRepository.getOrgDepServicesMonthlyCost(orgId,depId,serviceName);
+	}
+
+	public List<String> getOrgDepLandingZoneService(Long orgId, Long depId, String landingZone) {
+		logger.debug("Request to get list of services of an department an landingZone  an Organization");
+		return queryRepository.getOrgDepLandingZoneService(orgId,depId,landingZone);
+	}
+
+	public List<String> getOrgDepProductsService(Long orgId, Long depId, String landingZone) {
+		logger.debug("Request to get list of services of an department an landingZone  an Organization");
+		return queryRepository.getOrgDepProductsService(orgId,depId,landingZone);
+	}
+
+	public List<Object> getOrgDepServiceSla(Long orgId, Long depId, String name) {
+		logger.debug("Request to get list of services-sla of an serviceName an department  an Organization");
+		return queryRepository.getOrgDepServiceSla(orgId,depId,name);
+	}
+
+	public List<Object> getOrgDepServiceCureentSla(Long orgId, Long depId, String serviceName) {
+		logger.debug("Request to get list of services-cureent-sla of an serviceName an department  an Organization");
+		return queryRepository.getOrgDepServiceCureentSla(orgId,depId,serviceName);
+	}
+
+	public List<Object> getOrgDepServiceWeeklySla(Long orgId, Long depId, String serviceName) {
+		logger.debug("Request to get list of services-weekly-sla of an serviceName an department  an Organization");
+		return queryRepository.getOrgDepServiceWeeklySla(orgId,depId,serviceName);
+	}
+
+	public List<Object> getOrgDepServiceMonthlySla(Long orgId, Long depId, String serviceName) {
+		logger.debug("Request to get list of services-monthly-sla of an serviceName an department  an Organization");
+		return queryRepository.getOrgDepServiceMonthlySla(orgId,depId,serviceName);
+	}
+
 	
 
 
