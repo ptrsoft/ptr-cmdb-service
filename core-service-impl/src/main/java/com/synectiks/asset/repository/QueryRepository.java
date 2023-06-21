@@ -460,6 +460,26 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			+ "and ms .\"name\" =:serviceName";
 	@Query(value = ORG_DEP_SERVICETYPE_MICRO_SERVICES_MONTHLY_SLA_QUERY, nativeQuery = true)
 	public List<Object> getOrgDepServiceMonthlySla(@Param("orgId")Long orgId,@Param("depId")Long depId, @Param("serviceName")String serviceName);
+	String DEPARTMENT_LANDINGZONENAME_PRODUCT_ENC_QUERY = "select  replace(cast(ce.hardware_location -> 'productEnlave' as text), '\"', '') as products_enclave\r\n"
+			+ "from cloud_element ce,cloud_environment cnv, department dep, organization org\r\n"
+			+ "where org.id = dep.organization_id\r\n"
+			+ "and dep.id = cnv.department_id\r\n"
+			+ "and cnv.id = ce.cloud_environment_id\r\n"
+			+ "and org.id =:orgId \r\n"
+			+ "and dep .id =:depId\r\n"
+			+ "and replace(cast(ce.hardware_location -> 'landingZone' as text), '\"', '') =:landingZone";
+	@Query(value = DEPARTMENT_LANDINGZONENAME_PRODUCT_ENC_QUERY, nativeQuery = true)
+	public List<String> getOrganizationDepartmentLandingzoneProductEnclave(@Param("orgId") Long orgId,@Param("depId") Long depId,@Param("landingZone") String landingZone);
+	String QRY = "select replace(cast(ce.hardware_location -> 'productEnlave' as text), '\\\"', '') as products_enclave\r\n"
+			+ "from cloud_element ce,cloud_environment cnv, department dep, organization org\r\n"
+			+ "where org.id = dep.organization_id\r\n"
+			+ "and dep.id = cnv.department_id\r\n"
+			+ "and cnv.id = ce.cloud_environment_id\r\n"
+			+ "and org.id =:orgId\r\n"
+			+ "and replace(cast(ce.hardware_location -> 'landingZone' as text), '\"', '') =:landingZone";
+	
+	@Query(value = QRY, nativeQuery = true)
+	public List<String> orgLandingZoneProductEnclave(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
 	
 		
 		

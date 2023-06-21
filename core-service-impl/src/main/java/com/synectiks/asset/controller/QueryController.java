@@ -53,7 +53,7 @@ public class QueryController implements QueryApi {
 
 	@Override
 	public ResponseEntity<List<EnvironmentQueryDTO>> getResourceSummaryByOrgAndCloud(Long orgId, String cloud) {
-		logger.debug("REST request to get list of landing zone and its associated product-enclaves, products, app and data services for a given organization. Org id: {} ", orgId);
+		logger.debug("REST request to get list of landing zone and its associated product-enclaves, products, app and data services for a given organization. Org id: {} ", orgId,cloud);
 		List<EnvironmentQueryObj> environmentQueryObjList = queryService.getEnvironmentSummary(orgId, cloud);
 		List<EnvironmentQueryDTO> environmentQueryDTOList = EnvironmentQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
 		return ResponseEntity.ok(environmentQueryDTOList);
@@ -85,7 +85,6 @@ public class QueryController implements QueryApi {
 	public ResponseEntity<List<Object>> getOrgWiseServices(Long orgId) {
 		logger.debug("REST request to Get organization wise services for an organization: Org Id: {}", orgId);
 		List<Object> organizationServicesQueryObjList = queryService.getOrgWiseServices(orgId);
-//		List<EnvironmentCountQueryDTO> environmentCountQueryDTOList = ServicesQueryMapper.INSTANCE.toDtoList(organizationServicesQueryObjList);
 		return ResponseEntity.ok(organizationServicesQueryObjList);
 	}
 
@@ -304,6 +303,24 @@ public class QueryController implements QueryApi {
 	public ResponseEntity<List<Object>> getOrgDepServiceMonthlySla(Long orgId,Long depId,String serviceName) {
 		logger.debug("REST request to Get organization and department and service name  wise services-monthly-sla for an organization: Org Id: {}", orgId,depId,serviceName);
 		List<Object> orgaDepSlaObjList = queryService.getOrgDepServiceMonthlySla(orgId,depId,serviceName);
+		return ResponseEntity.ok(orgaDepSlaObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> orgLandingZoneProductEnclave(Long orgId,String landingZone) {
+		logger.debug(
+				"REST request to get list of  product-enclaveof given Organization  and landingZone. Organization id :{}",
+				orgId, landingZone);
+		List<String> orgaDepSlaObjList = queryService.orgLandingZoneProductEnclave(orgId,landingZone);
+		return ResponseEntity.ok(orgaDepSlaObjList);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> orgDepLandingZoneProductEnclave(Long orgId,Long depId,String landingZone) {
+		logger.debug(
+				"REST request to get list of  product-enclaveof given Organization and departments and landingZone. Organization id :{}",
+				orgId, depId, landingZone);
+		List<String> orgaDepSlaObjList = queryService.orgDepLandingZoneProductEnclave(orgId,depId,landingZone);
 		return ResponseEntity.ok(orgaDepSlaObjList);
 	}
 }

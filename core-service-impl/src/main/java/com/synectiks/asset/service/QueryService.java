@@ -243,6 +243,16 @@ public class QueryService {
 		return queryRepository.getOrgDepServiceMonthlySla(orgId,depId,serviceName);
 	}
 
+	public List<String> orgDepLandingZoneProductEnclave(Long orgId, Long depId, String landingZone) {
+		logger.debug("Request to get list of product enclaves of landingZoneName an Department an Organization");
+    	return queryRepository.getOrganizationDepartmentLandingzoneProductEnclave(orgId,depId,landingZone);
+	}
+
+	public List<String> orgLandingZoneProductEnclave(Long orgId, String landingZone) {
+		logger.debug("Request to get list of product enclaves of landingZoneName an Organization");
+    	return queryRepository.orgLandingZoneProductEnclave(orgId,landingZone);
+	}
+
 	
 
 
