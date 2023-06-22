@@ -1,4 +1,4 @@
-package com.synectiks.asset.controller;
+ package com.synectiks.asset.controller;
 
 import java.util.List;
 
@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.asset.api.controller.QueryApi;
+import com.synectiks.asset.api.model.CloudElementVpcDTO;
 import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
 import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.service.QueryService;
@@ -63,7 +66,6 @@ public class QueryController implements QueryApi {
 	public ResponseEntity<List<String>> getOrgWiseProducts(Long orgId) {
 		logger.debug("REST request to Get organization wise products for an organization: Org Id: {}", orgId);
 		List<String> organizationProductsQueryObjList = queryService.getOrganizationProducts(orgId);
-//		List<EnvironmentCountQueryDTO> environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDtoList(environmentCountQueryObjList);
 		return ResponseEntity.ok(organizationProductsQueryObjList);
 	}
 	
@@ -323,4 +325,17 @@ public class QueryController implements QueryApi {
 		List<String> orgaDepSlaObjList = queryService.orgDepLandingZoneProductEnclave(orgId,depId,landingZone);
 		return ResponseEntity.ok(orgaDepSlaObjList);
 	}
+	
+	@Override
+	public ResponseEntity<List<CloudElementVpcDTO>> orgVpcSummary(Long orgId,String landingZone,String product) {
+		logger.debug(
+				"REST request to get list of  vpc of given Organization  and landingZone and product. Organization id :{}",
+				orgId, product, landingZone);
+		List<CloudEnvironmentVpcQueryObj> environmentQueryObjList = queryService.orgVpcSummary(orgId,landingZone,product);
+	    List<CloudElementVpcDTO> dtoList = CloudEnvironmentVpcQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		return ResponseEntity.ok(dtoList);
+	}
+	
+	
 }
+

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
 
 /**
@@ -481,7 +483,33 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = QRY, nativeQuery = true)
 	public List<String> orgLandingZoneProductEnclave(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
 	
-		
+	String DISCOVER_ASSTES_LANDING_ZONE_PRODUCT = "select ceo.product_enclave, " +
+            "(select count(c.obj -> 'associatedProduct') " +
+            "from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone " +
+            " ) as product, " +
+            "(select count(c.obj -> 'associatedService')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone and upper(cast(c.obj -> 'serviceType' as text)) = '\"APP\"' " +
+            " ) as app_service, " +
+            "(select count(c.obj -> 'associatedService')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone and upper(cast(c.obj -> 'serviceType' as text)) = '\"DATA\"' " +
+            " ) as data_service  " +
+            "from (select ce.cloud_environment_id, ce.hardware_location -> 'landingZone' as landing_zone, " +
+            " ce.hardware_location -> 'productEnclave' as product_enclave " +
+            " from cloud_element ce" +
+            " ) as ceo, " +
+            "cloud_environment cnv, department dep, organization org " +
+            "where ceo.cloud_environment_id = cnv.id  " +
+            "and cnv.department_id = dep.id " +
+            "and dep.organization_id = org.id " +
+            "and org.id = :orgId " +
+            "and replace(cast(ceo.landing_zone as text), '\"', '') = :landingZone " +
+            "and replace(cast(ceo.product_enclave as text), '\"', '') =  :productEnclave " +
+            "group by  ceo.landing_zone, ceo.product_enclave ";
+	@Query(value = DISCOVER_ASSTES_LANDING_ZONE_PRODUCT, nativeQuery = true)
+	List<CloudEnvironmentVpcQueryObj> orgVpcSummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
 		
 
 }

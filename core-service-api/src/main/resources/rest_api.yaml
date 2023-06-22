@@ -68,6 +68,8 @@ tags:
     description: get organization and  department service wise data
   - name: OrgDepServiceSlaWiseQuery
     description: get organization and department and services-sla service wise data
+  - name: OrgLandingZoneVpceQuery
+    description: get organization and landingzone and product  wise data
 paths:
   /organizations:
     get:
@@ -2329,6 +2331,42 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organizations/{orgId}/landing-zone/{landingZone}/product-enclave/{product}/vpc-summary:
+     get:
+      tags:
+        - OrgLandingZoneVpceQuery
+      summary: get list of  vpc of given Organization and landingZone  and product 
+      operationId: orgVpcSummary
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: product
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementVpcDTO' 
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -2551,6 +2589,7 @@ components:
           format: int64
         cloud:
           type: string
+    
     EnvironmentSummaryQueryDTO:
       type: object
       properties:
@@ -2561,6 +2600,20 @@ components:
         productEnclave:
           type: integer
           format: int64
+        product:
+          type: integer
+          format: int64
+        appService:
+          type: integer
+          format: int64
+        dataService:
+          type: integer
+          format: int64
+    CloudElementVpcDTO:
+      type: object
+      properties:
+        productEnclave:
+          type: string
         product:
           type: integer
           format: int64

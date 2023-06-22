@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
@@ -53,7 +54,7 @@ public class QueryService {
             logger.debug("Getting list for cloud: {}", cloudName);
             List<EnvironmentSummaryQueryObj> filteredList = list.stream().filter(l -> !StringUtils.isBlank(l.getCloud()) && l.getCloud().equalsIgnoreCase(cloudName)).collect(Collectors.toList());
             EnvironmentQueryObj dto = EnvironmentQueryObj.builder()
-                    .cloud(cloudName)
+//                    .cloud(cloudName)
                     .environmentSummaryList(filteredList)
                     .build();
             environmentDtoList.add(dto);
@@ -251,6 +252,11 @@ public class QueryService {
 	public List<String> orgLandingZoneProductEnclave(Long orgId, String landingZone) {
 		logger.debug("Request to get list of product enclaves of landingZoneName an Organization");
     	return queryRepository.orgLandingZoneProductEnclave(orgId,landingZone);
+	}
+
+	public List<CloudEnvironmentVpcQueryObj> orgVpcSummary(Long orgId, String landingZone, String product) {
+		logger.debug("Request to get list of vpc of landingZoneName an product an Organization");
+    	return queryRepository.orgVpcSummary(orgId,landingZone,product);
 	}
 
 	
