@@ -1,28 +1,41 @@
 package com.synectiks.asset.domain.query;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
-public interface EnvironmentSummaryQueryObj extends Serializable{
+@Getter
+@Setter
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+public class EnvironmentSummaryQueryObj implements Serializable{
 
-    @Value("#{target.cloud}")
-    String getCloud();
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    private Long id;
 
-    @Value("#{target.landing_zone}")
-    String getLandingZone();
+    @Column(name = "cloud")
+    private String cloud;
 
-    @Value("#{target.product_enclave}")
-	Long getProductEnclave();
+    @Column(name = "landing_zone")
+    private String landingZone;
 
-    @Value("#{target.product}")
-    Long getProduct();
+    @Column(name = "product_enclave")
+    private Long productEnclave;
 
-    @Value("#{target.app_service}")
-    Long getAppService();
+    @Column(name = "product")
+    private Long product;
 
-    @Value("#{target.data_service}")
-    Long getDataService();
+    @Column(name = "app_service")
+    private Long appService;
+
+    @Column(name = "data_service")
+    private Long dataService;
 
 
 }

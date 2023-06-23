@@ -1021,6 +1021,22 @@ paths:
             type: integer
             format: int64
           required: true
+        - in: query
+          name: departmentId
+          schema:
+            type: integer
+            format: int64
+          required: false
+        - in: query
+          name: product
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: env
+          schema:
+            type: string
+          required: false
       responses:
         200:
           description: OK
