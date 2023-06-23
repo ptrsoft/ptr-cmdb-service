@@ -37,11 +37,11 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-#    url: jdbc:postgresql://postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com:5431/cmdb
-    url: jdbc:postgresql://localhost:5432/cmdb
+    url: jdbc:postgresql://postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com:5431/cmdb
+#    url: jdbc:postgresql://localhost:5432/cmdb
     username: postgres
-#    password: P0$tGr3$&s3qua1$n3t!k5
-    password: postgres
+    password: P0$tGr3$&s3qua1$n3t!k5
+#    password: postgres
     hikari:
       poolName: Hikari
       auto-commit: false
