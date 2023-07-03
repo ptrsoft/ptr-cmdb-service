@@ -47,15 +47,15 @@ tags:
   - name: OrgDepWiseQuery
     description: get organization and department wise data
   - name: OrgProductWiseQuery
-    description: get  organization and products wise data
+    description: get organization and products wise data
   - name: OrgEnvironmentWiseQuery
-    description: get  organization and environments wise data
+    description: get organization and environments wise data
   - name: OrgProductEnvironmentWiseQuery
     description: get organization and products and environments wise data
   - name: OrgServiceWiseQuery
     description: get organization and  service wise data
   - name: OrgLandingZoneWiseQuery
-    description: get organization and landing-zone service wise 
+    description: get organization and landing-zone service wise
   - name: OrgServiceSlaWiseQuery
     description: get organization and services-sla service wise data
   - name: OrgDepProductWiseQuery
@@ -70,6 +70,8 @@ tags:
     description: get organization and department and services-sla service wise data
   - name: OrgLandingZoneVpceQuery
     description: get organization and landingzone and product  wise data
+  - name: InfraTopologyQuery
+    description: get infrastructure topology wise data
 paths:
   /organizations:
     get:
@@ -1108,7 +1110,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/landing-zone:
-     get:
+    get:
       tags:
         - OrgWiseQuery
       summary: Get organization wise landing-zone
@@ -1134,7 +1136,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/product-enclave:
-     get:
+    get:
       tags:
         - OrgWiseQuery
       summary: Get organization wise product-enclave
@@ -1160,7 +1162,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services:
-     get:
+    get:
       tags:
         - OrgWiseQuery
       summary: Get organization wise services
@@ -1186,7 +1188,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/products:
-     get:
+    get:
       tags:
         - OrgDepWiseQuery
       summary: Get organization and department wise products
@@ -1218,7 +1220,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/landing-zone:
-     get:
+    get:
       tags:
         - OrgDepWiseQuery
       summary: Get organization and department wise landing-zone
@@ -1244,13 +1246,13 @@ paths:
               schema:
                 type: array
                 items:
-                 type: string
+                  type: string
         404:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/product-enclave:
-     get:
+    get:
       tags:
         - OrgDepWiseQuery
       summary: Get organization and department wise product-enclave
@@ -1282,7 +1284,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services:
-     get:
+    get:
       tags:
         - OrgDepWiseQuery
       summary: Get organization and department wise services
@@ -1314,7 +1316,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/products/{product}/services:
-     get:
+    get:
       tags:
         - OrgProductWiseQuery
       summary: Get organization and product wise services
@@ -1345,7 +1347,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/environments/{env}/services:
-     get:
+    get:
       tags:
         - OrgEnvironmentWiseQuery
       summary: Get organization and environment wise services
@@ -1377,7 +1379,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/products/{product}/environments/{env}/services:
-     get:
+    get:
       tags:
         - OrgProductEnvironmentWiseQuery
       summary: Get organization and products and environment wise services
@@ -1414,7 +1416,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/service-type/{serviceType}/services:
-     get:
+    get:
       tags:
         - OrgServiceWiseQuery
       summary: Get organization and service wise services-type
@@ -1445,7 +1447,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{serviceName}/service-cost:
-     get:
+    get:
       tags:
         - OrgServiceWiseQuery
       summary: Get organization and service wise services-cost
@@ -1476,7 +1478,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{serviceName}/service-cost/daily:
-     get:
+    get:
       tags:
         - OrgServiceWiseQuery
       summary: Get organization and service wise services-daily-cost
@@ -1507,7 +1509,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{serviceName}/service-cost/weekly:
-     get:
+    get:
       tags:
         - OrgServiceWiseQuery
       summary: Get organization and service wise services-weekly-cost
@@ -1538,7 +1540,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{serviceName}/service-cost/monthly:
-     get:
+    get:
       tags:
         - OrgServiceWiseQuery
       summary: Get organization and service wise services-monthly-cost
@@ -1569,7 +1571,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/landing-zone/{landingZone}/services:
-     get:
+    get:
       tags:
         - OrgLandingZoneWiseQuery
       summary: Get organization and landing-zone wise services
@@ -1600,7 +1602,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/landing-zone/{landingZone}/products:
-     get:
+    get:
       tags:
         - OrgLandingZoneWiseQuery
       summary: Get organization and landing-zone wise services product
@@ -1631,7 +1633,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{name}/service-sla:
-     get:
+    get:
       tags:
         - OrgServiceSlaWiseQuery
       summary: Get organization and service-name wise services service-sla
@@ -1662,7 +1664,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{serviceName}/service/cureent-sla:
-     get:
+    get:
       tags:
         - OrgServiceSlaWiseQuery
       summary: Get organization and service-name wise services service-cureent-sla
@@ -1693,7 +1695,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{serviceName}/service/weekly-sla:
-     get:
+    get:
       tags:
         - OrgServiceSlaWiseQuery
       summary: Get organization and service-name wise services service-weekly-sla
@@ -1724,7 +1726,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/services/{serviceName}/service/monthly-sla:
-     get:
+    get:
       tags:
         - OrgServiceSlaWiseQuery
       summary: Get organization and service-name wise services service-monthly-sla
@@ -1755,10 +1757,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/products/{product}/services:
-     get:
+    get:
       tags:
         - OrgDepProductWiseQuery
-      summary: Get organization and department and product wise services 
+      summary: Get organization and department and product wise services
       operationId: getOrgDepProductServices
       parameters:
         - in: path
@@ -1792,10 +1794,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/environments/{env}/services:
-     get:
+    get:
       tags:
         - OrgDepProductEnvironmentWiseQuery
-      summary: Get organization and department  and environment wise services 
+      summary: Get organization and department  and environment wise services
       operationId: getOrgDepEnvironmentServices
       parameters:
         - in: path
@@ -1830,10 +1832,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/products/{product}/environments/{env}/services:
-     get:
+    get:
       tags:
         - OrgDepProductEnvironmentWiseQuery
-      summary: Get organization and department and product and environment wise services 
+      summary: Get organization and department and product and environment wise services
       operationId: getOrgDepProductEnvironmentServices
       parameters:
         - in: path
@@ -1873,10 +1875,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/service-type/{serviceType}/services:
-     get:
+    get:
       tags:
         - OrgDepServiceWiseQuery
-      summary: Get organization and department wise services 
+      summary: Get organization and department wise services
       operationId: getOrgDepServices
       parameters:
         - in: path
@@ -1910,10 +1912,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost:
-     get:
+    get:
       tags:
         - OrgDepServiceWiseQuery
-      summary: Get organization and department wise services-cost 
+      summary: Get organization and department wise services-cost
       operationId: getOrgDepServicesCost
       parameters:
         - in: path
@@ -1947,10 +1949,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost/daily:
-     get:
+    get:
       tags:
         - OrgDepServiceWiseQuery
-      summary: Get organization and department wise services-daily-cost 
+      summary: Get organization and department wise services-daily-cost
       operationId: getOrgDepServicesDailyCost
       parameters:
         - in: path
@@ -1984,10 +1986,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost/weekly:
-     get:
+    get:
       tags:
         - OrgDepServiceWiseQuery
-      summary: Get organization and department wise services-weekly-cost 
+      summary: Get organization and department wise services-weekly-cost
       operationId: getOrgDepServicesWeeklyCost
       parameters:
         - in: path
@@ -2021,10 +2023,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service-cost/monthly:
-     get:
+    get:
       tags:
         - OrgDepServiceWiseQuery
-      summary: Get organization and department wise services-monthly-cost 
+      summary: Get organization and department wise services-monthly-cost
       operationId: getOrgDepServicesMonthlyCost
       parameters:
         - in: path
@@ -2058,7 +2060,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/landing-zone/{landingZone}/services:
-     get:
+    get:
       tags:
         - OrgDepLandingZoneWiseQuery
       summary: Get organization and department and landingZone wise services
@@ -2095,7 +2097,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/landing-zone/{landingZone}/products:
-     get:
+    get:
       tags:
         - OrgDepLandingZoneWiseQuery
       summary: Get organization and department and products wise services
@@ -2132,7 +2134,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{name}/service-sla:
-     get:
+    get:
       tags:
         - OrgDepServiceSlaWiseQuery
       summary: Get organization and department wise services-sla
@@ -2169,7 +2171,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service/cureent-sla:
-     get:
+    get:
       tags:
         - OrgDepServiceSlaWiseQuery
       summary: Get organization and department wise services-cureent-sla
@@ -2206,7 +2208,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service/weekly-sla:
-     get:
+    get:
       tags:
         - OrgDepServiceSlaWiseQuery
       summary: Get organization and department wise services-weekly-sla
@@ -2243,7 +2245,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/services/{serviceName}/service/monthly-sla:
-     get:
+    get:
       tags:
         - OrgDepServiceSlaWiseQuery
       summary: Get organization and department wise services-monthly-sla
@@ -2280,7 +2282,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/landing-zone/{landingZone}/product-enclave:
-     get:
+    get:
       tags:
         - OrgLandingZoneWiseQuery
       summary: get list of  product-enclaveof given Organization and landingZone
@@ -2311,7 +2313,7 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/departments/{depId}/landing-zone/{landingZone}/product-enclave:
-     get:
+    get:
       tags:
         - OrgDepLandingZoneWiseQuery
       summary: get list of  product-enclave of given Organization and department and landingZone
@@ -2348,10 +2350,10 @@ paths:
         500:
           description: "Internal Server Error"
   /query/organizations/{orgId}/landing-zone/{landingZone}/product-enclave/{product}/vpc-summary:
-     get:
+    get:
       tags:
         - OrgLandingZoneVpceQuery
-      summary: get list of  vpc of given Organization and landingZone  and product 
+      summary: get list of  vpc of given Organization and landingZone  and product
       operationId: orgVpcSummary
       parameters:
         - in: path
@@ -2378,7 +2380,36 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CloudElementVpcDTO' 
+                  $ref: '#/components/schemas/CloudElementVpcDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/landing-zone/{landingZone}/infra-topology:
+    get:
+      tags:
+        - InfraTopologyQuery
+      summary: get infra topology view of given Organization and landingZone
+      operationId: getInfraTopology
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfraTopologyDTO'
         404:
           description: "Service Not found"
         500:
@@ -2605,7 +2636,6 @@ components:
           format: int64
         cloud:
           type: string
-    
     EnvironmentSummaryQueryDTO:
       type: object
       properties:
@@ -2648,3 +2678,56 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EnvironmentSummaryQueryDTO'
+    InfraTopologyElementDTO:
+      type: object
+      properties:
+        arn:
+          type: string
+        name:
+          type: string
+    InfraTopologyCategoryDTO:
+      type: object
+      properties:
+        category:
+          type: string
+        elementType:
+          type: string
+        elementList:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfraTopologyElementDTO'
+    InfraTopologyHostingTypeDTO:
+      type: object
+      properties:
+        hostingType:
+          type: string
+        category:
+          type: object
+          items:
+            $ref: '#/components/schemas/InfraTopologyCategoryDTO'
+    InfraTopologyProductEnclaveDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        state:
+          type: string
+        hostingTypeList:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfraTopologyHostingTypeDTO'
+    InfraTopologyDTO:
+      type: object
+      properties:
+        landingZone:
+          type: string
+        productEnclaveList:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfraTopologyProductEnclaveDTO'
+        globalServiceList:
+          type: array
+          items:
+            type : string

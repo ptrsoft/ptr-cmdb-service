@@ -3,6 +3,7 @@ package com.synectiks.asset.repository;
 import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologyQueryObj;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -450,6 +451,16 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
             "group by  ceo.landing_zone, ceo.product_enclave ";
 	@Query(value = DISCOVER_ASSTES_LANDING_ZONE_PRODUCT, nativeQuery = true)
 	List<CloudEnvironmentVpcQueryObj> orgVpcSummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
-		
 
+	String INFRA_TOPOLOGY_QUERY = "select ce.hardware_location ->> 'landingZone' as landing_zone, " +
+			"ce.hardware_location ->> 'productEnclave' as product_enclave, " +
+			"ce.cloud_identity ->> 'hostingType' as hosting_type, " +
+			"ce.cloud_identity ->> 'category' as category, " +
+			"ce.element_type, " +
+			"ce.cloud_identity ->> 'elementLists' as element_list " +
+			"from cloud_element ce, cloud_environment cnv, department dep, organization org " +
+			"where ce.cloud_environment_id = cnv.id and cnv.department_id = dep.id and dep.organization_id = org.id " +
+			"and org.id = :orgId and ce.hardware_location ->> 'landingZone' = :landingZone ";
+	@Query(value = INFRA_TOPOLOGY_QUERY, nativeQuery = true)
+	List<InfraTopologyQueryObj> getInfraTopology(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
 }

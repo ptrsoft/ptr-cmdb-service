@@ -1,25 +1,27 @@
  package com.synectiks.asset.controller;
 
-import java.util.List;
+ import com.synectiks.asset.api.controller.QueryApi;
+ import com.synectiks.asset.api.model.CloudElementVpcDTO;
+ import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
+ import com.synectiks.asset.api.model.EnvironmentQueryDTO;
+ import com.synectiks.asset.api.model.InfraTopologyDTO;
+ import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
+ import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+ import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+ import com.synectiks.asset.domain.query.InfraTopologyObj;
+ import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
+ import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
+ import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
+ import com.synectiks.asset.mapper.query.InfraTopologyMapper;
+ import com.synectiks.asset.service.QueryService;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RestController;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.synectiks.asset.api.controller.QueryApi;
-import com.synectiks.asset.api.model.CloudElementVpcDTO;
-import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
-import com.synectiks.asset.api.model.EnvironmentQueryDTO;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
-import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
-import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
-import com.synectiks.asset.service.QueryService;
+ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -335,7 +337,18 @@ public class QueryController implements QueryApi {
 	    List<CloudElementVpcDTO> dtoList = CloudEnvironmentVpcQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
 		return ResponseEntity.ok(dtoList);
 	}
-	
-	
+
+	@Override
+	public ResponseEntity<InfraTopologyDTO> getInfraTopology(Long orgId, String landingZone) {
+		try{
+			InfraTopologyObj infraTopologyObj = queryService.getInfraTopology(orgId, landingZone);
+			InfraTopologyDTO infraTopologyDTO = InfraTopologyMapper.INSTANCE.toDto(infraTopologyObj);
+			return ResponseEntity.ok(infraTopologyDTO);
+		}catch (Exception e){
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body(null);
+		}
+
+	}
 }
 

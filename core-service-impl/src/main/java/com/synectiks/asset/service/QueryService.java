@@ -1,24 +1,24 @@
 package com.synectiks.asset.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.domain.query.*;
+import com.synectiks.asset.repository.QueryRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
-import com.synectiks.asset.repository.QueryRepository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class QueryService {
@@ -308,17 +308,78 @@ public class QueryService {
 	}
 
 	public List<String> orgLandingZoneProductEnclave(Long orgId, String landingZone) {
-		logger.debug("Request to get list of product enclaves of landingZoneName an Organization");
+		logger.debug("Request to get list of product enclaves of landing-zone and organization");
     	return queryRepository.orgLandingZoneProductEnclave(orgId,landingZone);
 	}
 
 	public List<CloudEnvironmentVpcQueryObj> orgVpcSummary(Long orgId, String landingZone, String product) {
-		logger.debug("Request to get list of vpc of landingZoneName an product an Organization");
+		logger.debug("Request to get list of vpc for given organization, landing-zone and product");
     	return queryRepository.orgVpcSummary(orgId,landingZone,product);
 	}
 
-	
+	public InfraTopologyObj getInfraTopology(Long orgId, String landingZone) throws JsonProcessingException {
+		logger.debug("Getting list of cloud elements to form infra-topology-view for a given organization and landing-zone");
+		List<InfraTopologyQueryObj> list = queryRepository.getInfraTopology(orgId,landingZone);
+		return filterInfraTopologyData(list, landingZone);
+	}
 
+	private InfraTopologyObj filterInfraTopologyData(List<InfraTopologyQueryObj> list, String landingZone) throws JsonProcessingException {
+		ObjectMapper objectMapper = Constants.instantiateMapper();
+		Set<String> productEnclaveSet = list.stream().map(InfraTopologyQueryObj::getProductEnclave).collect(Collectors.toSet());
+
+		List<InfraTopologyProductEnclaveObj> productEnclaveList = new ArrayList<>();
+		for (String productEnclave: productEnclaveSet){
+			List<InfraTopologyHostingTypeObj> hostingTypeList = new ArrayList<>();
+			List<InfraTopologyQueryObj> filteredProductEnclaveList = list.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclave()) && l.getProductEnclave().equalsIgnoreCase(productEnclave)).collect(Collectors.toList());
+			Set<String> hostingTypeSet = filteredProductEnclaveList.stream().map(InfraTopologyQueryObj::getHostingType).collect(Collectors.toSet());
+
+			for(String hostingType: hostingTypeSet){
+				List<InfraTopologyCategoryObj> categoryList = new ArrayList<>();
+				List<InfraTopologyQueryObj> filteredCategoryList = filteredProductEnclaveList.stream().filter(l -> !StringUtils.isBlank(l.getHostingType()) && l.getHostingType().equalsIgnoreCase(hostingType)).collect(Collectors.toList());
+
+				for(InfraTopologyQueryObj catObj: filteredCategoryList){
+					List<InfraTopologyElementObj> elementList = new ArrayList<>();
+					JsonNode rootNode = objectMapper.readTree(catObj.getElementList());
+
+					if(rootNode != null && rootNode.isArray()){
+						Iterator<JsonNode> iterator = rootNode.iterator();
+						while (iterator.hasNext()) {
+							logger.debug("Creating element object");
+							JsonNode jsonNode = iterator.next();
+							InfraTopologyElementObj elementObj = InfraTopologyElementObj.builder()
+									.arn(jsonNode.get("arn").asText())
+									.name(jsonNode.get("name").asText())
+									.build();
+							elementList.add(elementObj);
+						}
+					}
+
+					InfraTopologyCategoryObj categoryObj = InfraTopologyCategoryObj.builder()
+							.category(catObj.getCategory())
+							.elementType(catObj.getElementType())
+							.elementList(elementList)
+							.build();
+					categoryList.add(categoryObj);
+				}
+				InfraTopologyHostingTypeObj hostingTypeObj = InfraTopologyHostingTypeObj.builder()
+						.hostingType(hostingType)
+						.category(categoryList)
+						.build();
+				hostingTypeList.add(hostingTypeObj);
+			}
+			InfraTopologyProductEnclaveObj productEnclaveObj = InfraTopologyProductEnclaveObj.builder()
+					.name(productEnclave)
+					.hostingTypeList(hostingTypeList)
+					.build();
+			productEnclaveList.add(productEnclaveObj);
+		}
+
+		InfraTopologyObj infraTopologyObj = InfraTopologyObj.builder()
+				.landingZone(landingZone)
+				.productEnclaveList(productEnclaveList)
+				.build();
+		return infraTopologyObj;
+	}
 
 }
 
