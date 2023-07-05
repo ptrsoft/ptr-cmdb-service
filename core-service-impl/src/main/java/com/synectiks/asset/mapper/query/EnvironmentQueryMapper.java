@@ -2,6 +2,8 @@ package com.synectiks.asset.mapper.query;
 
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
+
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -18,5 +20,8 @@ public interface EnvironmentQueryMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     List<EnvironmentQueryDTO> toDtoList(List<EnvironmentQueryObj> environmentQueryObjList);
+    
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    List<EnvironmentQueryDTO> towDtoList(List<EnvironmentSummaryQueryObj> environmentQueryObjList);
 
 }

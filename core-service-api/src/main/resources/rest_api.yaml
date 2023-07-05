@@ -72,6 +72,16 @@ tags:
     description: get organization and landingzone and product  wise data
   - name: InfraTopologyQuery
     description: get infrastructure topology wise data
+  - name: SpendAnalyticeQuery
+    description: get spend analytice  wise data
+  - name: CurrentSpendRateQuery
+    description: get current spend analytice  wise data
+  - name: TotalSpendQuery
+    description: get total spend analytice  wise data 
+  - name: CloudWiseQuery
+    description: get cloud wise analytice  wise data  
+ 
+  
 paths:
   /organizations:
     get:
@@ -2414,6 +2424,188 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/spend-today/organization/{orgId}/analytics:
+    get:
+      tags:
+        - SpendAnalyticeQuery
+      summary: get list of spend tody 
+      operationId: allSpendTodayAnalytics
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/spend-yesterday/organization/{orgId}/analytics:
+    get:
+      tags:
+        - SpendAnalyticeQuery
+      summary: get list of spend yesterday 
+      operationId: allSpendYesterdaySpendAnalytics
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO' 
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/spend-current-rate/organization/{orgId}/hour/analytics:
+    get:
+      tags:
+        - CurrentSpendRateQuery
+      summary: get list of current spend rate par hour
+      operationId: spendCurrentRateHour
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                   $ref: '#/components/schemas/CloudElementCurrentsDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/spend-current-rate/organization/{orgId}/day/analytics:
+    get:
+      tags:
+        - CurrentSpendRateQuery
+      summary: get list of current spend rate par day
+      operationId: spendCurrentRateDay
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/spend-total/organization/{orgId}/analytics:
+    get:
+      tags:
+        - TotalSpendQuery
+      summary: get list of cloud wise  rate 
+      operationId: cloudWiseAnalytics
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/cloud-wise/orgnaiztion/{orgId}/cloud-analytics:
+    get:
+      tags:
+        - CloudWiseQuery
+      summary: get list of total-spend rate 
+      operationId: spendTotal
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementCloudWiseAnalyticsDTO' 
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/cloud-wise/orgnaiztion/{orgId}/monthly-analytics:
+    get:
+      tags:
+        - CloudWiseQuery
+      summary: get list of total-spend rate 
+      operationId: eachMonthTotal
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementCloudWiseMonthlyAnalyticsDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -2731,3 +2923,52 @@ components:
           type: array
           items:
             type : string
+    CloudElementSpendAnalyticsDTO:
+      type: object
+      properties:
+        sumCurrentDate:
+          type: integer
+          format: int64
+        sumPreviousDate:
+          type: integer
+          format: int64
+        percentage:
+          type: integer
+          format: int64
+    CloudElementCurrentsDTO:
+      type: object
+      properties:
+        sumCurrentHour:
+          type: integer
+          format: int64
+        sumPreviousHour:
+          type: integer
+          format: int64
+        percentage:
+          type: integer
+          format: int64
+        sum_difference:
+          type: integer
+          format: int64
+    CloudElementCloudWiseAnalyticsDTO:
+      type: object
+      properties:
+        cloud:
+          type: string
+        sumValues:
+          type: integer
+          format: int64
+        percentage:
+          type: integer
+          format: int64
+    CloudElementCloudWiseMonthlyAnalyticsDTO:
+      type: object
+      properties:
+        cloud:
+          type: string
+        month:
+         type: string
+        sumValues:
+          type: integer
+          format: int64
+    

@@ -1,29 +1,45 @@
 package com.synectiks.asset.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.query.*;
-import com.synectiks.asset.repository.QueryRepository;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCurrentQueryObj;
+import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologyCategoryObj;
+import com.synectiks.asset.domain.query.InfraTopologyElementObj;
+import com.synectiks.asset.domain.query.InfraTopologyHostingTypeObj;
+import com.synectiks.asset.domain.query.InfraTopologyObj;
+import com.synectiks.asset.domain.query.InfraTopologyProductEnclaveObj;
+import com.synectiks.asset.domain.query.InfraTopologyQueryObj;
+import com.synectiks.asset.repository.QueryRepository;
+
 @Service
 public class QueryService {
 
 	private static final Logger logger = LoggerFactory.getLogger(QueryService.class);
+	
     @Autowired
     private QueryRepository queryRepository;
 
@@ -379,6 +395,42 @@ public class QueryService {
 				.productEnclaveList(productEnclaveList)
 				.build();
 		return infraTopologyObj;
+	}
+
+
+	public List<CloudElementSpendAnalyticsQueryObj> allSpendTodayAnalytics(Long orgId) {
+		logger.debug("Request to get list of spend-today  sum");
+		return queryRepository.allSpendTodayAnalytics(orgId);
+	}
+
+	public List<CloudElementSpendAnalyticsQueryObj> allSpendYesterdaySpendAnalytics(Long orgId) {
+		logger.debug("Request to get list of spend-yesterday  sum");
+		return queryRepository.allSpendYesterdaySpendAnalytics(orgId);
+	}
+
+	public List<CloudElementCurrentQueryObj> spendCurrentRateHour(Long orgId) {
+		logger.debug("Request to get list of current spend rate par hour  sum");
+		return queryRepository.spendCurrentRateHour(orgId);
+	}
+
+	public List<String> spendCurrentRateDay(Long orgId) {
+		logger.debug("Request to get list of current spend rate par day  sum");
+		return queryRepository.spendCurrentRateDay(orgId);
+	}
+
+	public List<String> cloudWiseAnalytics(Long orgId) {
+		logger.debug("Request to get list of total spend  sum");
+		return queryRepository.cloudWiseAnalytics(orgId);
+	}
+
+	public List<CloudElementCloudWiseQueryObj> spendTotal(Long orgId) {
+		logger.debug("Request to get list of total spend  sum");
+		return queryRepository.spendTotal(orgId);
+	}
+
+	public List<CloudElementCloudWiseMonthlyQueryObj> eachMonthTotal(Long orgId) {
+		logger.debug("Request to get list of total spend  sum");
+		return queryRepository.eachMonthTotal(orgId);
 	}
 
 }

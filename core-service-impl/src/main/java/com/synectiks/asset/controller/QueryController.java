@@ -1,27 +1,41 @@
  package com.synectiks.asset.controller;
 
- import com.synectiks.asset.api.controller.QueryApi;
- import com.synectiks.asset.api.model.CloudElementVpcDTO;
- import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
- import com.synectiks.asset.api.model.EnvironmentQueryDTO;
- import com.synectiks.asset.api.model.InfraTopologyDTO;
- import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
- import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
- import com.synectiks.asset.domain.query.EnvironmentQueryObj;
- import com.synectiks.asset.domain.query.InfraTopologyObj;
- import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
- import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
- import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
- import com.synectiks.asset.mapper.query.InfraTopologyMapper;
- import com.synectiks.asset.service.QueryService;
- import org.slf4j.Logger;
- import org.slf4j.LoggerFactory;
- import org.springframework.beans.factory.annotation.Autowired;
- import org.springframework.http.ResponseEntity;
- import org.springframework.web.bind.annotation.RequestMapping;
- import org.springframework.web.bind.annotation.RestController;
-
  import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.synectiks.asset.api.controller.QueryApi;
+import com.synectiks.asset.api.model.CloudElementCloudWiseAnalyticsDTO;
+import com.synectiks.asset.api.model.CloudElementCloudWiseMonthlyAnalyticsDTO;
+import com.synectiks.asset.api.model.CloudElementCurrentsDTO;
+import com.synectiks.asset.api.model.CloudElementSpendAnalyticsDTO;
+import com.synectiks.asset.api.model.CloudElementVpcDTO;
+import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
+import com.synectiks.asset.api.model.EnvironmentQueryDTO;
+import com.synectiks.asset.api.model.InfraTopologyDTO;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCurrentQueryObj;
+import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologyObj;
+import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
+import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
+import com.synectiks.asset.mapper.query.CloudElementCurrentQueryMapper;
+import com.synectiks.asset.mapper.query.CloudElementSpendAnalyticQueryMapper;
+import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
+import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
+import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
+import com.synectiks.asset.mapper.query.InfraTopologyMapper;
+import com.synectiks.asset.service.QueryService;
+
 
 @RestController
 @RequestMapping("/api")
@@ -337,7 +351,7 @@ public class QueryController implements QueryApi {
 	    List<CloudElementVpcDTO> dtoList = CloudEnvironmentVpcQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
 		return ResponseEntity.ok(dtoList);
 	}
-
+	
 	@Override
 	public ResponseEntity<InfraTopologyDTO> getInfraTopology(Long orgId, String landingZone) {
 		try{
@@ -349,6 +363,64 @@ public class QueryController implements QueryApi {
 			return ResponseEntity.badRequest().body(null);
 		}
 
+	}
+	
+	@Override
+	public ResponseEntity<List<CloudElementSpendAnalyticsDTO>> allSpendTodayAnalytics(Long orgId) {
+		logger.debug(
+				"REST request to get list of  spend tody");
+		List<CloudElementSpendAnalyticsQueryObj> environmentQueryObjList = queryService.allSpendTodayAnalytics(orgId);
+	    List<CloudElementSpendAnalyticsDTO> dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		return ResponseEntity.ok(dtoList);
+
+	}
+	
+	@Override
+	public ResponseEntity<List<CloudElementSpendAnalyticsDTO>> allSpendYesterdaySpendAnalytics(Long orgId) {
+		logger.debug(
+				"REST request to get list of  spend yesterday");
+		List<CloudElementSpendAnalyticsQueryObj> environmentQueryObjList = queryService.allSpendYesterdaySpendAnalytics(orgId);
+	    List<CloudElementSpendAnalyticsDTO> dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		return ResponseEntity.ok(dtoList);
+	}
+	@Override
+	public ResponseEntity<List<CloudElementCurrentsDTO>> spendCurrentRateHour(Long orgId) {
+		logger.debug(
+				"REST request to get list of  current spend rate par hour");
+		List<CloudElementCurrentQueryObj> environmentQueryObjList = queryService.spendCurrentRateHour(orgId);
+	    List<CloudElementCurrentsDTO> dtoList = CloudElementCurrentQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		return ResponseEntity.ok(dtoList);
+	}
+	@Override
+	public ResponseEntity<List<String>> spendCurrentRateDay(Long orgId) {
+		logger.debug(
+				"REST request to get list of  current spend rate par day");
+		List<String> listOfToday = queryService.spendCurrentRateDay(orgId);
+		return ResponseEntity.ok(listOfToday);
+	}
+	
+	@Override
+	public ResponseEntity<List<String>> cloudWiseAnalytics(Long orgId) {
+		logger.debug(
+				"REST request to get list of  cloud wise  rate");
+		List<String> listOfToday = queryService.cloudWiseAnalytics(orgId);
+		return ResponseEntity.ok(listOfToday);
+	}
+	
+	@Override
+	public ResponseEntity<List<CloudElementCloudWiseAnalyticsDTO>> spendTotal(Long orgId) {
+		logger.debug("REST request to Get organization and cloudName wise cloud-cost for an organization: Org Id: {}", orgId);
+		List<CloudElementCloudWiseQueryObj> environmentQueryObjList = queryService.spendTotal(orgId);
+	    List<CloudElementCloudWiseAnalyticsDTO> dtoList = CloudElementCloudWiseQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		return ResponseEntity.ok(dtoList);
+	}
+	
+	@Override
+	public ResponseEntity<List<CloudElementCloudWiseMonthlyAnalyticsDTO>> eachMonthTotal(Long orgId) {
+		logger.debug("REST request to Get organization a wise cloud-cost for an organization: Org Id: {}", orgId);
+		List<CloudElementCloudWiseMonthlyQueryObj> environmentQueryObjList = queryService.eachMonthTotal(orgId);
+	    List<CloudElementCloudWiseMonthlyAnalyticsDTO> dtoList = CloudElementCloudWiseMonthlyQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		return ResponseEntity.ok(dtoList);
 	}
 }
 

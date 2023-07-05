@@ -4,12 +4,24 @@ import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.InfraTopologyQueryObj;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCurrentQueryObj;
+import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
 
 /**
  * Spring Data SQL repository for the query database.
@@ -42,6 +54,62 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
     @Query(value = ENV_CLOUD_WISE_COUNT_QUERY, nativeQuery = true)
     EnvironmentCountQueryObj getCount(@Param("cloud") String cloud, @Param("orgId") Long orgId);
 
+    String ORG_WISE_ENV_SUMMARY_QUERY ="select cnv.cloud, replace(cast(ceo.landing_zone as text), '\"', '') as landing_zone, " +
+            "count(ceo.product_enclave) as product_enclave, " +
+            "(select count(c.obj -> 'associatedProduct')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone " +
+            " ) as product, " +
+            "(select count(c.obj -> 'associatedService')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone and upper(cast(c.obj -> 'serviceType' as text)) = '\"APP\"' " +
+            " ) as app_service, " +
+            "(select count(c.obj -> 'associatedService')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone and upper(cast(c.obj -> 'serviceType' as text)) = '\"DATA\"' " +
+            " ) as data_service  " +
+            "from (select ce.cloud_environment_id, ce.hardware_location -> 'landingZone' as landing_zone, " +
+            " count(ce.hardware_location -> 'productEnclave') as product_enclave " +
+            " from  cloud_element ce group by ce.cloud_environment_id, ce.hardware_location -> 'landingZone' " +
+            " ) as ceo, " +
+            "cloud_environment cnv, department dep, organization org " +
+            "where ceo.cloud_environment_id = cnv.id  " +
+            "and cnv.department_id = dep.id " +
+            "and dep.organization_id = org.id " +
+            "and org.id = :orgId " +
+            "group by cnv.cloud, ceo.landing_zone, ceo.product_enclave";
+    @Query(value = ORG_WISE_ENV_SUMMARY_QUERY, nativeQuery = true)
+    public List<EnvironmentSummaryQueryObj> getEnvironmentSummary(@Param("orgId") Long orgId);
+
+    String ORG_AND_CLOUD_WISE_ENV_SUMMARY_QUERY ="select cnv.cloud, replace(cast(ceo.landing_zone as text), '\"', '') as landing_zone, " +
+            "count(ceo.product_enclave) as product_enclave, " +
+            "(select count(c.obj -> 'associatedProduct')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone " +
+            " ) as product, " +
+            "(select count(c.obj -> 'associatedService')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone and upper(cast(c.obj -> 'serviceType' as text)) = '\"APP\"' " +
+            " ) as app_service, " +
+            "(select count(c.obj -> 'associatedService')  " +
+            " from cloud_element ce2, jsonb_array_elements(ce2.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos) " +
+            " where ce2.hardware_location -> 'landingZone' = ceo.landing_zone and upper(cast(c.obj -> 'serviceType' as text)) = '\"DATA\"' " +
+            " ) as data_service  " +
+            "from (select ce.cloud_environment_id, ce.hardware_location -> 'landingZone' as landing_zone, " +
+            " count(ce.hardware_location -> 'productEnclave') as product_enclave " +
+            " from  cloud_element ce group by ce.cloud_environment_id, ce.hardware_location -> 'landingZone' " +
+            " ) as ceo, " +
+            "cloud_environment cnv, department dep, organization org " +
+            "where ceo.cloud_environment_id = cnv.id  " +
+            "and cnv.department_id = dep.id " +
+            "and dep.organization_id = org.id " +
+            "and org.id = :orgId " +
+            "and cnv.cloud = :cloud " +
+            "group by cnv.cloud, ceo.landing_zone, ceo.product_enclave";
+    @Query(value = ORG_AND_CLOUD_WISE_ENV_SUMMARY_QUERY, nativeQuery = true)
+    public List<EnvironmentSummaryQueryObj> getEnvironmentSummary(@Param("orgId") Long orgId, @Param("cloud") String cloud);
+	
+    
     String PRODUCT_QUERY = "select distinct replace (cast(jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') -> 'associatedProduct' as text), '\"', '') as products from cloud_element ce, cloud_environment cnv, department dep, organization org where org.id =:orgId and org.id = dep.organization_id and dep.id = cnv.department_id and cnv.id = ce.cloud_environment_id and replace(cast(ce.hardware_location -> 'landingZone' as text),'\"','') = cnv.account_id\r\n";
 
 	@Query(value = PRODUCT_QUERY, nativeQuery = true)
@@ -451,6 +519,162 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
             "group by  ceo.landing_zone, ceo.product_enclave ";
 	@Query(value = DISCOVER_ASSTES_LANDING_ZONE_PRODUCT, nativeQuery = true)
 	List<CloudEnvironmentVpcQueryObj> orgVpcSummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
+	
+	String ALL_SPEND_TODAY_ANALYTICS ="SELECT\r\n"
+			+ "  sum_current_date,\r\n"
+			+ "  sum_previous_date,\r\n"
+			+ "    ((sum_current_date - sum_previous_date) / CAST(sum_current_date AS FLOAT)) * 100 AS percentage\r\n"
+			+ "FROM\r\n"
+			+ "  (SELECT SUM(cast(value as INT)) AS sum_current_date\r\n"
+			+ "   FROM cloud_element ce\r\n"
+			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
+			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
+			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date\r\n"
+			+ "   WHERE org.id = :orgId AND jsonb_exists(ce.cost_json->'DAILYCOST',  cast(current_date as text))\r\n"
+			+ "   ) AS current_date_sum,\r\n"
+			+ "  (SELECT SUM(cast(value as INT)) AS sum_previous_date\r\n"
+			+ "   FROM cloud_element ce\r\n"
+			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
+			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
+			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date - 1 \r\n"
+			+ "   WHERE org.id = :orgId AND jsonb_exists (ce.cost_json->'DAILYCOST', cast(current_date as text))\r\n"
+			+ "   ) AS previous_date_sum ";
+	@Query(value = ALL_SPEND_TODAY_ANALYTICS, nativeQuery = true)
+	public List<CloudElementSpendAnalyticsQueryObj> allSpendTodayAnalytics(@Param("orgId") Long orgId);
+	
+	String ALL_SPEND_YESTERDAY_ANALYTICS ="SELECT\r\n"
+			+ "  sum_current_date,\r\n"
+			+ "  sum_previous_date,\r\n"
+			+ "    ((sum_current_date - sum_previous_date) / CAST(sum_current_date AS FLOAT)) * 100 AS percentage\r\n"
+			+ "FROM\r\n"
+			+ "  (SELECT SUM(cast(value as INT)) AS sum_current_date\r\n"
+			+ "   FROM cloud_element ce\r\n"
+			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
+			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
+			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date\r\n"
+			+ "   WHERE org.id = :orgId AND jsonb_exists(ce.cost_json->'DAILYCOST',  cast(current_date as text))\r\n"
+			+ "   ) AS current_date_sum,\r\n"
+			+ "  (SELECT SUM(cast(value as INT)) AS sum_previous_date\r\n"
+			+ "   FROM cloud_element ce\r\n"
+			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
+			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
+			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date - 2\r\n"
+			+ "   WHERE org.id = :orgId AND jsonb_exists (ce.cost_json->'DAILYCOST', cast(current_date as text))\r\n"
+			+ "   ) AS previous_date_sum ";
+	@Query(value = ALL_SPEND_YESTERDAY_ANALYTICS, nativeQuery = true)
+	public List<CloudElementSpendAnalyticsQueryObj> allSpendYesterdaySpendAnalytics(@Param("orgId") Long orgId);
+	
+	String ALL_CURRENT_HOUR_ANALYTICS ="WITH current_hour_sum AS (\r\n"
+			+ "  SELECT SUM(CAST(value AS INT)) AS sum_current_hour\r\n"
+			+ "  FROM cloud_element ce\r\n"
+			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
+			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
+			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59')\r\n"
+			+ "  WHERE org.id = :orgId \r\n"
+			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59'))\r\n"
+			+ "),\r\n"
+			+ "previous_hour_sum AS (\r\n"
+			+ "  SELECT SUM(CAST(value AS INT)) AS sum_previous_hour\r\n"
+			+ "  FROM cloud_element ce\r\n"
+			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
+			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
+			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59')\r\n"
+			+ "  WHERE org.id = :orgId \r\n"
+			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59'))\r\n"
+			+ ")\r\n"
+			+ "SELECT\r\n"
+			+ "  sum_current_hour,\r\n"
+			+ "  sum_previous_hour,\r\n"
+			+ "  (sum_current_hour - sum_previous_hour) / sum_current_hour * 100 AS percentage,\r\n"
+			+ "  sum_current_hour - sum_previous_hour AS sum_difference\r\n"
+			+ "FROM current_hour_sum, previous_hour_sum ";
+	@Query(value = ALL_CURRENT_HOUR_ANALYTICS, nativeQuery = true)
+	List<CloudElementCurrentQueryObj> spendCurrentRateHour(@Param("orgId") Long orgId);
+	
+	String ALL_CURRENT_DAY_ANALYTICS ="SELECT SUM(cast(value as INT)) AS sum_values\r\n"
+			+ "FROM cloud_element ce,cloud_environment cnv, department dep, organization org,\r\n"
+			+ "jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) \r\n"
+			+ "where org.id = dep.organization_id\r\n"
+			+ "and dep.id = cnv.department_id\r\n"
+			+ "and cnv.id = ce.cloud_environment_id\r\n"
+			+ "and org.id = :orgId  ";
+	@Query(value = ALL_CURRENT_DAY_ANALYTICS, nativeQuery = true)
+	List<String> spendCurrentRateDay(@Param("orgId") Long orgId);
+	
+	String ALL_TOTAL_SPEND_ANALYTICS ="SELECT SUM(cast(value as INT)) AS sum_values\r\n"
+			+ "FROM cloud_element ce,cloud_environment cnv, department dep, organization org,\r\n"
+			+ "jsonb_each_text(ce.cost_json->'MONTHLYCOST') AS obj(key, value)\r\n"
+			+ "where org.id = dep.organization_id\r\n"
+			+ "and dep.id = cnv.department_id\r\n"
+			+ "and cnv.id = ce.cloud_environment_id\r\n"
+			+ "and org.id = :orgId ";
+	@Query(value = ALL_TOTAL_SPEND_ANALYTICS, nativeQuery = true)
+	List<String> cloudWiseAnalytics(@Param("orgId") Long orgId);
+	
+	String ALL_CLOUD_WISE_ANALYTICS ="select\r\n"
+			+ "distinct  cnv.cloud, \r\n"
+			+ "  SUM(cast(value as INT)) AS sum_values,\r\n"
+			+ "  (SUM(cast(value as INT)) * 100) / (\r\n"
+			+ "    SELECT SUM(cast(value as INT))\r\n"
+			+ "    FROM cloud_element ce,\r\n"
+			+ "    jsonb_each_text(ce.cost_json->'MONTHLYCOST')\r\n"
+			+ "    AS obj(key, value)\r\n"
+			+ "  ) AS percentage\r\n"
+			+ "FROM\r\n"
+			+ "  cloud_element ce,\r\n"
+			+ "  cloud_environment cnv,\r\n"
+			+ "  department dep,\r\n"
+			+ "  organization org,\r\n"
+			+ "  jsonb_each_text(ce.cost_json->'MONTHLYCOST')\r\n"
+			+ "  AS obj(key, value)\r\n"
+			+ "WHERE\r\n"
+			+ "  org.id = dep.organization_id\r\n"
+			+ "  AND dep.id = cnv.department_id\r\n"
+			+ "  AND cnv.id = ce.cloud_environment_id\r\n"
+			+ "  AND org.id = :orgId  \r\n"
+			+ " AND cnv.cloud IN (SELECT DISTINCT ce.cloud  \r\n"
+			+ "  FROM cloud_environment ce, department d, organization o \r\n"
+			+ "  WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )\r\n"
+			+ "\r\n"
+			+ " GROUP BY\r\n"
+			+ "  cnv.cloud\r\n"
+			+ "ORDER BY\r\n"
+			+ " cnv.cloud ASC ";
+	@Query(value = ALL_CLOUD_WISE_ANALYTICS, nativeQuery = true)
+	List<CloudElementCloudWiseQueryObj> spendTotal(@Param("orgId")Long orgId);
+	
+	
+	String ALL_MONTHLY_WISE_ANALYTICS="SELECT\r\n"
+			+ "  cnv.cloud, \r\n"
+			+ "  TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month') AS month,\r\n"
+			+ "  SUM(CAST(obj.value AS INT)) AS sum_values\r\n"
+			+ "FROM\r\n"
+			+ "  cloud_element ce,\r\n"
+			+ "  cloud_environment cnv,\r\n"
+			+ "  department dep,\r\n"
+			+ "  organization org,\r\n"
+			+ "  JSONB_EACH_TEXT(ce.cost_json->'MONTHLYCOST') AS obj(key, value)\r\n"
+			+ "WHERE \r\n"
+			+ "  org.id = dep.organization_id\r\n"
+			+ "  AND dep.id = cnv.department_id\r\n"
+			+ "  AND cnv.id = ce.cloud_environment_id\r\n"
+			+ "  AND org.id = :orgId \r\n"
+			+ "  AND cnv.cloud IN (SELECT DISTINCT ce.cloud  \r\n"
+			+ "  FROM cloud_environment ce, department d, organization o \r\n"
+			+ "  WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )\r\n"
+			+ "GROUP BY\r\n"
+			+ "  cnv.cloud, TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month'), obj.key\r\n"
+			+ "ORDER BY\r\n"
+			+ "  TO_DATE(obj.key, 'YYYY-MM') ASC, cnv.cloud ASC ";
+	@Query(value = ALL_MONTHLY_WISE_ANALYTICS, nativeQuery = true)
+	List<CloudElementCloudWiseMonthlyQueryObj> eachMonthTotal(@Param("orgId")Long orgId);
+	
 
 	String INFRA_TOPOLOGY_QUERY = "select ce.hardware_location ->> 'landingZone' as landing_zone, " +
 			"ce.hardware_location ->> 'productEnclave' as product_enclave, " +
