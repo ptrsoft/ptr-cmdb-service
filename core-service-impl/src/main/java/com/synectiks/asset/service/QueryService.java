@@ -33,6 +33,7 @@ import com.synectiks.asset.domain.query.InfraTopologyHostingTypeObj;
 import com.synectiks.asset.domain.query.InfraTopologyObj;
 import com.synectiks.asset.domain.query.InfraTopologyProductEnclaveObj;
 import com.synectiks.asset.domain.query.InfraTopologyQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
 import com.synectiks.asset.repository.QueryRepository;
 
 @Service
@@ -432,6 +433,131 @@ public class QueryService {
 		logger.debug("Request to get list of total spend  sum");
 		return queryRepository.eachMonthTotal(orgId);
 	}
+
+	public List<InfraTopologySummaryQueryObj> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave)  {
+		logger.debug("Getting list of cloud elements to form infra-topology-view for a given organization and landing-zone");
+		
+		return queryRepository.getInfraTopologySummary(orgId,landingZone,productEnclave);
+
+	}
+	
+//	private InfraTopologySummaryQueryObj filterInfraTopologyData1(List<InfraTopologySummaryQueryObj> list, String landingZone,
+//			String productEnclave) {
+//	
+//		ObjectMapper objectMapper = Constants.instantiateMapper();
+//		Set<String> productEnclaveSet = list.stream().map(InfraTopologySummaryQueryObj::getHostingType).collect(Collectors.toSet());
+
+//		List<InfraTopologyProductEnclaveObj> productEnclaveList = new ArrayList<>();
+//		for (String productEnclave1: productEnclaveSet){
+//			List<InfraTopologyHostingTypeObj> hostingTypeList = new ArrayList<>();
+//			List<InfraTopologyQueryObj> filteredProductEnclaveList = list.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclave()) && l.getProductEnclave().equalsIgnoreCase(productEnclave1)).collect(Collectors.toList());
+//			Set<String> hostingTypeSet = filteredProductEnclaveList.stream().map(InfraTopologyQueryObj::getHostingType).collect(Collectors.toSet());
+//
+//			for(String hostingType: hostingTypeSet){
+//				List<InfraTopologyCategoryObj> categoryList = new ArrayList<>();
+//				List<InfraTopologyQueryObj> filteredCategoryList = filteredProductEnclaveList.stream().filter(l -> !StringUtils.isBlank(l.getHostingType()) && l.getHostingType().equalsIgnoreCase(hostingType)).collect(Collectors.toList());
+//
+//				for(InfraTopologyQueryObj catObj: filteredCategoryList){
+//					List<InfraTopologyElementObj> elementList = new ArrayList<>();
+//					JsonNode rootNode = objectMapper.readTree(catObj.getElementList());
+//
+//					if(rootNode != null && rootNode.isArray()){
+//						Iterator<JsonNode> iterator = rootNode.iterator();
+//						while (iterator.hasNext()) {
+//							logger.debug("Creating element object");
+//							JsonNode jsonNode = iterator.next();
+//							InfraTopologyElementObj elementObj = InfraTopologyElementObj.builder()
+//									.arn(jsonNode.get("arn").asText())
+//									.name(jsonNode.get("name").asText())
+//									.build();
+//							elementList.add(elementObj);
+//						}
+//					}
+//
+//					InfraTopologyCategoryObj categoryObj = InfraTopologyCategoryObj.builder()
+//							.category(catObj.getCategory())
+//							.elementType(catObj.getElementType())
+//							.elementList(elementList)
+//							.build();
+//					categoryList.add(categoryObj);
+//				}
+//				InfraTopologyHostingTypeObj hostingTypeObj = InfraTopologyHostingTypeObj.builder()
+//						.hostingType(hostingType)
+//						.category(categoryList)
+//						.build();
+//				hostingTypeList.add(hostingTypeObj);
+//			}
+//			InfraTopologyProductEnclaveObj productEnclaveObj = InfraTopologyProductEnclaveObj.builder()
+//					.name(productEnclave1)
+//					.hostingTypeList(hostingTypeList)
+//					.build();
+//			productEnclaveList.add(productEnclaveObj);
+//		}
+
+//		InfraTopologySummaryQueryObj infraTopologyObj = InfraTopologyObj.builder()
+//				.landingZone(landingZone)
+//				.productEnclaveList(productEnclaveList)
+//				.build();
+//		return infraTopologyObj;
+//	}
+
+//	private InfraTopologyObj filterInfraTopologyData1(List<InfraTopologyQueryObj> list, String landingZone,String productEnclave) throws JsonProcessingException {
+//		ObjectMapper objectMapper = Constants.instantiateMapper();
+//		Set<String> productEnclaveSet = list.stream().map(InfraTopologyQueryObj::getProductEnclave).collect(Collectors.toSet());
+//
+//		List<InfraTopologyProductEnclaveObj> productEnclaveList = new ArrayList<>();
+//		for (String productEnclave1: productEnclaveSet){
+//			List<InfraTopologyHostingTypeObj> hostingTypeList = new ArrayList<>();
+//			List<InfraTopologyQueryObj> filteredProductEnclaveList = list.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclave()) && l.getProductEnclave().equalsIgnoreCase(productEnclave1)).collect(Collectors.toList());
+//			Set<String> hostingTypeSet = filteredProductEnclaveList.stream().map(InfraTopologyQueryObj::getHostingType).collect(Collectors.toSet());
+//
+//			for(String hostingType: hostingTypeSet){
+//				List<InfraTopologyCategoryObj> categoryList = new ArrayList<>();
+//				List<InfraTopologyQueryObj> filteredCategoryList = filteredProductEnclaveList.stream().filter(l -> !StringUtils.isBlank(l.getHostingType()) && l.getHostingType().equalsIgnoreCase(hostingType)).collect(Collectors.toList());
+//
+//				for(InfraTopologyQueryObj catObj: filteredCategoryList){
+//					List<InfraTopologyElementObj> elementList = new ArrayList<>();
+//					JsonNode rootNode = objectMapper.readTree(catObj.getElementList());
+//
+//					if(rootNode != null && rootNode.isArray()){
+//						Iterator<JsonNode> iterator = rootNode.iterator();
+//						while (iterator.hasNext()) {
+//							logger.debug("Creating element object");
+//							JsonNode jsonNode = iterator.next();
+//							InfraTopologyElementObj elementObj = InfraTopologyElementObj.builder()
+//									.arn(jsonNode.get("arn").asText())
+//									.name(jsonNode.get("name").asText())
+//									.build();
+//							elementList.add(elementObj);
+//						}
+//					}
+//
+//					InfraTopologyCategoryObj categoryObj = InfraTopologyCategoryObj.builder()
+//							.category(catObj.getCategory())
+//							.elementType(catObj.getElementType())
+//							.elementList(elementList)
+//							.build();
+//					categoryList.add(categoryObj);
+//				}
+//				InfraTopologyHostingTypeObj hostingTypeObj = InfraTopologyHostingTypeObj.builder()
+//						.hostingType(hostingType)
+//						.category(categoryList)
+//						.build();
+//				hostingTypeList.add(hostingTypeObj);
+//			}
+//			InfraTopologyProductEnclaveObj productEnclaveObj = InfraTopologyProductEnclaveObj.builder()
+//					.name(productEnclave1)
+//					.hostingTypeList(hostingTypeList)
+//					.build();
+//			productEnclaveList.add(productEnclaveObj);
+//		}
+//
+//		InfraTopologyObj infraTopologyObj = InfraTopologyObj.builder()
+//				.landingZone(landingZone)
+//				.productEnclaveList(productEnclaveList)
+//				.build();
+//		return infraTopologyObj;
+//	}
 
 }
 

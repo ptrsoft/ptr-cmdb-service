@@ -18,6 +18,7 @@ import com.synectiks.asset.api.model.CloudElementVpcDTO;
 import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.InfraTopologyDTO;
+import com.synectiks.asset.api.model.InfraTopologySummaryDTO;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCurrentQueryObj;
@@ -26,6 +27,7 @@ import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentQueryObj;
 import com.synectiks.asset.domain.query.InfraTopologyObj;
+import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
 import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
 import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
 import com.synectiks.asset.mapper.query.CloudElementCurrentQueryMapper;
@@ -34,6 +36,7 @@ import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
 import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.mapper.query.InfraTopologyMapper;
+import com.synectiks.asset.mapper.query.InfraTopologySummeryMapper;
 import com.synectiks.asset.service.QueryService;
 
 
@@ -362,7 +365,6 @@ public class QueryController implements QueryApi {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().body(null);
 		}
-
 	}
 	
 	@Override
@@ -421,6 +423,18 @@ public class QueryController implements QueryApi {
 		List<CloudElementCloudWiseMonthlyQueryObj> environmentQueryObjList = queryService.eachMonthTotal(orgId);
 	    List<CloudElementCloudWiseMonthlyAnalyticsDTO> dtoList = CloudElementCloudWiseMonthlyQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
 		return ResponseEntity.ok(dtoList);
+	}
+	
+	@Override
+	public ResponseEntity<List<InfraTopologySummaryDTO>> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave) {
+		try{
+			List<InfraTopologySummaryQueryObj> infraTopologySummaryQueryObj = queryService.getInfraTopologySummary(orgId, landingZone,productEnclave);
+			List<InfraTopologySummaryDTO> infraTopologyDTO = InfraTopologySummeryMapper.INSTANCE.toDtoList(infraTopologySummaryQueryObj);
+			return ResponseEntity.ok(infraTopologyDTO);
+		}catch (Exception e){
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body(null);
+		}
 	}
 }
 

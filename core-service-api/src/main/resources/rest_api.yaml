@@ -2424,6 +2424,42 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organizations/{orgId}/landing-zone/{landingZone}/product-enclave/{productEnclave}/infra-topology-summary:
+    get:
+      tags:
+        - InfraTopologyQuery
+      summary: get infra topology summary of given Organization, landingZone and product enclave
+      operationId: getInfraTopologySummary
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: productEnclave
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                 $ref: '#/components/schemas/InfraTopologySummaryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/spend-today/organization/{orgId}/analytics:
     get:
       tags:
@@ -2884,6 +2920,20 @@ components:
           type: string
         elementType:
           type: string
+        total:
+          type: string
+        cpuUtilization:
+          type: string
+        memory:
+          type: string
+        networkBytes:
+          type: string
+        networkBytesOut:
+          type: string
+        cpuReservation:
+          type: string
+        memoryReservation:
+          type: string
         elementList:
           type: array
           items:
@@ -2971,4 +3021,17 @@ components:
         sumValues:
           type: integer
           format: int64
-    
+    InfraTopologySummaryDTO:
+      type: object
+      properties:
+        hostingType:
+          type: string
+        elementType:
+         type: string
+        category:
+         type: string
+        dbCategory:
+         type: string
+        totalElements:
+          type: integer
+          format: int64

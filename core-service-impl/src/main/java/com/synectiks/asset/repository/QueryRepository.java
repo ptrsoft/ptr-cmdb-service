@@ -1,9 +1,11 @@
 package com.synectiks.asset.repository;
 
+import com.synectiks.asset.api.model.InfraTopologySummaryDTO;
 import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.InfraTopologyQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
 
 import java.util.List;
 
@@ -687,4 +689,27 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"and org.id = :orgId and ce.hardware_location ->> 'landingZone' = :landingZone ";
 	@Query(value = INFRA_TOPOLOGY_QUERY, nativeQuery = true)
 	List<InfraTopologyQueryObj> getInfraTopology(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
+	
+	String CLOUD_TYPE_TOPOLOGY_QUERY = " SELECT DISTINCT\r\n"
+			+ "  ce.cloud_identity ->> 'hostingType' AS hosting_type,\r\n"
+			+ "  ce.element_type,\r\n"
+			+ "  ce.cloud_identity ->> 'category' AS category,\r\n"
+			+ "  ce.cloud_identity ->> 'dbCategory' AS db_category,\r\n"
+			+ "  coalesce(jsonb_array_length(ce.cloud_identity -> 'elementLists'), 0) AS total_elements\r\n"
+			+ "FROM\r\n"
+			+ "  cloud_element ce,\r\n"
+			+ "  cloud_environment cnv,\r\n"
+			+ "  department dep,\r\n"
+			+ "  organization org\r\n"
+			+ "WHERE\r\n"
+			+ "  ce.cloud_environment_id = cnv.id\r\n"
+			+ "  AND cnv.department_id = dep.id\r\n"
+			+ "  AND dep.organization_id = org.id\r\n"
+			+ "  AND org.id = :orgId \r\n"
+			+ "  AND ce.hardware_location ->> 'landingZone' = :landingZone \r\n"
+			+ "  AND ce.hardware_location ->> 'productEnclave' = :productEnclave \r\n"
+			+ "ORDER BY\r\n"
+			+ "  ce.cloud_identity ->> 'hostingType' ASC ";
+	@Query(value = CLOUD_TYPE_TOPOLOGY_QUERY, nativeQuery = true)
+	List<InfraTopologySummaryQueryObj> getInfraTopologySummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
 }
