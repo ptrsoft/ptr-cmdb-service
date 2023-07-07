@@ -42,6 +42,8 @@ tags:
     description: perform CRUD operations on micro_service table
   - name: DeploymentEnvironment
     description: perform CRUD operations on deployment_environment table
+  - name: DbCategory
+    description: perform CRUD operations on db_category table
   - name: OrgWiseQuery
     description: get organization wise data
   - name: OrgDepWiseQuery
@@ -77,11 +79,11 @@ tags:
   - name: CurrentSpendRateQuery
     description: get current spend analytice  wise data
   - name: TotalSpendQuery
-    description: get total spend analytice  wise data 
+    description: get total spend analytice  wise data
   - name: CloudWiseQuery
-    description: get cloud wise analytice  wise data  
- 
-  
+    description: get cloud wise analytice  wise data
+
+
 paths:
   /organizations:
     get:
@@ -965,6 +967,133 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /db-category:
+    get:
+      tags:
+        - DbCategory
+      summary: Fetch list of db-category
+      operationId: getDbCategoryList
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DbCategoryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    post:
+      tags:
+        - DbCategory
+      summary: Add db-category
+      operationId: addDbCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DbCategoryDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbCategoryDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbCategoryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    patch:
+      tags:
+        - DbCategory
+      summary: Update db-category
+      operationId: updateDbCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DbCategoryDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbCategoryDTO'
+        201:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbCategoryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /db-category/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          format: int64
+        required: true
+    get:
+      tags:
+        - DbCategory
+      summary: Fetch a db-category of given id
+      operationId: getDbCategory
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbCategoryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /db-category/search:
+    get:
+      tags:
+        - DbCategory
+      summary: Search db-category data
+      operationId: searchDbCategory
+      parameters:
+        - name: dbCategoryDTO
+          in: query
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbCategoryDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DbCategoryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+
   /query/organizations/{orgId}/cloud-environments/count:
     get:
       tags:
@@ -2454,8 +2583,8 @@ paths:
             application/json:
               schema:
                 type: array
-                items: 
-                 $ref: '#/components/schemas/InfraTopologySummaryDTO'
+                items:
+                  $ref: '#/components/schemas/InfraTopologySummaryDTO'
         404:
           description: "Service Not found"
         500:
@@ -2464,7 +2593,7 @@ paths:
     get:
       tags:
         - SpendAnalyticeQuery
-      summary: get list of spend tody 
+      summary: get list of spend tody
       operationId: allSpendTodayAnalytics
       parameters:
         - in: path
@@ -2490,7 +2619,7 @@ paths:
     get:
       tags:
         - SpendAnalyticeQuery
-      summary: get list of spend yesterday 
+      summary: get list of spend yesterday
       operationId: allSpendYesterdaySpendAnalytics
       parameters:
         - in: path
@@ -2507,7 +2636,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO' 
+                  $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO'
         404:
           description: "Service Not found"
         500:
@@ -2533,7 +2662,7 @@ paths:
               schema:
                 type: array
                 items:
-                   $ref: '#/components/schemas/CloudElementCurrentsDTO'
+                  $ref: '#/components/schemas/CloudElementCurrentsDTO'
         404:
           description: "Service Not found"
         500:
@@ -2568,7 +2697,7 @@ paths:
     get:
       tags:
         - TotalSpendQuery
-      summary: get list of cloud wise  rate 
+      summary: get list of cloud wise  rate
       operationId: cloudWiseAnalytics
       parameters:
         - in: path
@@ -2594,7 +2723,7 @@ paths:
     get:
       tags:
         - CloudWiseQuery
-      summary: get list of total-spend rate 
+      summary: get list of total-spend rate
       operationId: spendTotal
       parameters:
         - in: path
@@ -2611,7 +2740,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CloudElementCloudWiseAnalyticsDTO' 
+                  $ref: '#/components/schemas/CloudElementCloudWiseAnalyticsDTO'
         404:
           description: "Service Not found"
         500:
@@ -2620,7 +2749,7 @@ paths:
     get:
       tags:
         - CloudWiseQuery
-      summary: get list of total-spend rate 
+      summary: get list of total-spend rate
       operationId: eachMonthTotal
       parameters:
         - in: path
@@ -2847,6 +2976,24 @@ components:
           type: string
         updatedOn:
           type: string
+    DbCategoryDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        status:
+          type: string
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdOn:
+          type: string
+        updatedOn:
+          type: string
     EnvironmentCountQueryDTO:
       type: object
       properties:
@@ -3017,7 +3164,7 @@ components:
         cloud:
           type: string
         month:
-         type: string
+          type: string
         sumValues:
           type: integer
           format: int64
@@ -3027,11 +3174,11 @@ components:
         hostingType:
           type: string
         elementType:
-         type: string
+          type: string
         category:
-         type: string
+          type: string
         dbCategory:
-         type: string
+          type: string
         totalElements:
           type: integer
           format: int64
