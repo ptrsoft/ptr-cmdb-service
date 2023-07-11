@@ -1,6 +1,5 @@
 package com.synectiks.asset.repository;
 
-import com.synectiks.asset.api.model.InfraTopologySummaryDTO;
 import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
@@ -14,15 +13,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCurrentQueryObj;
 import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
 
 /**
@@ -570,44 +564,47 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = ALL_SPEND_YESTERDAY_ANALYTICS, nativeQuery = true)
 	public List<CloudElementSpendAnalyticsQueryObj> allSpendYesterdaySpendAnalytics(@Param("orgId") Long orgId);
 	
-	String ALL_CURRENT_HOUR_ANALYTICS ="WITH current_hour_sum AS (\r\n"
-			+ "  SELECT SUM(CAST(value AS INT)) AS sum_current_hour\r\n"
-			+ "  FROM cloud_element ce\r\n"
-			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
-			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
-			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59')\r\n"
-			+ "  WHERE org.id = :orgId \r\n"
-			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59'))\r\n"
-			+ "),\r\n"
-			+ "previous_hour_sum AS (\r\n"
-			+ "  SELECT SUM(CAST(value AS INT)) AS sum_previous_hour\r\n"
-			+ "  FROM cloud_element ce\r\n"
-			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
-			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
-			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59')\r\n"
-			+ "  WHERE org.id = :orgId \r\n"
-			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59'))\r\n"
-			+ ")\r\n"
-			+ "SELECT\r\n"
-			+ "  sum_current_hour,\r\n"
-			+ "  sum_previous_hour,\r\n"
-			+ "  (sum_current_hour - sum_previous_hour) / sum_current_hour * 100 AS percentage,\r\n"
-			+ "  sum_current_hour - sum_previous_hour AS sum_difference\r\n"
-			+ "FROM current_hour_sum, previous_hour_sum ";
-	@Query(value = ALL_CURRENT_HOUR_ANALYTICS, nativeQuery = true)
-	List<CloudElementCurrentQueryObj> spendCurrentRateHour(@Param("orgId") Long orgId);
-	
-	String ALL_CURRENT_DAY_ANALYTICS ="SELECT SUM(cast(value as INT)) AS sum_values\r\n"
-			+ "FROM cloud_element ce,cloud_environment cnv, department dep, organization org,\r\n"
-			+ "jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) \r\n"
-			+ "where org.id = dep.organization_id\r\n"
-			+ "and dep.id = cnv.department_id\r\n"
-			+ "and cnv.id = ce.cloud_environment_id\r\n"
-			+ "and org.id = :orgId  ";
+//	String ALL_CURRENT_HOUR_ANALYTICS ="WITH current_hour_sum AS (\r\n"
+//			+ "  SELECT SUM(CAST(value AS INT)) AS sum_current_hour\r\n"
+//			+ "  FROM cloud_element ce\r\n"
+//			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+//			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
+//			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
+//			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59')\r\n"
+//			+ "  WHERE org.id = :orgId \r\n"
+//			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59'))\r\n"
+//			+ "),\r\n"
+//			+ "previous_hour_sum AS (\r\n"
+//			+ "  SELECT SUM(CAST(value AS INT)) AS sum_previous_hour\r\n"
+//			+ "  FROM cloud_element ce\r\n"
+//			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
+//			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
+//			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
+//			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59')\r\n"
+//			+ "  WHERE org.id = :orgId \r\n"
+//			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59'))\r\n"
+//			+ ")\r\n"
+//			+ "SELECT\r\n"
+//			+ "  sum_current_hour,\r\n"
+//			+ "  sum_previous_hour,\r\n"
+//			+ "  (sum_current_hour - sum_previous_hour) / sum_current_hour * 100 AS percentage,\r\n"
+//			+ "  sum_current_hour - sum_previous_hour AS sum_difference\r\n"
+//			+ "FROM current_hour_sum, previous_hour_sum ";
+//	@Query(value = ALL_CURRENT_HOUR_ANALYTICS, nativeQuery = true)
+//	List<CloudElementCurrentQueryObj> spendCurrentRateHour(@Param("orgId") Long orgId);
+//
+	String ALL_CURRENT_DAY_ANALYTICS ="select coalesce(sum(cast (jb.value as int)),0) AS sum_values " +
+			"from cloud_element ce, " +
+			"jsonb_array_elements(ce.cost_json  -> 'elementLists') with ordinality c(obj, pos), " +
+			"jsonb_each_text(c.obj -> 'DAILYCOST') AS jb(key, value), " +
+			"cloud_environment cnv, department dep, organization org " +
+			"where date(jb.key) = current_date and " +
+			"org.id = dep.organization_id " +
+			"and dep.id = cnv.department_id " +
+			"and cnv.id = ce.cloud_environment_id " +
+			"and org.id = :orgId  ";
 	@Query(value = ALL_CURRENT_DAY_ANALYTICS, nativeQuery = true)
-	List<String> spendCurrentRateDay(@Param("orgId") Long orgId);
+	Long currentSpendRatePerDay(@Param("orgId") Long orgId);
 	
 	String ALL_TOTAL_SPEND_ANALYTICS ="SELECT SUM(cast(value as INT)) AS sum_values\r\n"
 			+ "FROM cloud_element ce,cloud_environment cnv, department dep, organization org,\r\n"

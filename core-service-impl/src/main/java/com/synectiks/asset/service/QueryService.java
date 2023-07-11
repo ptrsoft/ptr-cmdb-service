@@ -409,14 +409,18 @@ public class QueryService {
 		return queryRepository.allSpendYesterdaySpendAnalytics(orgId);
 	}
 
-	public List<CloudElementCurrentQueryObj> spendCurrentRateHour(Long orgId) {
-		logger.debug("Request to get list of current spend rate par hour  sum");
-		return queryRepository.spendCurrentRateHour(orgId);
+	public Long currentSpendRateAvePerHour(Long orgId) {
+		logger.debug("Get current spend rate average par hour");
+		Long perDay = queryRepository.currentSpendRatePerDay(orgId);
+		if(perDay != null && perDay != 0){
+			perDay = perDay/24;
+		}
+		return perDay;
 	}
 
-	public List<String> spendCurrentRateDay(Long orgId) {
-		logger.debug("Request to get list of current spend rate par day  sum");
-		return queryRepository.spendCurrentRateDay(orgId);
+	public Long currentSpendRatePerDay(Long orgId) {
+		logger.debug("Request to get current spend rate par day sum");
+		return queryRepository.currentSpendRatePerDay(orgId);
 	}
 
 	public List<String> cloudWiseAnalytics(Long orgId) {

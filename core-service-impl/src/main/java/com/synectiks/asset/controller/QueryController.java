@@ -386,19 +386,16 @@ public class QueryController implements QueryApi {
 		return ResponseEntity.ok(dtoList);
 	}
 	@Override
-	public ResponseEntity<List<CloudElementCurrentsDTO>> spendCurrentRateHour(Long orgId) {
-		logger.debug(
-				"REST request to get list of  current spend rate par hour");
-		List<CloudElementCurrentQueryObj> environmentQueryObjList = queryService.spendCurrentRateHour(orgId);
-	    List<CloudElementCurrentsDTO> dtoList = CloudElementCurrentQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
-		return ResponseEntity.ok(dtoList);
+	public ResponseEntity<Long> currentSpendRateAvePerHour(Long orgId) {
+		logger.debug("REST request to get current spend rate average par hour");
+		Long aveSpendRatePerHour = queryService.currentSpendRateAvePerHour(orgId);
+		return ResponseEntity.ok(aveSpendRatePerHour);
 	}
 	@Override
-	public ResponseEntity<List<String>> spendCurrentRateDay(Long orgId) {
-		logger.debug(
-				"REST request to get list of  current spend rate par day");
-		List<String> listOfToday = queryService.spendCurrentRateDay(orgId);
-		return ResponseEntity.ok(listOfToday);
+	public ResponseEntity<Long> currentSpendRatePerDay(Long orgId) {
+		logger.debug("REST request to get current spend rate par day");
+		Long currentSpendRatePerDay = queryService.currentSpendRatePerDay(orgId);
+		return ResponseEntity.ok(currentSpendRatePerDay);
 	}
 	
 	@Override

@@ -2645,8 +2645,8 @@ paths:
     get:
       tags:
         - CurrentSpendRateQuery
-      summary: get list of current spend rate par hour
-      operationId: spendCurrentRateHour
+      summary: get current spend rate average par hour
+      operationId: currentSpendRateAvePerHour
       parameters:
         - in: path
           name: orgId
@@ -2660,9 +2660,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CloudElementCurrentsDTO'
+                type: integer
+                format: int64
         404:
           description: "Service Not found"
         500:
@@ -2671,8 +2670,8 @@ paths:
     get:
       tags:
         - CurrentSpendRateQuery
-      summary: get list of current spend rate par day
-      operationId: spendCurrentRateDay
+      summary: get current spend rate par day
+      operationId: currentSpendRatePerDay
       parameters:
         - in: path
           name: orgId
@@ -2686,9 +2685,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                type: integer
+                format: int64
         404:
           description: "Service Not found"
         500:
