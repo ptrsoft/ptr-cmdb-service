@@ -649,28 +649,20 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	List<CloudElementCloudWiseQueryObj> spendTotal(@Param("orgId")Long orgId);
 	
 	
-	String ALL_MONTHLY_WISE_ANALYTICS="SELECT\r\n"
-			+ "  cnv.cloud, \r\n"
-			+ "  TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month') AS month,\r\n"
-			+ "  SUM(CAST(obj.value AS INT)) AS sum_values\r\n"
-			+ "FROM\r\n"
-			+ "  cloud_element ce,\r\n"
-			+ "  cloud_environment cnv,\r\n"
-			+ "  department dep,\r\n"
-			+ "  organization org,\r\n"
-			+ "  JSONB_EACH_TEXT(ce.cost_json->'MONTHLYCOST') AS obj(key, value)\r\n"
-			+ "WHERE \r\n"
-			+ "  org.id = dep.organization_id\r\n"
-			+ "  AND dep.id = cnv.department_id\r\n"
-			+ "  AND cnv.id = ce.cloud_environment_id\r\n"
-			+ "  AND org.id = :orgId \r\n"
-			+ "  AND cnv.cloud IN (SELECT DISTINCT ce.cloud  \r\n"
-			+ "  FROM cloud_environment ce, department d, organization o \r\n"
-			+ "  WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )\r\n"
-			+ "GROUP BY\r\n"
-			+ "  cnv.cloud, TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month'), obj.key\r\n"
-			+ "ORDER BY\r\n"
-			+ "  TO_DATE(obj.key, 'YYYY-MM') ASC, cnv.cloud ASC ";
+	String ALL_MONTHLY_WISE_ANALYTICS="select cnv.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month, SUM(CAST(jb.value AS INT)) AS sum_values " +
+			"from cloud_element ce, " +
+			"jsonb_array_elements(ce.cost_json  -> 'elementLists') with ordinality c(obj, pos), " +
+			"jsonb_each_text(c.obj -> 'MONTHLYCOST') AS jb(key, value), " +
+			"cloud_environment cnv, department dep, organization org " +
+			"where org.id = dep.organization_id " +
+			"and dep.id = cnv.department_id " +
+			"and cnv.id = ce.cloud_environment_id " +
+			"and org.id = :orgId " +
+			"and cnv.cloud IN (SELECT DISTINCT ce.cloud  " +
+			"  FROM cloud_environment ce, department d, organization o " +
+			"  WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId) " +
+			"group by cnv.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key " +
+			"ORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, cnv.cloud ASC";
 	@Query(value = ALL_MONTHLY_WISE_ANALYTICS, nativeQuery = true)
 	List<CloudElementCloudWiseMonthlyQueryObj> eachMonthTotal(@Param("orgId")Long orgId);
 	
