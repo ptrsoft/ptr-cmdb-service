@@ -2593,7 +2593,7 @@ paths:
     get:
       tags:
         - SpendAnalyticeQuery
-      summary: get list of spend tody
+      summary: get today's spend
       operationId: allSpendTodayAnalytics
       parameters:
         - in: path
@@ -2608,9 +2608,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO'
+                $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO'
         404:
           description: "Service Not found"
         500:
@@ -2619,7 +2617,7 @@ paths:
     get:
       tags:
         - SpendAnalyticeQuery
-      summary: get list of spend yesterday
+      summary: get yesterday's spend
       operationId: allSpendYesterdaySpendAnalytics
       parameters:
         - in: path
@@ -2634,9 +2632,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO'
+                $ref: '#/components/schemas/CloudElementSpendAnalyticsDTO'
         404:
           description: "Service Not found"
         500:
@@ -3128,8 +3124,7 @@ components:
           type: integer
           format: int64
         percentage:
-          type: integer
-          format: int64
+          type: string
     CloudElementCurrentsDTO:
       type: object
       properties:

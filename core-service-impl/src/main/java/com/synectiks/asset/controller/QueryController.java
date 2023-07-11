@@ -368,21 +368,18 @@ public class QueryController implements QueryApi {
 	}
 	
 	@Override
-	public ResponseEntity<List<CloudElementSpendAnalyticsDTO>> allSpendTodayAnalytics(Long orgId) {
-		logger.debug(
-				"REST request to get list of  spend tody");
-		List<CloudElementSpendAnalyticsQueryObj> environmentQueryObjList = queryService.allSpendTodayAnalytics(orgId);
-	    List<CloudElementSpendAnalyticsDTO> dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+	public ResponseEntity<CloudElementSpendAnalyticsDTO> allSpendTodayAnalytics(Long orgId) {
+		logger.debug("REST request to get today's cost spent");
+		CloudElementSpendAnalyticsQueryObj environmentQueryObj = queryService.allSpendTodayAnalytics(orgId);
+	    CloudElementSpendAnalyticsDTO dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDto(environmentQueryObj);
 		return ResponseEntity.ok(dtoList);
-
 	}
 	
 	@Override
-	public ResponseEntity<List<CloudElementSpendAnalyticsDTO>> allSpendYesterdaySpendAnalytics(Long orgId) {
-		logger.debug(
-				"REST request to get list of  spend yesterday");
-		List<CloudElementSpendAnalyticsQueryObj> environmentQueryObjList = queryService.allSpendYesterdaySpendAnalytics(orgId);
-	    List<CloudElementSpendAnalyticsDTO> dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+	public ResponseEntity<CloudElementSpendAnalyticsDTO> allSpendYesterdaySpendAnalytics(Long orgId) {
+		logger.debug("REST request to get yesterday's spend ");
+		CloudElementSpendAnalyticsQueryObj environmentQueryObj = queryService.allSpendYesterdaySpendAnalytics(orgId);
+	    CloudElementSpendAnalyticsDTO dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDto(environmentQueryObj);
 		return ResponseEntity.ok(dtoList);
 	}
 	@Override

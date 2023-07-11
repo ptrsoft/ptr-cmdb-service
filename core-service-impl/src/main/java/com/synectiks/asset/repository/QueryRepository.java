@@ -516,53 +516,63 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = DISCOVER_ASSTES_LANDING_ZONE_PRODUCT, nativeQuery = true)
 	List<CloudEnvironmentVpcQueryObj> orgVpcSummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
 	
-	String ALL_SPEND_TODAY_ANALYTICS ="SELECT\r\n"
-			+ "  sum_current_date,\r\n"
-			+ "  sum_previous_date,\r\n"
-			+ "    ((sum_current_date - sum_previous_date) / CAST(sum_current_date AS FLOAT)) * 100 AS percentage\r\n"
-			+ "FROM\r\n"
-			+ "  (SELECT SUM(cast(value as INT)) AS sum_current_date\r\n"
-			+ "   FROM cloud_element ce\r\n"
-			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
-			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
-			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date\r\n"
-			+ "   WHERE org.id = :orgId AND jsonb_exists(ce.cost_json->'DAILYCOST',  cast(current_date as text))\r\n"
-			+ "   ) AS current_date_sum,\r\n"
-			+ "  (SELECT SUM(cast(value as INT)) AS sum_previous_date\r\n"
-			+ "   FROM cloud_element ce\r\n"
-			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
-			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
-			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date - 1 \r\n"
-			+ "   WHERE org.id = :orgId AND jsonb_exists (ce.cost_json->'DAILYCOST', cast(current_date as text))\r\n"
-			+ "   ) AS previous_date_sum ";
+	String ALL_SPEND_TODAY_ANALYTICS ="with yesterday_sum as ( " +
+			"select coalesce(SUM(cast(jb.value as INT)), 0) as sum_values " +
+			"from cloud_element ce " +
+			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj,pos) " +
+			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
+			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
+			"join department dep on dep.id = cnv.department_id " +
+			"join organization org on org.id = dep.organization_id " +
+			"where date(jb.key) = current_date - interval '1 day' and org.id = :orgId " +
+			") " +
+			"select " +
+			"coalesce(SUM(cast(jb.value as INT)), 0) as sum_current_date, " +
+			"yesterday_sum.sum_values as sum_previous_date, " +
+			"cast(coalesce(SUM(cast(jb.value as INT)),0) - yesterday_sum.sum_values as float) * 100.0 / yesterday_sum.sum_values as percentage " +
+			"from " +
+			"cloud_element ce " +
+			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos) " +
+			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
+			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
+			"join department dep on dep.id = cnv.department_id " +
+			"join organization org on org.id = dep.organization_id " +
+			"cross join yesterday_sum " +
+			"where " +
+			"date(jb.key) = current_date " +
+			"and org.id = :orgId " +
+			"group by yesterday_sum.sum_values ";
 	@Query(value = ALL_SPEND_TODAY_ANALYTICS, nativeQuery = true)
-	public List<CloudElementSpendAnalyticsQueryObj> allSpendTodayAnalytics(@Param("orgId") Long orgId);
+	public CloudElementSpendAnalyticsQueryObj allSpendTodayAnalytics(@Param("orgId") Long orgId);
 	
-	String ALL_SPEND_YESTERDAY_ANALYTICS ="SELECT\r\n"
-			+ "  sum_current_date,\r\n"
-			+ "  sum_previous_date,\r\n"
-			+ "    ((sum_current_date - sum_previous_date) / CAST(sum_current_date AS FLOAT)) * 100 AS percentage\r\n"
-			+ "FROM\r\n"
-			+ "  (SELECT SUM(cast(value as INT)) AS sum_current_date\r\n"
-			+ "   FROM cloud_element ce\r\n"
-			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
-			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
-			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date\r\n"
-			+ "   WHERE org.id = :orgId AND jsonb_exists(ce.cost_json->'DAILYCOST',  cast(current_date as text))\r\n"
-			+ "   ) AS current_date_sum,\r\n"
-			+ "  (SELECT SUM(cast(value as INT)) AS sum_previous_date\r\n"
-			+ "   FROM cloud_element ce\r\n"
-			+ "   JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "   JOIN department dep ON dep.id = cnv.department_id\r\n"
-			+ "   JOIN organization org ON org.id = dep.organization_id\r\n"
-			+ "   JOIN jsonb_each_text(ce.cost_json->'DAILYCOST') AS obj(key, value) ON date(key) = current_date - 2\r\n"
-			+ "   WHERE org.id = :orgId AND jsonb_exists (ce.cost_json->'DAILYCOST', cast(current_date as text))\r\n"
-			+ "   ) AS previous_date_sum ";
+	String ALL_SPEND_YESTERDAY_ANALYTICS ="with yesterday_sum as ( " +
+			"select coalesce(SUM(cast(jb.value as INT)), 0) as sum_values " +
+			"from cloud_element ce " +
+			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj,pos) " +
+			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
+			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
+			"join department dep on dep.id = cnv.department_id " +
+			"join organization org on org.id = dep.organization_id " +
+			"where date(jb.key) = current_date - interval '2 day' and org.id = :orgId " +
+			") " +
+			"select " +
+			"coalesce(SUM(cast(jb.value as INT)), 0) as sum_current_date, " +
+			"yesterday_sum.sum_values as sum_previous_date, " +
+			"cast(coalesce(SUM(cast(jb.value as INT)),0) - yesterday_sum.sum_values as float) * 100.0 / yesterday_sum.sum_values as percentage " +
+			"from " +
+			"cloud_element ce " +
+			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos) " +
+			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
+			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
+			"join department dep on dep.id = cnv.department_id " +
+			"join organization org on org.id = dep.organization_id " +
+			"cross join yesterday_sum " +
+			"where " +
+			"date(jb.key) = current_date - interval '1 day' " +
+			"and org.id = :orgId " +
+			"group by yesterday_sum.sum_values ";
 	@Query(value = ALL_SPEND_YESTERDAY_ANALYTICS, nativeQuery = true)
-	public List<CloudElementSpendAnalyticsQueryObj> allSpendYesterdaySpendAnalytics(@Param("orgId") Long orgId);
+	public CloudElementSpendAnalyticsQueryObj allSpendYesterdaySpendAnalytics(@Param("orgId") Long orgId);
 	
 //	String ALL_CURRENT_HOUR_ANALYTICS ="WITH current_hour_sum AS (\r\n"
 //			+ "  SELECT SUM(CAST(value AS INT)) AS sum_current_hour\r\n"

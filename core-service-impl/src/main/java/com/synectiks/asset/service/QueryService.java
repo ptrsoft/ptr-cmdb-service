@@ -399,13 +399,13 @@ public class QueryService {
 	}
 
 
-	public List<CloudElementSpendAnalyticsQueryObj> allSpendTodayAnalytics(Long orgId) {
-		logger.debug("Request to get list of spend-today  sum");
+	public CloudElementSpendAnalyticsQueryObj allSpendTodayAnalytics(Long orgId) {
+		logger.debug("Get today's cost spent");
 		return queryRepository.allSpendTodayAnalytics(orgId);
 	}
 
-	public List<CloudElementSpendAnalyticsQueryObj> allSpendYesterdaySpendAnalytics(Long orgId) {
-		logger.debug("Request to get list of spend-yesterday  sum");
+	public CloudElementSpendAnalyticsQueryObj allSpendYesterdaySpendAnalytics(Long orgId) {
+		logger.debug("Get yesterday's spend ");
 		return queryRepository.allSpendYesterdaySpendAnalytics(orgId);
 	}
 

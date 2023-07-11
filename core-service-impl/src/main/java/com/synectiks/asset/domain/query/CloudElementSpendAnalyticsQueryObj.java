@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 public interface CloudElementSpendAnalyticsQueryObj extends Serializable{
 
 	@Value("#{target.sum_current_date}")
-	String getSumCurrentDate();
+	Long getSumCurrentDate();
 
-  @Value("#{target.sum_previous_date}")
-  Long getSumPreviousDate();
+    @Value("#{target.sum_previous_date}")
+    Long getSumPreviousDate();
 
-  @Value("#{target.percentage}")
-  Long getPercentage();
+    @Value("#{target.percentage}")
+    String getPercentage();
  
 
 
