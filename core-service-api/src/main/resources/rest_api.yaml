@@ -2765,6 +2765,59 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/orgnaiztion/{orgId}/monthly-statistics:
+    get:
+      tags:
+        - MonthlyStatistics
+      summary: get list of monthly-statistics rate 
+      operationId: monthlyStatistics
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyStatisticsDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/orgnaiztion/{orgId}/total-budget:
+    get:
+      tags:
+        - TotalBudget
+      summary: get list of total-budget rate 
+      operationId: totalBudget
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TotalBudgetDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+          
 components:
   schemas:
     OrganizationDTO:
@@ -3161,6 +3214,43 @@ components:
         sumValues:
           type: integer
           format: int64
+    MonthlyStatisticsDTO:
+      type: object
+      properties:
+        month:
+          type: string
+        currentYearSum:
+         type: integer
+         format: int64
+        previousYearSum:
+          type: integer
+          format: int64
+        difference:
+          type: integer
+          format: int64
+        differencePercentage:
+          type: integer
+          format: int64
+        currentYearTotalSum:
+          type: integer
+          format: int64
+    TotalBudgetDTO:
+      type: object
+      properties:
+        monthlyCostSum:
+         type: integer
+         format: int64
+        budgetTotalSum:
+          type: integer
+          format: int64
+        difference:
+          type: integer
+          format: int64
+        Percentage:
+          type: integer
+          format: int64
+          
+          
     InfraTopologySummaryDTO:
       type: object
       properties:

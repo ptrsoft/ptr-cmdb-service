@@ -12,31 +12,34 @@ import org.springframework.web.bind.annotation.RestController;
 import com.synectiks.asset.api.controller.QueryApi;
 import com.synectiks.asset.api.model.CloudElementCloudWiseAnalyticsDTO;
 import com.synectiks.asset.api.model.CloudElementCloudWiseMonthlyAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementCurrentsDTO;
 import com.synectiks.asset.api.model.CloudElementSpendAnalyticsDTO;
 import com.synectiks.asset.api.model.CloudElementVpcDTO;
 import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.InfraTopologyDTO;
 import com.synectiks.asset.api.model.InfraTopologySummaryDTO;
+import com.synectiks.asset.api.model.MonthlyStatisticsDTO;
+import com.synectiks.asset.api.model.TotalBudgetDTO;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCurrentQueryObj;
 import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
 import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentQueryObj;
 import com.synectiks.asset.domain.query.InfraTopologyObj;
 import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
+import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
+import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
 import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
 import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
-import com.synectiks.asset.mapper.query.CloudElementCurrentQueryMapper;
 import com.synectiks.asset.mapper.query.CloudElementSpendAnalyticQueryMapper;
 import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
 import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.mapper.query.InfraTopologyMapper;
 import com.synectiks.asset.mapper.query.InfraTopologySummeryMapper;
+import com.synectiks.asset.mapper.query.MonthlyStatisticyMapper;
+import com.synectiks.asset.mapper.query.TotalBudgetMapper;
 import com.synectiks.asset.service.QueryService;
 
 
@@ -424,6 +427,29 @@ public class QueryController implements QueryApi {
 		try{
 			List<InfraTopologySummaryQueryObj> infraTopologySummaryQueryObj = queryService.getInfraTopologySummary(orgId, landingZone,productEnclave);
 			List<InfraTopologySummaryDTO> infraTopologyDTO = InfraTopologySummeryMapper.INSTANCE.toDtoList(infraTopologySummaryQueryObj);
+			return ResponseEntity.ok(infraTopologyDTO);
+		}catch (Exception e){
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body(null);
+		}
+	}
+	@Override
+	public ResponseEntity<List<MonthlyStatisticsDTO>> monthlyStatistics(Long orgId) {
+		try{
+			List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj = queryService.monthlyStatisticsQueryObj(orgId);
+			List<MonthlyStatisticsDTO> infraTopologyDTO = MonthlyStatisticyMapper.INSTANCE.toDtoList(monthlyStatisticsQueryObj);
+			return ResponseEntity.ok(infraTopologyDTO);
+		}catch (Exception e){
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body(null);
+		}
+	}
+	
+	@Override
+	public ResponseEntity<List<TotalBudgetDTO>> totalBudget(Long orgId) {
+		try{
+			List<TotalBudgetQueryObj> totalBudgetQueryObj = queryService.totalBudget(orgId);
+			List<TotalBudgetDTO> infraTopologyDTO = TotalBudgetMapper.INSTANCE.toDtoList(totalBudgetQueryObj);
 			return ResponseEntity.ok(infraTopologyDTO);
 		}catch (Exception e){
 			e.printStackTrace();
