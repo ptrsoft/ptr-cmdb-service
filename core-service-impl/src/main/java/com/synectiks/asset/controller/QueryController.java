@@ -435,26 +435,18 @@ public class QueryController implements QueryApi {
 	}
 	@Override
 	public ResponseEntity<List<MonthlyStatisticsDTO>> monthlyStatistics(Long orgId) {
-		try{
-			List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj = queryService.monthlyStatisticsQueryObj(orgId);
-			List<MonthlyStatisticsDTO> infraTopologyDTO = MonthlyStatisticyMapper.INSTANCE.toDtoList(monthlyStatisticsQueryObj);
-			return ResponseEntity.ok(infraTopologyDTO);
-		}catch (Exception e){
-			e.printStackTrace();
-			return ResponseEntity.badRequest().body(null);
-		}
+		logger.debug("REST request to Get monthly statistics for an organization: Org Id: {}", orgId);
+		List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj = queryService.monthlyStatisticsQueryObj(orgId);
+		List<MonthlyStatisticsDTO> monthlyStatisticsDTOList = MonthlyStatisticyMapper.INSTANCE.toDtoList(monthlyStatisticsQueryObj);
+		return ResponseEntity.ok(monthlyStatisticsDTOList);
 	}
 	
 	@Override
 	public ResponseEntity<List<TotalBudgetDTO>> totalBudget(Long orgId) {
-		try{
-			List<TotalBudgetQueryObj> totalBudgetQueryObj = queryService.totalBudget(orgId);
-			List<TotalBudgetDTO> infraTopologyDTO = TotalBudgetMapper.INSTANCE.toDtoList(totalBudgetQueryObj);
-			return ResponseEntity.ok(infraTopologyDTO);
-		}catch (Exception e){
-			e.printStackTrace();
-			return ResponseEntity.badRequest().body(null);
-		}
+		logger.debug("REST request to Get total budget for an organization: Org Id: {}", orgId);
+		List<TotalBudgetQueryObj> totalBudgetQueryObj = queryService.totalBudget(orgId);
+		List<TotalBudgetDTO> totalBudgetDTOList = TotalBudgetMapper.INSTANCE.toDtoList(totalBudgetQueryObj);
+		return ResponseEntity.ok(totalBudgetDTOList);
 	}
 }
 

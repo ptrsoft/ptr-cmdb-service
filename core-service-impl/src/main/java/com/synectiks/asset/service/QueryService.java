@@ -406,8 +406,8 @@ public class QueryService {
 	}
 
 	public CloudElementSpendAnalyticsQueryObj allSpendYesterdaySpendAnalytics(Long orgId) {
-		logger.debug("Get yesterday's spend ");
-		return queryRepository.allSpendYesterdaySpendAnalytics(orgId);
+		logger.debug("Get yesterday's cost spend ");
+		return queryRepository.allSpendYesterdayAnalytics(orgId);
 	}
 
 	public Long currentSpendRateAvePerHour(Long orgId) {
@@ -426,12 +426,12 @@ public class QueryService {
 
 	public List<String> cloudWiseAnalytics(Long orgId) {
 		logger.debug("Request to get list of total spend  sum");
-		return queryRepository.cloudWiseAnalytics(orgId);
+		return queryRepository.totalSpendAnalytics(orgId);
 	}
 
 	public List<CloudElementCloudWiseQueryObj> spendTotal(Long orgId) {
 		logger.debug("Request to get list of total spend  sum");
-		return queryRepository.spendTotal(orgId);
+		return queryRepository.cloudWiseTotalSpendAnalytics(orgId);
 	}
 
 	public List<CloudElementCloudWiseMonthlyQueryObj> eachMonthTotal(Long orgId) {
@@ -447,13 +447,13 @@ public class QueryService {
 	}
 	
 	public List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj(Long orgId)  {
-	logger.debug("Getting list of monthly statistics given organization and landing-zone");
+	logger.debug("Getting list of monthly statistics for given organization");
 	return queryRepository.monthlyStatisticsQueryObj(orgId);
 
 }
 
 public List<TotalBudgetQueryObj> totalBudget(Long orgId) {
-	logger.debug("Getting list of total budget given organization and landing-zone");
+	logger.debug("Getting list of total budget for given organization");
 	return queryRepository.totalBudget(orgId);
 }
 }

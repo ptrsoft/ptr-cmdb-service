@@ -29,18 +29,18 @@ public class CloudElement extends AbstractAuditingEntity implements Serializable
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "instance_id")
-	private String instanceId;
+//	@Column(name = "instance_id")
+//	private String instanceId;
 
 	@Column(name = "element_type")
 	private String elementType;
 
-	@Column(name = "arn")
-	private String arn;
+//	@Column(name = "arn")
+//	private String arn;
 
 	@Convert(converter = CustomeHashMapConverter.class)
-	@Column(name = "cloud_entity", columnDefinition = "jsonb")
-	private Map<String, Object> cloudEntity;
+	@Column(name = "cloud_identity", columnDefinition = "jsonb")
+	private Map<String, Object> cloudIdentity;
 	
 	@Convert(converter = CustomeHashMapConverter.class)
 	@Column(name = "hardware_location", columnDefinition = "jsonb")

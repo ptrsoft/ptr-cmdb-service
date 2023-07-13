@@ -27,7 +27,7 @@ public interface CloudElementMapper {
     default CloudElement toEntity(CloudElementDTO cloudElementDTO){
         CloudElement cloudElement = toEntityConvertObjectToMap(cloudElementDTO);
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
-        cloudElement.setCloudEntity(converter.convertObjectToMap(cloudElementDTO.getCloudEntity()));
+        cloudElement.setCloudIdentity(converter.convertObjectToMap(cloudElementDTO.getCloudEntity()));
         cloudElement.setHardwareLocation(converter.convertObjectToMap(cloudElementDTO.getHardwareLocation()));
         cloudElement.setHostedServices(converter.convertObjectToMap(cloudElementDTO.getHostedServices()));
         cloudElement.setSlaJson(converter.convertObjectToMap(cloudElementDTO.getSlaJson()));
@@ -40,7 +40,7 @@ public interface CloudElementMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
-    @Mapping(target="cloudEntity", ignore = true)
+    @Mapping(target="cloudIdentity", ignore = true)
     @Mapping(target="hardwareLocation", ignore = true)
     @Mapping(target="hostedServices", ignore = true)
     @Mapping(target="slaJson", ignore = true)
@@ -86,7 +86,7 @@ public interface CloudElementMapper {
             temp.setCloudEnvironment(CloudEnvironment.builder().id(cloudElementDTO.getCloudEnvironmentId()).build());
         }
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
-        temp.setCloudEntity(converter.convertObjectToMap(cloudElementDTO.getCloudEntity()));
+        temp.setCloudIdentity(converter.convertObjectToMap(cloudElementDTO.getCloudEntity()));
         temp.setHardwareLocation(converter.convertObjectToMap(cloudElementDTO.getHardwareLocation()));
         temp.setHostedServices(converter.convertObjectToMap(cloudElementDTO.getHostedServices()));
         temp.setSlaJson(converter.convertObjectToMap(cloudElementDTO.getSlaJson()));
@@ -99,7 +99,7 @@ public interface CloudElementMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target="cloudEntity", ignore = true)
+    @Mapping(target="cloudIdentity", ignore = true)
     @Mapping(target="hardwareLocation", ignore = true)
     @Mapping(target="hostedServices", ignore = true)
     @Mapping(target="slaJson", ignore = true)

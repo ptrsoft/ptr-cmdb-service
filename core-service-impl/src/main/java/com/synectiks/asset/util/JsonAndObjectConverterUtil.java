@@ -43,15 +43,15 @@ public class JsonAndObjectConverterUtil {
 
     /**
      *
-     * @param obj
-     * @param cls
+     * @param sourceObject
+     * @param sourceObjectClass
      * @return
      * @throws JsonProcessingException
      * It converts java object to json string without indentation (e.g convertObjectToJsonString(car, Car.class))
      * It takes object and its class if Car referect is passed in source, target will be Car.class
      */
-    public String convertObjectToJsonString(ObjectMapper mapper, Object obj, Class cls) throws JsonProcessingException {
-        return getObjectWriter(mapper, cls).writeValueAsString(obj);
+    public String convertObjectToJsonString(ObjectMapper mapper, Object sourceObject, Class sourceObjectClass) throws JsonProcessingException {
+        return getObjectWriter(mapper, sourceObjectClass).writeValueAsString(sourceObject);
     }
 
     /**
