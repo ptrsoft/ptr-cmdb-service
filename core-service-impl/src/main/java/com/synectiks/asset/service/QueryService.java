@@ -402,12 +402,12 @@ public class QueryService {
 
 	public CloudElementSpendAnalyticsQueryObj allSpendTodayAnalytics(Long orgId) {
 		logger.debug("Get today's cost spent");
-		return queryRepository.allSpendTodayAnalytics(orgId);
+		return queryRepository.spendTodayAnalytics(orgId);
 	}
 
 	public CloudElementSpendAnalyticsQueryObj allSpendYesterdaySpendAnalytics(Long orgId) {
 		logger.debug("Get yesterday's cost spend ");
-		return queryRepository.allSpendYesterdayAnalytics(orgId);
+		return queryRepository.spendYesterdayAnalytics(orgId);
 	}
 
 	public Long currentSpendRateAvePerHour(Long orgId) {
@@ -431,12 +431,12 @@ public class QueryService {
 
 	public List<CloudElementCloudWiseQueryObj> spendTotal(Long orgId) {
 		logger.debug("Request to get list of total spend  sum");
-		return queryRepository.cloudWiseTotalSpendAnalytics(orgId);
+		return queryRepository.cloudWiseTotalSpendWithPercent(orgId);
 	}
 
 	public List<CloudElementCloudWiseMonthlyQueryObj> eachMonthTotal(Long orgId) {
 		logger.debug("Request to get list of total spend  sum");
-		return queryRepository.eachMonthTotal(orgId);
+		return queryRepository.cloudWiseTotalSpendWithoutPercent(orgId);
 	}
 
 	public List<InfraTopologySummaryQueryObj> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave)  {
