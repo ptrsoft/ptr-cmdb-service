@@ -723,77 +723,62 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = CLOUD_TYPE_TOPOLOGY_QUERY, nativeQuery = true)
 	List<InfraTopologySummaryQueryObj> getInfraTopologySummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
 	
-	String MOTHLY_STATISTICS_QUERY = "WITH current_year_data AS (\r\n"
-			+ "  SELECT\r\n"
-			+ "    TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month') AS month,\r\n"
-			+ "    SUM(CAST(obj.value AS INT)) AS sum_values\r\n"
-			+ "  FROM\r\n"
-			+ "    cloud_element ce\r\n"
-			+ "  JOIN\r\n"
-			+ "    cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "  JOIN\r\n"
-			+ "    department dep ON dep.id = cnv.department_id\r\n"
-			+ "  JOIN\r\n"
-			+ "    organization org ON org.id = dep.organization_id\r\n"
-			+ "  CROSS JOIN\r\n"
-			+ "    JSONB_EACH_TEXT(ce.cost_json->'MONTHLYCOST') AS obj(key, value)\r\n"
-			+ "  WHERE\r\n"
-			+ "    org.id = :orgId\r\n"
-			+ "    AND EXTRACT(YEAR FROM TO_DATE(obj.key, 'YYYY-MM')) = EXTRACT(YEAR FROM CURRENT_DATE) -- Filter for current year\r\n"
-			+ "  GROUP BY\r\n"
-			+ "    TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month'), EXTRACT(MONTH FROM TO_DATE(obj.key, 'YYYY-MM')) -- Group by month and month number\r\n"
-			+ "),\r\n"
-			+ "previous_year_data AS (\r\n"
-			+ "  SELECT\r\n"
-			+ "    TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month') AS month,\r\n"
-			+ "    SUM(CAST(obj.value AS INT)) AS sum_values\r\n"
-			+ "  FROM\r\n"
-			+ "    cloud_element ce\r\n"
-			+ "  JOIN\r\n"
-			+ "    cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "  JOIN\r\n"
-			+ "    department dep ON dep.id = cnv.department_id\r\n"
-			+ "  JOIN\r\n"
-			+ "    organization org ON org.id = dep.organization_id\r\n"
-			+ "  CROSS JOIN\r\n"
-			+ "    JSONB_EACH_TEXT(ce.cost_json->'MONTHLYCOST') AS obj(key, value)\r\n"
-			+ "  WHERE\r\n"
-			+ "    org.id = :orgId\r\n"
-			+ "    AND EXTRACT(YEAR FROM TO_DATE(obj.key, 'YYYY-MM')) = EXTRACT(YEAR FROM CURRENT_DATE) - 1 -- Filter for the previous year\r\n"
-			+ "  GROUP BY\r\n"
-			+ "    TO_CHAR(TO_DATE(obj.key, 'YYYY-MM'), 'Month'), EXTRACT(MONTH FROM TO_DATE(obj.key, 'YYYY-MM')) -- Group by month and month number\r\n"
-			+ "),\r\n"
-			+ "current_year_sum AS (\r\n"
-			+ "  SELECT SUM(CAST(obj.value AS INT)) AS total_sum\r\n"
-			+ "  FROM cloud_element ce\r\n"
-			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
-			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
-			+ "  CROSS JOIN JSONB_EACH_TEXT(ce.cost_json->'MONTHLYCOST') AS obj(key, value)\r\n"
-			+ "  WHERE org.id = :orgId\r\n"
-			+ "    AND EXTRACT(YEAR FROM TO_DATE(obj.key, 'YYYY-MM')) = EXTRACT(YEAR FROM CURRENT_DATE)\r\n"
-			+ ")\r\n"
-			+ "SELECT \r\n"
-			+ "  ROW_NUMBER() OVER() AS id,\r\n"
-			+ "  current_year_data.month,\r\n"
-			+ "  current_year_data.sum_values AS current_year_sum,\r\n"
-			+ "  previous_year_data.sum_values AS previous_year_sum,\r\n"
-			+ "  current_year_data.sum_values - previous_year_data.sum_values AS difference,\r\n"
-			+ "  ROUND(((current_year_data.sum_values - previous_year_data.sum_values)::float / current_year_data.sum_values) * 100::float) AS difference_percentage,\r\n"
-			+ "  current_year_sum.total_sum AS current_year_total_sum\r\n"
-			+ "FROM\r\n"
-			+ "  current_year_data\r\n"
-			+ "JOIN\r\n"
-			+ "  previous_year_data ON current_year_data.month = previous_year_data.month\r\n"
-			+ "CROSS JOIN\r\n"
-			+ "  current_year_sum\r\n"
-			+ "ORDER BY \r\n"
-			+ "  EXTRACT(MONTH FROM TO_DATE(current_year_data.month, 'Month')) ASC ";
-	@Query(value = MOTHLY_STATISTICS_QUERY, nativeQuery = true)
+	String MONTHLY_STATISTICS_QUERY = " SELECT * FROM ( " +
+			"WITH monthly_costs AS ( " +
+			"SELECT " +
+			"TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month, " +
+			"SUM(CAST(jb.value AS INT)) AS sum_values " +
+			"FROM " +
+			"cloud_element ce, " +
+			"jsonb_array_elements(ce.cost_json -> 'elementLists') WITH ORDINALITY c(obj, pos), " +
+			"jsonb_each_text(c.obj -> 'MONTHLYCOST') AS jb(key, value), " +
+			"cloud_environment cnv, department dep, organization org " +
+			"WHERE " +
+			"org.id = dep.organization_id " +
+			"AND dep.id = cnv.department_id " +
+			"AND cnv.id = ce.cloud_environment_id " +
+			"AND org.id  = :orgId " +
+			"AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE) " +
+			"GROUP BY TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key " +
+			"ORDER BY TO_DATE(jb.key, 'YYYY-MM') DESC " +
+			"LIMIT 3 " +
+			") " +
+			"SELECT " +
+			"'Total Sum of Value' AS month, " +
+			"SUM(sum_values) AS sum_all_values " +
+			"FROM " +
+			"monthly_costs " +
+			"  " +
+			"UNION ALL " +
+			"  " +
+			"SELECT " +
+			"month, " +
+			"sum_values " +
+			"FROM ( " +
+			"SELECT " +
+			"TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month, " +
+			"SUM(CAST(jb.value AS INT)) AS sum_values " +
+			"FROM " +
+			"cloud_element ce, " +
+			"jsonb_array_elements(ce.cost_json -> 'elementLists') WITH ORDINALITY c(obj, pos), " +
+			"jsonb_each_text(c.obj -> 'MONTHLYCOST') AS jb(key, value), " +
+			"cloud_environment cnv, department dep, organization org " +
+			"WHERE " +
+			"org.id = dep.organization_id " +
+			"AND dep.id = cnv.department_id " +
+			"AND cnv.id = ce.cloud_environment_id " +
+			"AND org.id  = :orgId " +
+			"AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE) " +
+			"GROUP BY " +
+			"TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key " +
+			"ORDER BY " +
+			"TO_DATE(jb.key, 'YYYY-MM') DESC " +
+			"LIMIT 3 " +
+			") subquery " +
+			") final_query ";
+	@Query(value = MONTHLY_STATISTICS_QUERY, nativeQuery = true)
 	List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj(@Param("orgId")Long orgId);
-	
-	
-	
+
 	String TOTAL_BUdGET_QUERY = "WITH monthly_costs AS ( " +
 			"  SELECT SUM(cast(value as INT)) AS sum_values   " +
 			"     FROM cloud_element ce,   " +

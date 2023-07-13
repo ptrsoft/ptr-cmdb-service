@@ -9,19 +9,7 @@ public interface MonthlyStatisticsQueryObj extends Serializable{
     @Value("#{target.month}")
     String getMonth();
 
-    @Value("#{target.current_year_sum}")
-	Long getCurrentYearSum();
-    
-    @Value("#{target.previous_year_sum}")
-    Long getPreviousYearSum();
-    
-    @Value("#{target.difference}")
-    Long getDifference();
-
-    @Value("#{target.difference_percentage}")
-    Long getDifferencePercentage();
-
-    @Value("#{target.current_year_total_sum}")
-    Long getCurrentYearTotalSum();
+    @Value("#{target.sum_all_values}")
+	Long getSumAllValues();
 
 }

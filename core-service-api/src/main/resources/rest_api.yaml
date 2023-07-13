@@ -2769,7 +2769,7 @@ paths:
     get:
       tags:
         - MonthlyStatistics
-      summary: get list of monthly-statistics rate 
+      summary: get list of monthly-statistics rate
       operationId: monthlyStatistics
       parameters:
         - in: path
@@ -2795,7 +2795,7 @@ paths:
     get:
       tags:
         - TotalBudget
-      summary: get list of total-budget rate 
+      summary: get list of total-budget rate
       operationId: totalBudget
       parameters:
         - in: path
@@ -2817,7 +2817,7 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-          
+
 components:
   schemas:
     OrganizationDTO:
@@ -3219,27 +3219,15 @@ components:
       properties:
         month:
           type: string
-        currentYearSum:
-         type: integer
-         format: int64
-        previousYearSum:
-          type: integer
-          format: int64
-        difference:
-          type: integer
-          format: int64
-        differencePercentage:
-          type: integer
-          format: int64
-        currentYearTotalSum:
+        sumAllValues:
           type: integer
           format: int64
     TotalBudgetDTO:
       type: object
       properties:
         monthlyCostSum:
-         type: integer
-         format: int64
+          type: integer
+          format: int64
         budgetTotalSum:
           type: integer
           format: int64
@@ -3249,8 +3237,6 @@ components:
         Percentage:
           type: integer
           format: int64
-          
-          
     InfraTopologySummaryDTO:
       type: object
       properties:
