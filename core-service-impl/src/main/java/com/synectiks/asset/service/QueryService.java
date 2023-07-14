@@ -400,17 +400,17 @@ public class QueryService {
 	}
 
 
-	public CloudElementSpendAnalyticsQueryObj allSpendTodayAnalytics(Long orgId) {
+	public CloudElementSpendAnalyticsQueryObj getSpendTodayAnalytics(Long orgId) {
 		logger.debug("Get today's cost spent");
 		return queryRepository.spendTodayAnalytics(orgId);
 	}
 
-	public CloudElementSpendAnalyticsQueryObj allSpendYesterdaySpendAnalytics(Long orgId) {
+	public CloudElementSpendAnalyticsQueryObj getSpendYesterdayAnalytics(Long orgId) {
 		logger.debug("Get yesterday's cost spend ");
 		return queryRepository.spendYesterdayAnalytics(orgId);
 	}
 
-	public Long currentSpendRateAvePerHour(Long orgId) {
+	public Long getCurrentSpendRateAvePerHour(Long orgId) {
 		logger.debug("Get current spend rate average par hour");
 		Long perDay = queryRepository.currentSpendRatePerDay(orgId);
 		if(perDay != null && perDay != 0){
@@ -419,24 +419,24 @@ public class QueryService {
 		return perDay;
 	}
 
-	public Long currentSpendRatePerDay(Long orgId) {
+	public Long getCurrentSpendRatePerDay(Long orgId) {
 		logger.debug("Request to get current spend rate par day sum");
 		return queryRepository.currentSpendRatePerDay(orgId);
 	}
 
-	public List<String> cloudWiseAnalytics(Long orgId) {
-		logger.debug("Request to get list of total spend  sum");
+	public Long getTotalSpendAnalytics(Long orgId) {
+		logger.debug("Request to get total spend of an organization");
 		return queryRepository.totalSpendAnalytics(orgId);
 	}
 
-	public List<CloudElementCloudWiseQueryObj> spendTotal(Long orgId) {
-		logger.debug("Request to get list of total spend  sum");
-		return queryRepository.cloudWiseTotalSpendWithPercent(orgId);
+	public List<CloudElementCloudWiseQueryObj> getCloudWiseTotalSpend(Long orgId) {
+		logger.debug("Request to get list of cloud wise spend of an organization");
+		return queryRepository.cloudWiseTotalSpend(orgId);
 	}
 
-	public List<CloudElementCloudWiseMonthlyQueryObj> eachMonthTotal(Long orgId) {
-		logger.debug("Request to get list of total spend  sum");
-		return queryRepository.cloudWiseTotalSpendWithoutPercent(orgId);
+	public List<CloudElementCloudWiseMonthlyQueryObj> getCloudWiseSpendMonthly(Long orgId) {
+		logger.debug("Get monthly cloud-wise spend of an organization");
+		return queryRepository.cloudWiseMonthlySpend(orgId);
 	}
 
 	public List<InfraTopologySummaryQueryObj> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave)  {
@@ -452,9 +452,9 @@ public class QueryService {
 
 }
 
-public TotalBudgetQueryObj totalBudget(Long orgId) {
+public TotalBudgetQueryObj getTotalBudget(Long orgId) {
 	logger.debug("Getting total budget of organization");
-	return queryRepository.totalBudget(orgId);
+	return queryRepository.getTotalBudget(orgId);
 }
 }
 

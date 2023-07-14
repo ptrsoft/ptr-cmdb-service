@@ -573,36 +573,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"group by yesterday_sum.sum_values ";
 	@Query(value = SPEND_YESTERDAY_ANALYTICS_QUERY, nativeQuery = true)
 	public CloudElementSpendAnalyticsQueryObj spendYesterdayAnalytics(@Param("orgId") Long orgId);
-	
-//	String ALL_CURRENT_HOUR_ANALYTICS ="WITH current_hour_sum AS (\r\n"
-//			+ "  SELECT SUM(CAST(value AS INT)) AS sum_current_hour\r\n"
-//			+ "  FROM cloud_element ce\r\n"
-//			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-//			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
-//			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
-//			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59')\r\n"
-//			+ "  WHERE org.id = :orgId \r\n"
-//			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:59:59'))\r\n"
-//			+ "),\r\n"
-//			+ "previous_hour_sum AS (\r\n"
-//			+ "  SELECT SUM(CAST(value AS INT)) AS sum_previous_hour\r\n"
-//			+ "  FROM cloud_element ce\r\n"
-//			+ "  JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\r\n"
-//			+ "  JOIN department dep ON dep.id = cnv.department_id\r\n"
-//			+ "  JOIN organization org ON org.id = dep.organization_id\r\n"
-//			+ "  JOIN jsonb_each_text(ce.cost_json->'HOURLYCOST') AS obj(key, value) ON CAST(key AS TEXT) = TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59')\r\n"
-//			+ "  WHERE org.id = :orgId \r\n"
-//			+ "    AND jsonb_exists(ce.cost_json->'HOURLYCOST', TO_CHAR(current_timestamp - INTERVAL '1 hour', 'YYYY-MM-DD HH24:59:59'))\r\n"
-//			+ ")\r\n"
-//			+ "SELECT\r\n"
-//			+ "  sum_current_hour,\r\n"
-//			+ "  sum_previous_hour,\r\n"
-//			+ "  (sum_current_hour - sum_previous_hour) / sum_current_hour * 100 AS percentage,\r\n"
-//			+ "  sum_current_hour - sum_previous_hour AS sum_difference\r\n"
-//			+ "FROM current_hour_sum, previous_hour_sum ";
-//	@Query(value = ALL_CURRENT_HOUR_ANALYTICS, nativeQuery = true)
-//	List<CloudElementCurrentQueryObj> spendCurrentRateHour(@Param("orgId") Long orgId);
-//
+
 	String CURRENT_SPEND_RATE_PER_DAY_QUERY ="select coalesce(sum(cast (jb.value as int)),0) AS sum_values " +
 			"from cloud_element ce, " +
 			"jsonb_array_elements(ce.cost_json  -> 'elementLists') with ordinality c(obj, pos), " +
@@ -629,9 +600,9 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" and cast(jb.key as int) = extract ('year' from current_date) \n" +
 			" and org.id = :orgId ";
 	@Query(value = TOTAL_SPEND_ANALYTICS_QUERY, nativeQuery = true)
-	List<String> totalSpendAnalytics(@Param("orgId") Long orgId);
+	Long totalSpendAnalytics(@Param("orgId") Long orgId);
 
-	String CLOUD_WISE_TOTAL_SPEND_WITH_PERCENT_QUERY ="select distinct cnv.cloud,   " +
+	String CLOUD_WISE_TOTAL_SPEND_QUERY ="select distinct cnv.cloud,   " +
 			"    SUM(cast(value as INT)) AS sum_values,   " +
 			" (SUM(cast(value as INT)) * 100) / (   " +
 			"    SELECT SUM(cast(jb2.value as INT))   " +
@@ -663,11 +634,11 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )   " +
 			"    and cast(jb.key as int) = extract ('year' from current_date)      " +
 			"    GROUP BY cnv.cloud ORDER BY cnv.cloud ASC      ";
-	@Query(value = CLOUD_WISE_TOTAL_SPEND_WITH_PERCENT_QUERY, nativeQuery = true)
-	List<CloudElementCloudWiseQueryObj> cloudWiseTotalSpendWithPercent(@Param("orgId")Long orgId);
+	@Query(value = CLOUD_WISE_TOTAL_SPEND_QUERY, nativeQuery = true)
+	List<CloudElementCloudWiseQueryObj> cloudWiseTotalSpend(@Param("orgId")Long orgId);
 	
 	
-	String CLOUD_WISE_TOTAL_SPEND_WITHOUT_PERCENT_QUERY ="select cnv.cloud,  " +
+	String CLOUD_WISE_MONTHLY_SPEND_QUERY ="select cnv.cloud,  " +
 			" TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,  " +
 			" SUM(CAST(jb.value AS INT)) AS sum_values " +
 			"from cloud_element ce, " +
@@ -684,8 +655,8 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" and extract ('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract ('year' from current_date)      " +
 			"group by cnv.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key " +
 			"ORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, cnv.cloud ASC";
-	@Query(value = CLOUD_WISE_TOTAL_SPEND_WITHOUT_PERCENT_QUERY, nativeQuery = true)
-	List<CloudElementCloudWiseMonthlyQueryObj> cloudWiseTotalSpendWithoutPercent(@Param("orgId")Long orgId);
+	@Query(value = CLOUD_WISE_MONTHLY_SPEND_QUERY, nativeQuery = true)
+	List<CloudElementCloudWiseMonthlyQueryObj> cloudWiseMonthlySpend(@Param("orgId")Long orgId);
 	
 
 	String INFRA_TOPOLOGY_QUERY = "select ce.hardware_location ->> 'landingZone' as landing_zone, " +
@@ -806,5 +777,5 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" cast((budget_sum.total_sum  - monthly_costs.sum_values ) as float) / budget_sum.total_sum * 100 AS remaining_budget_percentage " +
 			" FROM monthly_costs, budget_sum ";
 	@Query(value = TOTAL_BUdGET_QUERY, nativeQuery = true)
-	TotalBudgetQueryObj totalBudget(@Param("orgId") Long orgId);
+	TotalBudgetQueryObj getTotalBudget(@Param("orgId") Long orgId);
 }

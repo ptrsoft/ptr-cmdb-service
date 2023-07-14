@@ -371,53 +371,52 @@ public class QueryController implements QueryApi {
 	}
 	
 	@Override
-	public ResponseEntity<CloudElementSpendAnalyticsDTO> allSpendTodayAnalytics(Long orgId) {
+	public ResponseEntity<CloudElementSpendAnalyticsDTO> spendTodayAnalytics(Long orgId) {
 		logger.debug("REST request to get today's cost spent");
-		CloudElementSpendAnalyticsQueryObj environmentQueryObj = queryService.allSpendTodayAnalytics(orgId);
+		CloudElementSpendAnalyticsQueryObj environmentQueryObj = queryService.getSpendTodayAnalytics(orgId);
 	    CloudElementSpendAnalyticsDTO dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDto(environmentQueryObj);
 		return ResponseEntity.ok(dtoList);
 	}
 	
 	@Override
-	public ResponseEntity<CloudElementSpendAnalyticsDTO> allSpendYesterdaySpendAnalytics(Long orgId) {
+	public ResponseEntity<CloudElementSpendAnalyticsDTO> spendYesterdayAnalytics(Long orgId) {
 		logger.debug("REST request to get yesterday's spend ");
-		CloudElementSpendAnalyticsQueryObj environmentQueryObj = queryService.allSpendYesterdaySpendAnalytics(orgId);
+		CloudElementSpendAnalyticsQueryObj environmentQueryObj = queryService.getSpendYesterdayAnalytics(orgId);
 	    CloudElementSpendAnalyticsDTO dtoList = CloudElementSpendAnalyticQueryMapper.INSTANCE.toDto(environmentQueryObj);
 		return ResponseEntity.ok(dtoList);
 	}
 	@Override
 	public ResponseEntity<Long> currentSpendRateAvePerHour(Long orgId) {
 		logger.debug("REST request to get current spend rate average par hour");
-		Long aveSpendRatePerHour = queryService.currentSpendRateAvePerHour(orgId);
+		Long aveSpendRatePerHour = queryService.getCurrentSpendRateAvePerHour(orgId);
 		return ResponseEntity.ok(aveSpendRatePerHour);
 	}
 	@Override
 	public ResponseEntity<Long> currentSpendRatePerDay(Long orgId) {
 		logger.debug("REST request to get current spend rate par day");
-		Long currentSpendRatePerDay = queryService.currentSpendRatePerDay(orgId);
+		Long currentSpendRatePerDay = queryService.getCurrentSpendRatePerDay(orgId);
 		return ResponseEntity.ok(currentSpendRatePerDay);
 	}
 	
 	@Override
-	public ResponseEntity<List<String>> cloudWiseAnalytics(Long orgId) {
-		logger.debug(
-				"REST request to get list of  cloud wise  rate");
-		List<String> listOfToday = queryService.cloudWiseAnalytics(orgId);
-		return ResponseEntity.ok(listOfToday);
+	public ResponseEntity<Long> totalSpendAnalytics(Long orgId) {
+		logger.debug("REST request to get total spend of an organization. Org Id: {}", orgId);
+		Long totalSpend = queryService.getTotalSpendAnalytics(orgId);
+		return ResponseEntity.ok(totalSpend);
 	}
 	
 	@Override
-	public ResponseEntity<List<CloudElementCloudWiseAnalyticsDTO>> spendTotal(Long orgId) {
-		logger.debug("REST request to Get organization and cloudName wise cloud-cost for an organization: Org Id: {}", orgId);
-		List<CloudElementCloudWiseQueryObj> environmentQueryObjList = queryService.spendTotal(orgId);
+	public ResponseEntity<List<CloudElementCloudWiseAnalyticsDTO>> cloudWiseTotalSpend(Long orgId) {
+		logger.debug("REST request to Get total cloud wise spend rate for an organization: Org Id: {}", orgId);
+		List<CloudElementCloudWiseQueryObj> environmentQueryObjList = queryService.getCloudWiseTotalSpend(orgId);
 	    List<CloudElementCloudWiseAnalyticsDTO> dtoList = CloudElementCloudWiseQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
 		return ResponseEntity.ok(dtoList);
 	}
 	
 	@Override
-	public ResponseEntity<List<CloudElementCloudWiseMonthlyAnalyticsDTO>> eachMonthTotal(Long orgId) {
-		logger.debug("REST request to Get organization a wise cloud-cost for an organization: Org Id: {}", orgId);
-		List<CloudElementCloudWiseMonthlyQueryObj> environmentQueryObjList = queryService.eachMonthTotal(orgId);
+	public ResponseEntity<List<CloudElementCloudWiseMonthlyAnalyticsDTO>> cloudWiseMonthlySpend(Long orgId) {
+		logger.debug("REST request to Get monthly cloud-wise spend rate for an organization: Org Id: {}", orgId);
+		List<CloudElementCloudWiseMonthlyQueryObj> environmentQueryObjList = queryService.getCloudWiseSpendMonthly(orgId);
 	    List<CloudElementCloudWiseMonthlyAnalyticsDTO> dtoList = CloudElementCloudWiseMonthlyQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
 		return ResponseEntity.ok(dtoList);
 	}
@@ -434,7 +433,7 @@ public class QueryController implements QueryApi {
 		}
 	}
 	@Override
-	public ResponseEntity<List<MonthlyStatisticsDTO>> getMonthlyStatistics(Long orgId) {
+	public ResponseEntity<List<MonthlyStatisticsDTO>> monthlyStatistics(Long orgId) {
 		logger.debug("REST request to Get monthly statistics for an organization: Org Id: {}", orgId);
 		List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj = queryService.monthlyStatisticsQueryObj(orgId);
 		List<MonthlyStatisticsDTO> monthlyStatisticsDTOList = MonthlyStatisticyMapper.INSTANCE.toDtoList(monthlyStatisticsQueryObj);
@@ -444,7 +443,7 @@ public class QueryController implements QueryApi {
 	@Override
 	public ResponseEntity<TotalBudgetDTO> getTotalBudget(Long orgId) {
 		logger.debug("REST request to Get total budget for an organization: Org Id: {}", orgId);
-		TotalBudgetQueryObj totalBudgetQueryObj = queryService.totalBudget(orgId);
+		TotalBudgetQueryObj totalBudgetQueryObj = queryService.getTotalBudget(orgId);
 		TotalBudgetDTO totalBudgetDTOList = TotalBudgetMapper.INSTANCE.toDto(totalBudgetQueryObj);
 		return ResponseEntity.ok(totalBudgetDTOList);
 	}
