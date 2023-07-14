@@ -800,11 +800,11 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" WHERE org.id = :orgId  " +
 			" ) " +
 			" SELECT " +
-			" budget_sum.total_sum AS budget_total_sum, " +
-			" monthly_costs.sum_values AS monthly_cost_sum, " +
-			" budget_sum.total_sum  - monthly_costs.sum_values AS difference, " +
-			" cast((budget_sum.total_sum  - monthly_costs.sum_values ) as float) / budget_sum.total_sum * 100 AS percentage " +
+			" budget_sum.total_sum AS total_budget, " +
+			" monthly_costs.sum_values AS budget_used, " +
+			" budget_sum.total_sum  - monthly_costs.sum_values AS remaining_budget, " +
+			" cast((budget_sum.total_sum  - monthly_costs.sum_values ) as float) / budget_sum.total_sum * 100 AS remaining_budget_percentage " +
 			" FROM monthly_costs, budget_sum ";
 	@Query(value = TOTAL_BUdGET_QUERY, nativeQuery = true)
-	List<TotalBudgetQueryObj> totalBudget(@Param("orgId") Long orgId);
+	TotalBudgetQueryObj totalBudget(@Param("orgId") Long orgId);
 }

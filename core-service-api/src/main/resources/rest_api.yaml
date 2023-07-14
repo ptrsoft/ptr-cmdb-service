@@ -2765,12 +2765,12 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/orgnaiztion/{orgId}/monthly-statistics:
+  /query/organizations/{orgId}/monthly-statistics:
     get:
       tags:
         - MonthlyStatistics
-      summary: get list of monthly-statistics rate
-      operationId: monthlyStatistics
+      summary: get last three months of spend analytics
+      operationId: getMonthlyStatistics
       parameters:
         - in: path
           name: orgId
@@ -2791,12 +2791,12 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/orgnaiztion/{orgId}/total-budget:
+  /query/organizations/{orgId}/total-budget:
     get:
       tags:
         - TotalBudget
-      summary: get list of total-budget rate
-      operationId: totalBudget
+      summary: get total budget of an organization
+      operationId: getTotalBudget
       parameters:
         - in: path
           name: orgId
@@ -2810,9 +2810,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TotalBudgetDTO'
+                $ref: '#/components/schemas/TotalBudgetDTO'
         404:
           description: "Service Not found"
         500:
@@ -3225,16 +3223,16 @@ components:
     TotalBudgetDTO:
       type: object
       properties:
-        monthlyCostSum:
+        totalBudget:
           type: integer
           format: int64
-        budgetTotalSum:
+        budgetUsed:
           type: integer
           format: int64
-        difference:
+        remainingBudget:
           type: integer
           format: int64
-        Percentage:
+        remainingBudgetPercentage:
           type: integer
           format: int64
     InfraTopologySummaryDTO:

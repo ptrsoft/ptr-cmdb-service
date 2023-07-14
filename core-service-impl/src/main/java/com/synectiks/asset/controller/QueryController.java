@@ -434,7 +434,7 @@ public class QueryController implements QueryApi {
 		}
 	}
 	@Override
-	public ResponseEntity<List<MonthlyStatisticsDTO>> monthlyStatistics(Long orgId) {
+	public ResponseEntity<List<MonthlyStatisticsDTO>> getMonthlyStatistics(Long orgId) {
 		logger.debug("REST request to Get monthly statistics for an organization: Org Id: {}", orgId);
 		List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj = queryService.monthlyStatisticsQueryObj(orgId);
 		List<MonthlyStatisticsDTO> monthlyStatisticsDTOList = MonthlyStatisticyMapper.INSTANCE.toDtoList(monthlyStatisticsQueryObj);
@@ -442,10 +442,10 @@ public class QueryController implements QueryApi {
 	}
 	
 	@Override
-	public ResponseEntity<List<TotalBudgetDTO>> totalBudget(Long orgId) {
+	public ResponseEntity<TotalBudgetDTO> getTotalBudget(Long orgId) {
 		logger.debug("REST request to Get total budget for an organization: Org Id: {}", orgId);
-		List<TotalBudgetQueryObj> totalBudgetQueryObj = queryService.totalBudget(orgId);
-		List<TotalBudgetDTO> totalBudgetDTOList = TotalBudgetMapper.INSTANCE.toDtoList(totalBudgetQueryObj);
+		TotalBudgetQueryObj totalBudgetQueryObj = queryService.totalBudget(orgId);
+		TotalBudgetDTO totalBudgetDTOList = TotalBudgetMapper.INSTANCE.toDto(totalBudgetQueryObj);
 		return ResponseEntity.ok(totalBudgetDTOList);
 	}
 }

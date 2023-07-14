@@ -452,8 +452,8 @@ public class QueryService {
 
 }
 
-public List<TotalBudgetQueryObj> totalBudget(Long orgId) {
-	logger.debug("Getting list of total budget for given organization");
+public TotalBudgetQueryObj totalBudget(Long orgId) {
+	logger.debug("Getting total budget of organization");
 	return queryRepository.totalBudget(orgId);
 }
 }

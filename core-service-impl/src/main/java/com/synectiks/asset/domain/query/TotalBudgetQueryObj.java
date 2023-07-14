@@ -7,17 +7,17 @@ import java.io.Serializable;
 public interface TotalBudgetQueryObj extends Serializable{
 
 
-    @Value("#{target.monthly_cost_sum}")
-	Long getMonthlyCostSum();
+    @Value("#{target.total_budget}")
+	Long getTotalBudget();
     
-    @Value("#{target.budget_total_sum}")
-    Long getBudgetTotalSum();
+    @Value("#{target.budget_used}")
+    Long getBudgetUsed();
     
-    @Value("#{target.difference}")
-    Long getDifference();
+    @Value("#{target.remaining_budget}")
+    Long getRemainingBudget();
 
-    @Value("#{target.percentage}")
-    Long getPercentage();
+    @Value("#{target.remaining_budget_percentage}")
+    Long getRemainingBudgetPercentage();
 
  
 
