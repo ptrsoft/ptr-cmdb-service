@@ -2,22 +2,13 @@ package com.synectiks.asset.repository;
 
 import java.util.List;
 
+import com.synectiks.asset.domain.query.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.synectiks.asset.domain.Organization;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
-import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
-import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
 
 /**
  * Spring Data SQL repository for the query database.
@@ -778,4 +769,116 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" FROM monthly_costs, budget_sum ";
 	@Query(value = TOTAL_BUdGET_QUERY, nativeQuery = true)
 	TotalBudgetQueryObj getTotalBudget(@Param("orgId") Long orgId);
+
+	String PRODUCT_WISE_COST_QUERY = "WITH product_sum AS ( " +
+			"  select " +
+			"    c.obj->>'associatedProduct' as name, " +
+			"    SUM(cast(value as INT)) as total " +
+			"  from " +
+			"    cloud_element ce, " +
+			"    organization org, " +
+			"    JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') with ordinality b(obj, pos), " +
+			"    JSONB_EACH_TEXT(b.obj -> 'MONTHLYCOST') as jb(key, value), " +
+			"    JSONB_ARRAY_ELEMENTS(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj) " +
+			"  where " +
+			"    org.id = :orgId " +
+			"    and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE) " +
+			"  group by c.obj->>'associatedProduct' " +
+			"  ) " +
+			"  select name, total, (total * 100.0) / (select SUM(total) from product_sum) as percentage " +
+			"  from " +
+			"  product_sum " +
+			"UNION ALL " +
+			"  select 'Cumulative Total', SUM(total) as total_sum, null as percentage " +
+			"  from " +
+			"  product_sum ";
+	@Query(value = PRODUCT_WISE_COST_QUERY, nativeQuery = true)
+	List<CostAnalyticQueryObj> getProductWiseCost(@Param("orgId") Long orgId);
+
+	String PRODUCTION_VS_OTHERS_QUERY = "with product_sum as ( " +
+			"  select " +
+			"   c.obj->>'associatedEnv' as name, " +
+			"   SUM(cast(value as INT)) as total " +
+			"  from " +
+			"   cloud_element ce, " +
+			"   organization org, " +
+			"   JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') with ordinality b(obj, pos), " +
+			"   JSONB_EACH_TEXT(b.obj -> 'MONTHLYCOST') as jb(key, value), " +
+			"   JSONB_ARRAY_ELEMENTS(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj) " +
+			"  where " +
+			"   org.id = :orgId " +
+			"   and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE) and c.obj->>'associatedEnv' = 'PROD' " +
+			"  group by c.obj->>'associatedEnv' " +
+			" ), " +
+			" " +
+			"other_sum as ( " +
+			"  select " +
+			"   c.obj->>'associatedEnv' as name, " +
+			"   SUM(cast(value as INT)) as total " +
+			"  from " +
+			"   cloud_element ce, " +
+			"   organization org, " +
+			"   JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') with ordinality b(obj, pos), " +
+			"   JSONB_EACH_TEXT(b.obj -> 'MONTHLYCOST') as jb(key, value), " +
+			"   JSONB_ARRAY_ELEMENTS(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj) " +
+			"  where " +
+			"   org.id = :orgId " +
+			"   and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE) and c.obj->>'associatedEnv' != 'PROD' " +
+			"  group by c.obj->>'associatedEnv' " +
+			" ), " +
+			"total_sum as ( " +
+			" select SUM(total) as total_sum from  " +
+			"  (  select SUM(total) as total from product_sum " +
+			"    union all " +
+			"   select SUM(total) as total from other_sum " +
+			"  ) as totals " +
+			" ) " +
+			"select name, total, ROUND((total / ( select total_sum from total_sum)) * 100, 7) as percentage " +
+			"from " +
+			" ( " +
+			"  select 'PROD' as name, SUM(product_sum.total) as total " +
+			"  from product_sum " +
+			"   union all " +
+			"  select 'others' as name, SUM(other_sum.total) as total " +
+			"  from other_sum " +
+			" ) as subquery " +
+			"union all " +
+			"  " +
+			"select 'Cumulative Total' as name, " +
+			" ( select SUM(total) from product_sum )  " +
+			"  +  " +
+			" ( select SUM(total) from other_sum ) as total_sum, " +
+			" null ";
+	@Query(value = PRODUCTION_VS_OTHERS_QUERY, nativeQuery = true)
+	List<CostAnalyticQueryObj> getProductionVsOthersCost(@Param("orgId") Long orgId);
+
+	String SERVICE_TYPE_WISE_COST_QUERY = "WITH labels AS ( " +
+			"  select " +
+			"   ce.cloud_identity ->> 'category' as name, " +
+			"   SUM(cast(value as INT)) as total " +
+			"  from " +
+			"   cloud_element ce, " +
+			"   organization org, " +
+			"   JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') with ordinality b(obj, pos), " +
+			"   JSONB_EACH_TEXT(b.obj -> 'MONTHLYCOST') as jb(key, value) " +
+			"  where " +
+			"   org.id = :orgId " +
+			"   and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE) " +
+			"  group by ce.cloud_identity ->> 'category' " +
+			" ) " +
+			" select " +
+			"  name, " +
+			"  total, " +
+			"  (total * 100.0) / ( select SUM(total) from labels) as percentage " +
+			" from " +
+			"  labels " +
+			"UNION ALL " +
+			"select " +
+			" 'Cumulative Total', " +
+			" SUM(total) as total_sum, " +
+			" null as percentage " +
+			"from labels ";
+	@Query(value = SERVICE_TYPE_WISE_COST_QUERY, nativeQuery = true)
+	List<CostAnalyticQueryObj> getServiceTypeWiseCost(@Param("orgId") Long orgId);
+
 }

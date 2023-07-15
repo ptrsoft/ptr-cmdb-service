@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import com.synectiks.asset.domain.query.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,22 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyCategoryObj;
-import com.synectiks.asset.domain.query.InfraTopologyElementObj;
-import com.synectiks.asset.domain.query.InfraTopologyHostingTypeObj;
-import com.synectiks.asset.domain.query.InfraTopologyObj;
-import com.synectiks.asset.domain.query.InfraTopologyProductEnclaveObj;
-import com.synectiks.asset.domain.query.InfraTopologyQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
-import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
-import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
 import com.synectiks.asset.repository.QueryRepository;
 
 @Service
@@ -441,21 +426,34 @@ public class QueryService {
 
 	public List<InfraTopologySummaryQueryObj> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave)  {
 		logger.debug("Getting list of cloud elements to form infra-topology-view for a given organization and landing-zone");
-		
 		return queryRepository.getInfraTopologySummary(orgId,landingZone,productEnclave);
 
 	}
 	
 	public List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj(Long orgId)  {
-	logger.debug("Getting list of monthly statistics for given organization");
-	return queryRepository.monthlyStatisticsQueryObj(orgId);
+		logger.debug("Getting list of monthly statistics for given organization");
+		return queryRepository.monthlyStatisticsQueryObj(orgId);
+	}
 
-}
+	public TotalBudgetQueryObj getTotalBudget(Long orgId) {
+		logger.debug("Getting total budget of organization");
+		return queryRepository.getTotalBudget(orgId);
+	}
 
-public TotalBudgetQueryObj getTotalBudget(Long orgId) {
-	logger.debug("Getting total budget of organization");
-	return queryRepository.getTotalBudget(orgId);
-}
+	public List<CostAnalyticQueryObj> getProductWiseCost(Long orgId) {
+		logger.debug("Get product wise cost ");
+		return queryRepository.getProductWiseCost(orgId);
+	}
+
+	public List<CostAnalyticQueryObj> getProductionVsOthersCost(Long orgId) {
+		logger.debug("Get production vs others cost ");
+		return queryRepository.getProductionVsOthersCost(orgId);
+	}
+
+	public List<CostAnalyticQueryObj> getServiceTypeWiseCost(Long orgId) {
+		logger.debug("Get service type wise cost ");
+		return queryRepository.getServiceTypeWiseCost(orgId);
+	}
 }
 
 

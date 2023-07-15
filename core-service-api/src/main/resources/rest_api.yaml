@@ -76,6 +76,8 @@ tags:
     description: get infrastructure topology wise data
   - name: SpendAnalyticsQuery
     description: spend analytics
+  - name: CostAnalyticsQuery
+    description: cost analytics
 
 
 paths:
@@ -2808,7 +2810,84 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-
+  /query/organizations/{orgId}/analytics/cost-analytics/product-wise-cost:
+    get:
+      tags:
+        - CostAnalyticsQuery
+      summary: get product wise cost of an organization
+      operationId: getProductWiseCost
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostAnalyticDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/analytics/cost-analytics/production-vs-others:
+    get:
+      tags:
+        - CostAnalyticsQuery
+      summary: get production vs others cost of an organization
+      operationId: getProductionVsOthersCost
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostAnalyticDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/analytics/cost-analytics/service-type-wise-cost:
+    get:
+      tags:
+        - CostAnalyticsQuery
+      summary: get service type wise cost of an organization
+      operationId: getServiceTypeWiseCost
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostAnalyticDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -3242,3 +3321,13 @@ components:
         totalElements:
           type: integer
           format: int64
+    CostAnalyticDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        total:
+          type: integer
+          format: int64
+        percentage:
+          type: string

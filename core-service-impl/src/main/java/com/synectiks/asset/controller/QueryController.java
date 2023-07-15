@@ -2,7 +2,10 @@
 
  import java.util.List;
 
-import org.slf4j.Logger;
+ import com.synectiks.asset.api.model.*;
+ import com.synectiks.asset.domain.query.*;
+ import com.synectiks.asset.mapper.query.*;
+ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,37 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.asset.api.controller.QueryApi;
-import com.synectiks.asset.api.model.CloudElementCloudWiseAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementCloudWiseMonthlyAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementSpendAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementVpcDTO;
-import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
-import com.synectiks.asset.api.model.EnvironmentQueryDTO;
-import com.synectiks.asset.api.model.InfraTopologyDTO;
-import com.synectiks.asset.api.model.InfraTopologySummaryDTO;
-import com.synectiks.asset.api.model.MonthlyStatisticsDTO;
-import com.synectiks.asset.api.model.TotalBudgetDTO;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyObj;
-import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
-import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
-import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
-import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
-import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
-import com.synectiks.asset.mapper.query.CloudElementSpendAnalyticQueryMapper;
-import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
-import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
-import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
-import com.synectiks.asset.mapper.query.InfraTopologyMapper;
-import com.synectiks.asset.mapper.query.InfraTopologySummeryMapper;
-import com.synectiks.asset.mapper.query.MonthlyStatisticyMapper;
-import com.synectiks.asset.mapper.query.TotalBudgetMapper;
-import com.synectiks.asset.service.QueryService;
+ import com.synectiks.asset.service.QueryService;
 
 
 @RestController
@@ -446,6 +419,30 @@ public class QueryController implements QueryApi {
 		TotalBudgetQueryObj totalBudgetQueryObj = queryService.getTotalBudget(orgId);
 		TotalBudgetDTO totalBudgetDTOList = TotalBudgetMapper.INSTANCE.toDto(totalBudgetQueryObj);
 		return ResponseEntity.ok(totalBudgetDTOList);
+	}
+
+	@Override
+	public ResponseEntity<List<CostAnalyticDTO>> getProductWiseCost(Long orgId) {
+		logger.debug("REST request to Get product wise cost for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductWiseCost(orgId);
+		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+	}
+
+	@Override
+	public ResponseEntity<List<CostAnalyticDTO>> getProductionVsOthersCost(Long orgId) {
+		logger.debug("REST request to Get production vs others cost for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductionVsOthersCost(orgId);
+		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+	}
+
+	@Override
+	public ResponseEntity<List<CostAnalyticDTO>> getServiceTypeWiseCost(Long orgId) {
+		logger.debug("REST request to Get service type wise cost for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getServiceTypeWiseCost(orgId);
+		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
 	}
 }
 
