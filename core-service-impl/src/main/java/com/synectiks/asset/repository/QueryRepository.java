@@ -892,5 +892,64 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"from labels ";
 	@Query(value = SERVICE_TYPE_WISE_COST_QUERY, nativeQuery = true)
 	List<CostAnalyticQueryObj> getServiceTypeWiseCost(@Param("orgId") Long orgId);
+	
+	
+
+	String DATA_GENERATOR = "SELECT b.obj ->> 'name' as entity_type, b.obj ->> :entity AS cost_json \r\n"
+			+ "FROM cloud_element ce\r\n" + "JOIN organization org ON org.id = :orgId \r\n"
+			+ "CROSS JOIN JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') WITH ORDINALITY b(obj, pos)\r\n"
+			+ "WHERE b.obj ->> 'name' = :elementName ";
+
+	@Query(value = DATA_GENERATOR, nativeQuery = true)
+	List<CostBillingQueryObj> getDataGenerator(@Param("orgId") Long orgId,
+			@Param(value = "elementName") String elementName, @Param("entity") String entity);
+
+	String DATA_GENERATOR_ORG_BILLING = "SELECT \r\n"
+			+ "		 CAST(ce.hardware_location ->> 'landingZone' AS BIGINT) as landing_zone,\r\n"
+			+ "		   b.obj ->> 'name'  as element_name,\r\n" + "		    b.obj ->> UPPER(:entity) AS  cost_json \r\n"
+			+ "		FROM cloud_element ce\r\n" + "		JOIN organization org ON org.id =:orgId \r\n"
+			+ "		CROSS JOIN JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') WITH ORDINALITY b(obj, pos) ";
+
+	@Query(value = DATA_GENERATOR_ORG_BILLING, nativeQuery = true)
+	List<CostBillingQueryObj> getDataGeneratorOrgBilling(@Param("orgId") Long orgId, @Param("entity") String entity);
+
+	String DATA_GENERATOR_ORG_ELMENT_NAME_BILLING = "SELECT \r\n"
+			+ "CAST(ce.hardware_location ->> 'landingZone' AS BIGINT) as landing_zone,\r\n"
+			+ "    b.obj ->> 'name' as element_name,\r\n"
+			+ "    b.obj ->>  UPPER(:entity) AS cost_json\r\n"
+			+ "FROM cloud_element ce\r\n"
+			+ "JOIN organization org ON org.id = :orgId \r\n"
+			+ "CROSS JOIN JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') WITH ORDINALITY b(obj, pos)\r\n"
+			+ "WHERE b.obj ->> 'name' = :elementName ";
+
+	@Query(value = DATA_GENERATOR_ORG_ELMENT_NAME_BILLING, nativeQuery = true)
+	List<CostBillingQueryObj> getOrgAndElementNameBilling(@Param("orgId") Long orgId, @Param("entity") String entity,
+			@Param("elementName") String elementName);
+
+	String DATA_GENERATOR_ORG_LANDING_ZONE_BILLING = "SELECT \r\n"
+			+ " CAST(ce.hardware_location ->> 'landingZone' AS BIGINT) as landing_zone,\r\n"
+			+ "    b.obj ->> 'name' as element_name,\r\n" + "   b.obj ->>  UPPER(:entity) AS cost_json\r\n"
+			+ "FROM cloud_element ce\r\n" + "JOIN organization org ON org.id = :orgId \r\n"
+			+ "CROSS JOIN JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') WITH ORDINALITY b(obj, pos)\r\n"
+			+ "WHERE CAST(ce.hardware_location ->> 'landingZone' AS BIGINT) = :landingZone ";
+
+	@Query(value = DATA_GENERATOR_ORG_LANDING_ZONE_BILLING, nativeQuery = true)
+	List<CostBillingQueryObj> getOrgAndLandingZoneBilling(@Param("orgId") Long orgId, @Param("entity") String entity,
+			@Param("landingZone") Long landingZone);
+
+	String DATA_GENERATOR_ORG_LANDING_ZONE_ELEMENT_BILLING = "SELECT \r\n"
+			+ " CAST(ce.hardware_location ->> 'landingZone' AS BIGINT) as landing_zone,\r\n"
+			+ "    b.obj ->> 'name' as element_name,\r\n"
+			+ "    b.obj ->>  UPPER(:entity) AS cost_json \r\n"
+			+ "FROM cloud_element ce\r\n"
+			+ "JOIN organization org ON org.id = :orgId \r\n"
+			+ "CROSS JOIN JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') WITH ORDINALITY b(obj, pos)\r\n"
+			+ "WHERE b.obj ->> 'name' = :elementName \r\n"
+			+ "and CAST(ce.hardware_location ->> 'landingZone' AS BIGINT) = :landingZone ";
+
+	@Query(value = DATA_GENERATOR_ORG_LANDING_ZONE_ELEMENT_BILLING, nativeQuery = true)
+	List<CostBillingQueryObj> getOrgAndElementNameAndLandingZoneBilling(@Param("orgId") Long orgId,
+			@Param("entity") String entity, @Param("landingZone") Long landingZone,
+			@Param("elementName") String elementName);
 
 }

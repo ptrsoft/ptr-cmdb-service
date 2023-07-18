@@ -459,6 +459,35 @@ public class QueryService {
 		logger.debug("Get service type wise cost ");
 		return queryRepository.getServiceTypeWiseCost(orgId);
 	}
+
+
+
+	public List<CostBillingQueryObj> getDataGeneratorOrgBilling(Long orgId , String entity ) {
+		logger.debug("Get  org  wise billing ");
+	 return queryRepository.getDataGeneratorOrgBilling(orgId,entity);
+	}
+
+	public List<CostBillingQueryObj> getOrgAndElementNameBilling(Long orgId,String entity, String elementName) {
+		logger.debug("Get  org and elementName  wise billing ");
+		 return queryRepository.getOrgAndElementNameBilling(orgId,entity,elementName);
+	}
+
+	public List<CostBillingQueryObj> getOrgAndLandingZoneBilling(Long orgId, String entity, Long landingZone) {
+		logger.debug("Get  org and landingZone  wise billing ");
+		 return queryRepository.getOrgAndLandingZoneBilling(orgId,entity,landingZone);
+	}
+
+	public List<CostBillingQueryObj> getOrgAndElementNameAndLandingZoneBilling(Long orgId, String entity,
+			Long landingZone, String elementName) {
+		logger.debug("Get  org and landingZone  wise billing ");
+		 return queryRepository.getOrgAndElementNameAndLandingZoneBilling(orgId,entity,landingZone,elementName);
+	}
+
+//	public EnvironmentCountQueryObj getResourceCountsByOrgAndCloudAndLandingZone(Long orgId, String cloud,Long landingZone) {
+//		  logger.debug("Getting cloud wise landing zone and their resource counts for an organization and given cloud. Org Id: {}, Cloud: {}", orgId,cloud);
+//	        return queryRepository.getResourceCountsByOrgAndCloudAndLandingZone(cloud, orgId,landingZone);
+//	}
+
 }
 
 

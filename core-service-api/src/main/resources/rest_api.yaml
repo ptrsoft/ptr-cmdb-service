@@ -78,6 +78,8 @@ tags:
     description: spend analytics
   - name: CostAnalyticsQuery
     description: cost analytics
+  - name: BillingAnalyticsQuery
+    description: billing  cost analytics
 
 
 paths:
@@ -2922,6 +2924,153 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organizations/{orgId}/billing/cloud-element/entity/{entity}/organizations-wise-billing:
+    get:
+      tags:
+        - BillingAnalyticsQuery
+      summary: get billing cost of an organization
+      operationId: DataGeneratorOrgBilling
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: entity
+          schema:
+            type: string
+          required: true
+    
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostBillingDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/billing/cloud-element/entity/{entity}/element-name/{elementName}/element-wise-billing:
+    get:
+      tags:
+        - BillingAnalyticsQuery
+      summary: get billing cost of an element-name of an organization 
+      operationId: OrgAndElementNameBilling
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: elementName
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: entity
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostBillingDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/billing/cloud-element/entity/{entity}/landingzone/{landingZone}/landingzone-wise-billing:
+    get:
+      tags:
+        - BillingAnalyticsQuery
+      summary: get billing cost of an landingzone an organization
+      operationId: OrgAndLandingZoneBilling
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: entity
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostBillingDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organizations/{orgId}/billing/cloud-element/element-name/entity/{entity}/{elementName}/landingzone/{landingZone}/landingzone-element-wise-billing:
+    get:
+      tags:
+        - BillingAnalyticsQuery
+      summary: get billing cost of a landingzone and an element name on an organization
+      operationId: OrgAndElementNameAndLandingZoneBilling
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: elementName
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: entity
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostBillingDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -3162,6 +3311,9 @@ components:
           format: int64
         cloud:
           type: string
+        landingZone:
+          type: integer
+          format: int64
     EnvironmentSummaryQueryDTO:
       type: object
       properties:
@@ -3364,4 +3516,14 @@ components:
           type: integer
           format: int64
         percentage:
+          type: string
+    CostBillingDTO:
+      type: object
+      properties:
+        landingZone:
+          type: integer
+          format: int64
+        elementName:
+          type: string
+        costJson:
           type: string

@@ -13,7 +13,43 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.asset.api.controller.QueryApi;
- import com.synectiks.asset.service.QueryService;
+import com.synectiks.asset.api.model.CloudElementCloudWiseAnalyticsDTO;
+import com.synectiks.asset.api.model.CloudElementCloudWiseMonthlyAnalyticsDTO;
+import com.synectiks.asset.api.model.CloudElementSpendAnalyticsDTO;
+import com.synectiks.asset.api.model.CloudElementVpcDTO;
+import com.synectiks.asset.api.model.CostAnalyticDTO;
+import com.synectiks.asset.api.model.CostBillingDTO;
+import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
+import com.synectiks.asset.api.model.EnvironmentQueryDTO;
+import com.synectiks.asset.api.model.InfraTopologyDTO;
+import com.synectiks.asset.api.model.InfraTopologySummaryDTO;
+import com.synectiks.asset.api.model.MonthlyStatisticsDTO;
+import com.synectiks.asset.api.model.TotalBudgetDTO;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
+import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
+import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
+import com.synectiks.asset.domain.query.CostBillingQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologyObj;
+import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
+import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
+import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
+import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
+import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
+import com.synectiks.asset.mapper.query.CloudElementSpendAnalyticQueryMapper;
+import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
+import com.synectiks.asset.mapper.query.CostAnalyticMapper;
+import com.synectiks.asset.mapper.query.CostBillingMapper;
+import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
+import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
+import com.synectiks.asset.mapper.query.InfraTopologyMapper;
+import com.synectiks.asset.mapper.query.InfraTopologySummeryMapper;
+import com.synectiks.asset.mapper.query.MonthlyStatisticyMapper;
+import com.synectiks.asset.mapper.query.TotalBudgetMapper;
+import com.synectiks.asset.service.QueryService;
 
 
 @RestController
@@ -452,5 +488,41 @@ public class QueryController implements QueryApi {
 		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
 		return ResponseEntity.ok(costAnalyticDTOList);
 	}
+	
+	@Override
+	public ResponseEntity<List<CostBillingDTO>> dataGeneratorOrgBilling(Long orgId,String entity ){
+		logger.debug("REST request to Get billing for an organization: Org Id: {}", orgId);
+		List<CostBillingQueryObj> costBillingQueryObj = queryService.getDataGeneratorOrgBilling(orgId,entity);
+		List<CostBillingDTO> billingAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costBillingQueryObj);
+		return ResponseEntity.ok(billingAnalyticDTOList);
+		
+	}
+	@Override
+	public ResponseEntity<List<CostBillingDTO>> orgAndElementNameBilling(Long orgId ,String entity,String elementName){
+		logger.debug("REST request to Get billing for an elementName an  organization: Org Id: {}", orgId);
+		List<CostBillingQueryObj> costSummaryQueryObj = queryService.getOrgAndElementNameBilling(orgId,entity,elementName);
+		List<CostBillingDTO> costAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costSummaryQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+		
+	}
+	
+	@Override
+	public ResponseEntity<List<CostBillingDTO>> orgAndLandingZoneBilling(Long orgId ,Long landingZone,String entity){
+		logger.debug("REST request to Get billing for an landingZone an  organization: Org Id: {}", orgId);
+		List<CostBillingQueryObj> costSummaryQueryObj = queryService.getOrgAndLandingZoneBilling(orgId,entity,landingZone);
+		List<CostBillingDTO> costAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costSummaryQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+		
+	}
+	
+	@Override
+	public ResponseEntity<List<CostBillingDTO>> orgAndElementNameAndLandingZoneBilling(Long orgId ,String elementName ,Long landingZone,String entity){
+		logger.debug("REST request to Get billing for an landingZone an element an  organization: Org Id: {}", orgId);
+		List<CostBillingQueryObj> costSummaryQueryObj = queryService.getOrgAndElementNameAndLandingZoneBilling(orgId,entity,landingZone,elementName);
+		List<CostBillingDTO> costAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costSummaryQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+		
+	}
+
 }
 
