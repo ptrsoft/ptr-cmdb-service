@@ -34,15 +34,20 @@ public class QueryService {
 	private EntityManager entityManager;
 
 
-	public List<EnvironmentCountQueryObj> getEnvironmentCounts(Long orgId){
+	public List<EnvironmentCountQueryObj> getResourceCounts(Long orgId){
        logger.debug("Getting cloud wise landing zone and their resource counts for an organization. Org Id: {}", orgId);
        return queryRepository.getCount(orgId);
    }
 
-    public EnvironmentCountQueryObj getEnvironmentCounts(Long orgId, String cloud) {
+    public EnvironmentCountQueryObj getResourceCounts(Long orgId, String cloud) {
         logger.debug("Getting cloud wise landing zone and their resource counts for an organization and given cloud. Org Id: {}, Cloud: {}", orgId,cloud);
         return queryRepository.getCount(cloud, orgId);
     }
+
+	public EnvironmentCountQueryObj getResourceCounts(Long orgId, String cloud, String landingZone) {
+		logger.debug("Getting cloud and landing-zone wise resource counts of an organization. Org Id: {}, cloud: {}, landing-zone: {}", orgId,cloud, landingZone);
+		return queryRepository.getCount(landingZone, cloud, orgId);
+	}
 
     public List<EnvironmentQueryObj> getEnvironmentSummaryByFilter(Long orgId, Long departmentId, String product, String env, String cloud)  {
 		String sql ="select ROW_NUMBER() OVER () AS id, cnv.cloud, replace(cast(ceo.landing_zone as text), '\"', '') as landing_zone, " +

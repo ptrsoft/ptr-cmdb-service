@@ -1145,6 +1145,40 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organizations/{orgId}/cloud/{cloud}/landing-zone/{landingZone}/cloud-environments/count:
+    get:
+      tags:
+        - OrgWiseQuery
+      summary: Get organization, cloud and landing-zone wise account's resource counts
+      operationId: getResourceCountsByOrgCloudAndLandingZone
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: cloud
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: landingZone
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentCountQueryDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/organizations/{orgId}/cloud-environments/summary:
     get:
       tags:

@@ -28,7 +28,7 @@ public class QueryController implements QueryApi {
 	@Override
 	public ResponseEntity<List<EnvironmentCountQueryDTO>> getResourceCountsByOrg(Long orgId) {
 		logger.debug("REST request to Get cloud wise landing zone and their resource counts for an organization: Org Id: {}", orgId);
-		List<EnvironmentCountQueryObj> environmentCountQueryObjList = queryService.getEnvironmentCounts(orgId);
+		List<EnvironmentCountQueryObj> environmentCountQueryObjList = queryService.getResourceCounts(orgId);
 		List<EnvironmentCountQueryDTO> environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDtoList(environmentCountQueryObjList);
 		return ResponseEntity.ok(environmentCountQueryDTOList);
 	}
@@ -36,7 +36,15 @@ public class QueryController implements QueryApi {
 	@Override
 	public ResponseEntity<EnvironmentCountQueryDTO> getResourceCountsByOrgAndCloud(Long orgId, String cloud) {
 		logger.debug("REST request to Get cloud wise landing zone and their resource counts for an organization and cloud: Org Id: {}, Cloud: {}", orgId, cloud);
-		EnvironmentCountQueryObj environmentCountQueryObj = queryService.getEnvironmentCounts(orgId, cloud);
+		EnvironmentCountQueryObj environmentCountQueryObj = queryService.getResourceCounts(orgId, cloud);
+		EnvironmentCountQueryDTO environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDto(environmentCountQueryObj);
+		return ResponseEntity.ok(environmentCountQueryDTOList);
+	}
+
+	@Override
+	public ResponseEntity<EnvironmentCountQueryDTO> getResourceCountsByOrgCloudAndLandingZone(Long orgId, String cloud, String landingZone) {
+		logger.debug("REST request to Get cloud and landing-zone wise resource counts of an organization. Org Id: {}, Cloud: {}, LandingZone {}", orgId, cloud, landingZone);
+		EnvironmentCountQueryObj environmentCountQueryObj = queryService.getResourceCounts(orgId, cloud, landingZone);
 		EnvironmentCountQueryDTO environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDto(environmentCountQueryObj);
 		return ResponseEntity.ok(environmentCountQueryDTOList);
 	}
