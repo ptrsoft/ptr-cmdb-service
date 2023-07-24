@@ -339,7 +339,83 @@ public final class DateFormatUtil {
 			map.clear();
 			jsonObject.put("YEARLYCOST",yearlyCostMap);
 		}
-		System.out.println(jsonObject.toString());
+	 
+		return jsonObject;
+	}
+	
+	public static JSONObject generateTestSlaData(String startDateString, String endDateString){
+		String targetFormat = "yyyy-MM-dd";
+		LocalDate startDate = convertStringToLocalDate(startDateString, targetFormat);
+		LocalDate endDate = convertStringToLocalDate(endDateString, targetFormat);
+		List<LocalDate> datesBetween = findDatesBetween(startDate, endDate);
+		Random random = new Random();
+
+		Map<String, String> hourCostMap = new HashMap<>();
+		Map<String, String> dailyCostMap = new HashMap<>();
+		Map<String, String> monthlyCostMap = new HashMap<>();
+		Map<String, String> yearlyCostMap = new HashMap<>();
+
+		JSONObject jsonObject = new JSONObject();
+		String month = null;
+		long monthlyCostSum = 0L;
+
+		for (LocalDate date : datesBetween) {
+//			System.out.println(date);
+			String day = convertLocalDateToString(date, targetFormat);
+			List<String> hoursList = find24HoursOfDay(day);
+
+			long dailyCostSum = 0L;
+			for(String dailyHours: hoursList){
+//				System.out.println(dailyHours);
+				int randomNumber = random.nextInt(100);
+				dailyCostSum += randomNumber;
+				hourCostMap.put(dailyHours, String.valueOf(randomNumber));
+			}
+			jsonObject.put("HOURLYSLA", hourCostMap);
+			dailyCostMap.put(day, String.valueOf(dailyCostSum));
+			jsonObject.put("DAILYSLA",dailyCostMap);
+
+			if(!date.getMonth().name().equalsIgnoreCase(month)){
+				month = date.getMonth().name();
+				monthlyCostSum = 0;
+//				monthlyCostSum += dailyCostSum;
+			}
+			else{
+//				monthlyCostSum += dailyCostSum;
+			}
+			monthlyCostSum += dailyCostSum;
+			monthlyCostMap.put(date.getYear()+"-"+date.getMonth().getValue(),String.valueOf(monthlyCostSum));
+			jsonObject.put("MONTHLYSLA",monthlyCostMap);
+
+
+//			System.out.println("Month: "+month);
+		}
+//		System.out.println("Month map class: "+jsonObject.get("MONTHLYCOST").getClass());
+		JSONObject monthJson = (JSONObject)jsonObject.get("MONTHLYSLA");
+
+		Set<Integer> yearSet = new HashSet<>();
+		for(String key : monthJson.keySet()) {
+			yearSet.add(Integer.parseInt(key.split("-")[0]));
+		}
+		for (Integer yearKey : yearSet) {
+			Map<Integer, Long> map = new HashMap<>();
+			for(String key : monthJson.keySet()) {
+				if(key.contains(yearKey.toString())){
+					if(map.containsKey(yearKey)){
+						Long val = map.get(yearKey)+Long.parseLong((String)monthJson.get(key));
+						map.put(yearKey, val);
+					}else{
+						map.put(yearKey, Long.parseLong((String)monthJson.get(key)));
+					}
+				}
+			}
+			for (Integer key : map.keySet()) {
+				yearlyCostMap.put(String.valueOf(key),String.valueOf(map.get(key)));
+			}
+			map.clear();
+			jsonObject.put("YEARLYSLA",yearlyCostMap);
+		}
+	 
 		return jsonObject;
 	}
 
