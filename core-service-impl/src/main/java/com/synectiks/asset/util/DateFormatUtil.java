@@ -199,7 +199,7 @@ public final class DateFormatUtil {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 		// Print the 24 hours of the given localDateTime
-		for (int hour = 0; hour < 2; hour++) {
+		for (int hour = 0; hour < 24; hour++) {
 			String dateTime = localDateTime.format(formatter);
 //			System.out.println(dateTime);
 			localDateTimeList.add(dateTime);
@@ -419,27 +419,9 @@ public final class DateFormatUtil {
 		return jsonObject;
 	}
 
-	public static void main(String a[]) throws Exception {
-//		String dt = changeDateFormat(CmsConstants.DATE_FORMAT_dd_MM_yyyy, "dd/MM/yyyy", "29/04/2019");
-//		Date d = getUtilDate(CmsConstants.DATE_FORMAT_dd_MM_yyyy,dt);
-//		System.out.println(d);
-		LocalDate date = convertStringToLocalDate("08"+"/"+"09"+"/"+"2019","MM/dd/yyyy"); //LocalDate.now();
-		System.out.println("date to be formated : "+date);
-//		String dt = changeLocalDateFormat(date, CmsConstants.DATE_FORMAT_MM_dd_yyyy);
-//		DateTimeFormatter formatters = DateTimeFormatter.ofPattern(CmsConstants.DATE_FORMAT_MM_dd_yyyy);
-//		System.out.println("local date after format change : "+formatters.format(date));
 
-//		convertStringToInstant();
-//		testFindDatesBetween("2023-07-01","2023-07-31");
-//		find24HoursOfDay("2023-07-11");
-//		randomHourJsonArray ("2023-07-11");
-		generateTestCostData("2022-11-01","2023-01-31");
-//		weekOfMonthExample ();
-		weekOfMonthExampleWithStartAndEndDate();
-		bb();
-	}
 
-	public static void bb(){
+	public static void bb() {
 		// read string into a json
 		// get elementLists as jsonarray
 		// iterate the jsonarray and for each element run testCostDataGenerator and put each cost in element
@@ -461,16 +443,16 @@ public final class DateFormatUtil {
 				"    ]\n" +
 				"}";
 		ObjectMapper objectMapper = Constants.instantiateMapper();
-		try{
+		try {
 			JsonNode rootNode = objectMapper.readTree(js);
-			if(rootNode != null){
+			if (rootNode != null) {
 				JsonNode elmJson = rootNode.get("elementLists");
-				if(elmJson != null && elmJson.isArray()){
+				if (elmJson != null && elmJson.isArray()) {
 					Iterator<JsonNode> iterator = elmJson.iterator();
 					while (iterator.hasNext()) {
-						ObjectNode jsonNode = (ObjectNode)iterator.next();
+						ObjectNode jsonNode = (ObjectNode) iterator.next();
 						JSONObject obj = generateTestCostData("2022-11-01", "2023-07-12");
-						for(String key: obj.keySet()){
+						for (String key : obj.keySet()) {
 							jsonNode.put(key, objectMapper.readTree(obj.get(key).toString()));
 						}
 
@@ -479,11 +461,71 @@ public final class DateFormatUtil {
 				}
 
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+
+		public static void AddMinutesToInstant() {
+			// Current Instant
+			Instant currentInstant = Instant.now();
+			System.out.println("Current Instant: " + currentInstant);
+
+			// Add 10 minutes to the current Instant
+			Instant modifiedInstant = currentInstant.plus(70, ChronoUnit.MINUTES);
+			System.out.println("Modified Instant: " + modifiedInstant);
 		}
 
 
+		// Set the session timeout duration (e.g., 30 minutes)
 
+		// Method to check if the session has timed out
+		public static boolean isSessionTimedOut(Instant lastActivityTime) {
+			long SESSION_TIMEOUT_MINUTES = 30;
+			Duration SESSION_TIMEOUT_DURATION = Duration.ofMinutes(SESSION_TIMEOUT_MINUTES);
+
+			Instant currentTime = Instant.now();
+			Duration durationSinceLastActivity = Duration.between(lastActivityTime, currentTime);
+			System.out.println("last time "+lastActivityTime+", current time: "+currentTime+", Duration: "+durationSinceLastActivity);
+
+			return durationSinceLastActivity.compareTo(SESSION_TIMEOUT_DURATION) >= 0;
+		}
+
+		public static void testSessionTimeout() {
+			// Simulate the last activity time (replace this with your actual last activity time)
+			Instant lastActivityTime = Instant.parse("2023-07-23T12:00:00Z");
+
+			// Check if the session has timed out
+			if (isSessionTimedOut(lastActivityTime)) {
+				System.out.println("Session has timed out.");
+			} else {
+				System.out.println("Session is still active.");
+			}
+		}
+
+	public static void main(String a[]) throws Exception {
+//		String dt = changeDateFormat(CmsConstants.DATE_FORMAT_dd_MM_yyyy, "dd/MM/yyyy", "29/04/2019");
+//		Date d = getUtilDate(CmsConstants.DATE_FORMAT_dd_MM_yyyy,dt);
+//		System.out.println(d);
+//		LocalDate date = convertStringToLocalDate("08"+"/"+"09"+"/"+"2019","MM/dd/yyyy"); //LocalDate.now();
+//		System.out.println("date to be formated : "+date);
+//		String dt = changeLocalDateFormat(date, CmsConstants.DATE_FORMAT_MM_dd_yyyy);
+//		DateTimeFormatter formatters = DateTimeFormatter.ofPattern(CmsConstants.DATE_FORMAT_MM_dd_yyyy);
+//		System.out.println("local date after format change : "+formatters.format(date));
+
+//		convertStringToInstant();
+//		testFindDatesBetween("2023-07-01","2023-07-31");
+//		find24HoursOfDay("2023-07-11");
+//		randomHourJsonArray ("2023-07-11");
+//		generateTestCostData("2022-11-01","2023-01-31");
+//		weekOfMonthExample ();
+//		weekOfMonthExampleWithStartAndEndDate();
+//		bb();
+
+//		AddMinutesToInstant();
+
+		testSessionTimeout();
 	}
+
 }

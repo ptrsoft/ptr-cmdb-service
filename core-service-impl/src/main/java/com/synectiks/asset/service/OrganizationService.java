@@ -1,8 +1,8 @@
 package com.synectiks.asset.service;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.repository.OrganizationRepository;
+import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +11,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.synectiks.asset.domain.Organization;
-import com.synectiks.asset.repository.OrganizationRepository;
-import com.synectiks.asset.util.JsonAndObjectConverterUtil;
+import java.util.List;
+import java.util.Optional;
 
+/**
+ * Service Implementation for managing {@link Organization}.
+ */
 @Service
 public class OrganizationService {
 	
@@ -27,24 +29,24 @@ public class OrganizationService {
 	private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
     public Organization save(Organization organization) {
-    	logger.debug("Save Organization : {}", organization);
+    	logger.debug("Save organization : {}", organization);
         return organizationRepository.save(organization);
     }
 
     @Transactional(readOnly = true)
     public List<Organization> findAll(){
-    	logger.debug("Get all Organizations");
+    	logger.debug("Get all organizations");
         return organizationRepository.findAll();
     }
 
     @Transactional(readOnly = true)
     public Optional<Organization> findOne(Long id) {
-    	logger.debug("Get Organization : {}", id);
+    	logger.debug("Get an organization : {}", id);
         return organizationRepository.findById(id);
     }
 
     public void delete(Long id) {
-    	logger.debug("Request to delete Organization : {}", id);
+    	logger.debug("Request to delete an organization : {}", id);
         organizationRepository.deleteById(id);
     }
 

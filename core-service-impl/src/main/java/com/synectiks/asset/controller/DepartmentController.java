@@ -1,11 +1,11 @@
 package com.synectiks.asset.controller;
 
-import com.synectiks.asset.api.controller.DepartmentsApi;
+import com.synectiks.asset.api.controller.DepartmentApi;
 import com.synectiks.asset.api.model.DepartmentDTO;
 import com.synectiks.asset.domain.Department;
-import com.synectiks.asset.service.DepartmentService;
 import com.synectiks.asset.mapper.DepartmentMapper;
 import com.synectiks.asset.repository.DepartmentRepository;
+import com.synectiks.asset.service.DepartmentService;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class DepartmentController implements DepartmentsApi {
+public class DepartmentController implements DepartmentApi {
 
 	private final Logger logger = LoggerFactory.getLogger(DepartmentController.class);
 
@@ -41,7 +41,7 @@ public class DepartmentController implements DepartmentsApi {
 
 	@Override
 	public ResponseEntity<DepartmentDTO> getDepartment(Long id) {
-		logger.debug("REST request to get Department : ID: {}", id);
+		logger.debug("REST request to get a department : ID: {}", id);
 		Optional<Department> oDept = departmentService.findOne(id);
 		DepartmentDTO departmentDTO = DepartmentMapper.INSTANCE.entityToDto(oDept.orElse(null));
 		return ResponseUtil.wrapOrNotFound(Optional.of(departmentDTO));
@@ -49,7 +49,7 @@ public class DepartmentController implements DepartmentsApi {
 
 	@Override
 	public ResponseEntity<List<DepartmentDTO>> getDepartmentList(){
-		logger.debug("REST request to get all Departments");
+		logger.debug("REST request to get all departments");
 		List<Department> departmentList = departmentService.findAll();
 		List<DepartmentDTO> departmentDTOList = DepartmentMapper.INSTANCE.entityToDtoList(departmentList);
 		return ResponseEntity.ok(departmentDTOList);
@@ -57,7 +57,7 @@ public class DepartmentController implements DepartmentsApi {
 
 	@Override
 	public ResponseEntity<DepartmentDTO> addDepartment(DepartmentDTO departmentDTO){
-		logger.debug("REST request to add Department : {}", departmentDTO);
+		logger.debug("REST request to add a department : {}", departmentDTO);
 		validator.validateNotNull(departmentDTO.getId(), ENTITY_NAME);
 		Department department = DepartmentMapper.INSTANCE.dtoToEntity(departmentDTO);
 		department = departmentService.save(department);
@@ -67,7 +67,7 @@ public class DepartmentController implements DepartmentsApi {
 
 	@Override
 	public ResponseEntity<DepartmentDTO> updateDepartment(DepartmentDTO departmentDTO) {
-		logger.debug("REST request to update Department : {}", departmentDTO);
+		logger.debug("REST request to update a department : {}", departmentDTO);
 		validator.validateNull(departmentDTO.getId(), ENTITY_NAME);
 		validator.validateEntityExistsInDb(departmentDTO.getId(), ENTITY_NAME, departmentRepository);
 		Department existingDepartment = departmentRepository.findById(departmentDTO.getId()).get();

@@ -3,7 +3,9 @@ package com.synectiks.asset.mapper;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
-import com.synectiks.asset.domain.CloudEnvironment;
+import com.synectiks.asset.domain.DbCategory;
+import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.ProductEnclave;
 import com.synectiks.asset.service.CustomeHashMapConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.*;
@@ -20,15 +22,15 @@ public interface CloudElementMapper {
     @Mapping(target="id", ignore = true)
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
-    @Mapping(target = "cloudEnvironmentId", source = "cloudEnvironment.id")
+    @Mapping(target = "landingzoneId", source = "landingzone.id")
+    @Mapping(target = "dbCategoryId", source = "dbCategory.id")
+    @Mapping(target = "productEnclaveId", source = "productEnclave.id")
     CloudElementDTO toDto(CloudElement cloudElement);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     default CloudElement toEntity(CloudElementDTO cloudElementDTO){
         CloudElement cloudElement = toEntityConvertObjectToMap(cloudElementDTO);
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
-        cloudElement.setCloudIdentity(converter.convertObjectToMap(cloudElementDTO.getCloudEntity()));
-        cloudElement.setHardwareLocation(converter.convertObjectToMap(cloudElementDTO.getHardwareLocation()));
         cloudElement.setHostedServices(converter.convertObjectToMap(cloudElementDTO.getHostedServices()));
         cloudElement.setSlaJson(converter.convertObjectToMap(cloudElementDTO.getSlaJson()));
         cloudElement.setCostJson(converter.convertObjectToMap(cloudElementDTO.getCostJson()));
@@ -40,15 +42,15 @@ public interface CloudElementMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
-    @Mapping(target="cloudIdentity", ignore = true)
-    @Mapping(target="hardwareLocation", ignore = true)
     @Mapping(target="hostedServices", ignore = true)
     @Mapping(target="slaJson", ignore = true)
     @Mapping(target="costJson", ignore = true)
     @Mapping(target="viewJson", ignore = true)
     @Mapping(target="configJson", ignore = true)
     @Mapping(target="complianceJson", ignore = true)
-    @Mapping(target = "cloudEnvironment.id", source = "cloudEnvironmentId")
+    @Mapping(target = "landingzone.id", source = "landingzoneId")
+    @Mapping(target = "dbCategory.id", source = "dbCategoryId")
+    @Mapping(target = "productEnclave.id", source = "productEnclaveId")
     CloudElement toEntityConvertObjectToMap(CloudElementDTO cloudElementDTO);
 
 
@@ -82,12 +84,16 @@ public interface CloudElementMapper {
     @Mapping(target = "id", ignore = true)
     default CloudElement dtoToEntityForUpdate(CloudElementDTO cloudElementDTO, CloudElement cloudElement){
         CloudElement temp = copyDtoToEntity(cloudElementDTO, cloudElement);
-        if(cloudElementDTO.getCloudEnvironmentId() != null){
-            temp.setCloudEnvironment(CloudEnvironment.builder().id(cloudElementDTO.getCloudEnvironmentId()).build());
+        if(cloudElementDTO.getLandingzoneId() != null){
+            temp.setLandingzone(Landingzone.builder().id(cloudElementDTO.getLandingzoneId()).build());
+        }
+        if(cloudElementDTO.getDbCategoryId() != null){
+            temp.setDbCategory(DbCategory.builder().id(cloudElementDTO.getDbCategoryId()).build());
+        }
+        if(cloudElementDTO.getProductEnclaveId() != null){
+            temp.setProductEnclave(ProductEnclave.builder().id(cloudElementDTO.getProductEnclaveId()).build());
         }
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
-        temp.setCloudIdentity(converter.convertObjectToMap(cloudElementDTO.getCloudEntity()));
-        temp.setHardwareLocation(converter.convertObjectToMap(cloudElementDTO.getHardwareLocation()));
         temp.setHostedServices(converter.convertObjectToMap(cloudElementDTO.getHostedServices()));
         temp.setSlaJson(converter.convertObjectToMap(cloudElementDTO.getSlaJson()));
         temp.setCostJson(converter.convertObjectToMap(cloudElementDTO.getCostJson()));
@@ -99,8 +105,6 @@ public interface CloudElementMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target="cloudIdentity", ignore = true)
-    @Mapping(target="hardwareLocation", ignore = true)
     @Mapping(target="hostedServices", ignore = true)
     @Mapping(target="slaJson", ignore = true)
     @Mapping(target="costJson", ignore = true)
@@ -119,11 +123,17 @@ public interface CloudElementMapper {
         if(StringUtils.isBlank(cloudElementDTO.getUpdatedOn())){
             cloudElement.setUpdatedOn(null);
         }
-        if(cloudElementDTO.getCloudEnvironmentId() != null){
-            cloudElement.setCloudEnvironment(CloudEnvironment.builder().id(cloudElementDTO.getCloudEnvironmentId()).build());
+        if(cloudElementDTO.getLandingzoneId() != null){
+            cloudElement.setLandingzone(Landingzone.builder().id(cloudElementDTO.getLandingzoneId()).build());
         }
-        cloudElement.getCloudEnvironment().setCreatedOn(null);
-        cloudElement.getCloudEnvironment().setUpdatedOn(null);
+        if(cloudElementDTO.getDbCategoryId() != null){
+            cloudElement.setDbCategory(DbCategory.builder().id(cloudElementDTO.getDbCategoryId()).build());
+        }
+        if(cloudElementDTO.getProductEnclaveId() != null){
+            cloudElement.setProductEnclave(ProductEnclave.builder().id(cloudElementDTO.getProductEnclaveId()).build());
+        }
+        cloudElement.getLandingzone().setCreatedOn(null);
+        cloudElement.getLandingzone().setUpdatedOn(null);
         return cloudElement;
     }
 }

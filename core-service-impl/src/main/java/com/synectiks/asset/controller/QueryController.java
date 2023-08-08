@@ -88,16 +88,14 @@ public class QueryController implements QueryApi {
 	@Override
 	public ResponseEntity<List<EnvironmentQueryDTO>> getResourceSummaryByOrg(Long orgId, Long departmentId, String product, String env) {
 		logger.debug("REST request to get list of landing zone and its associated product-enclaves, products, app and data services for a given organization. Org id: {} ", orgId);
-		List<EnvironmentQueryObj> environmentQueryObjList = queryService.getEnvironmentSummaryByFilter(orgId, departmentId, product, env, null);
-		List<EnvironmentQueryDTO> environmentQueryDTOList = EnvironmentQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		List<EnvironmentQueryDTO> environmentQueryDTOList = queryService.getEnvironmentSummaryByFilter(orgId, departmentId, product, env, null);
 		return ResponseEntity.ok(environmentQueryDTOList);
 	}
 
 	@Override
 	public ResponseEntity<List<EnvironmentQueryDTO>> getResourceSummaryByOrgAndCloud(Long orgId, String cloud) {
 		logger.debug("REST request to get list of landing zone and its associated product-enclaves, products, app and data services for a given organization and cloud. Org id: {}, Cloud: {} ", orgId,cloud);
-		List<EnvironmentQueryObj> environmentQueryObjList = queryService.getEnvironmentSummaryByFilter(orgId, null, null, null, cloud);
-		List<EnvironmentQueryDTO> environmentQueryDTOList = EnvironmentQueryMapper.INSTANCE.toDtoList(environmentQueryObjList);
+		List<EnvironmentQueryDTO> environmentQueryDTOList = queryService.getEnvironmentSummaryByFilter(orgId, null, null, null, cloud);
 		return ResponseEntity.ok(environmentQueryDTOList);
 	}
 	

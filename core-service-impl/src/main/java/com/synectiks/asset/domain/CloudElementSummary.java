@@ -32,8 +32,11 @@ public class CloudElementSummary extends AbstractAuditingEntity implements Seria
   @Convert(converter = CustomeHashMapConverter.class)
   @Column(name = "summary_json", columnDefinition = "jsonb")
   private Map<String, Object> summaryJson;
-  
+
+  @Column(name = "status")
+  private String status;
+
   @ManyToOne
-  private CloudEnvironment cloudEnvironment;
+  private Landingzone landingzone;
   
 }

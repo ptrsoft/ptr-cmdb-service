@@ -1,6 +1,6 @@
 package com.synectiks.asset.controller;
 
-import com.synectiks.asset.api.controller.CloudElementsApi;
+import com.synectiks.asset.api.controller.CloudElementApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.mapper.CloudElementMapper;
@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class CloudElementController implements CloudElementsApi {
+public class CloudElementController implements CloudElementApi {
 
     private final Logger logger = LoggerFactory.getLogger(CloudElementController.class);
 

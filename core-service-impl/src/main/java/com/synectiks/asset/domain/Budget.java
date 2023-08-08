@@ -1,24 +1,26 @@
 package com.synectiks.asset.domain;
 
+import com.synectiks.asset.service.CustomeHashMapConverter;
 import lombok.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
- * A DeploymentEnvironment.
+ * A Budget.
  */
 @Entity
-@Table(name = "deployment_environment")
+@Table(name = "budget")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DeploymentEnvironment extends AbstractAuditingEntity implements Serializable {
+public class Budget extends AbstractAuditingEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,10 +29,16 @@ public class DeploymentEnvironment extends AbstractAuditingEntity implements Ser
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "name")
-	private String name;
+	@Column(name = "allocated_budget")
+	private Long allocatedBudget;
+
+	@Convert(converter = CustomeHashMapConverter.class)
+	@Column(name = "budget_json", columnDefinition = "jsonb")
+	private Map<String, Object> budgetJson;
 
 	@Column(name = "status")
 	private String status;
 
+	@ManyToOne
+	private Organization organization;
 }

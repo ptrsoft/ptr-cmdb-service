@@ -179,11 +179,31 @@ public class Utils {
 //		System.out.println("With double : "+discount);
 	}
 	
+
+	public static void stringReplace(){
+		StringBuilder sql = new StringBuilder(" SELECT" +
+				" ( ##TOTAL_PRODUCT## ) AS total_product, " +
+				" ( ##TOTAL_PRODUCT_IN_PROD## ) AS total_product_prod_env ");
+		String x = sql.toString().replaceAll(" ##TOTAL_PRODUCT##", "HELO P");
+		x = x.replaceAll("##TOTAL_PRODUCT_IN_PROD##", " UUUUU");
+		System.out.println(x);
+
+	}
+
+	public static String  removeLeadingAndTrailingDoubleQuotes(String input){
+		String result = input.replaceAll("^\"+|\"+$", "");
+		System.out.println(result);
+		return result;
+	}
+
 	public static void main(String a[]) {
 //		bigDecimalWithoutRounding();
-		calculateFinalPrice("20","18",2,RoundingMode.FLOOR);
+//		calculateFinalPrice("20","18",2,RoundingMode.FLOOR);
 //		String roleArn = "arn:aws:iam::657907747545:role/CrossAccount";
 //		String arn[] = roleArn.split(":");
 //		System.out.println(arn[4]);
+//		stringReplace();
+		removeLeadingAndTrailingDoubleQuotes("\"d\"");
 	}
+
 }

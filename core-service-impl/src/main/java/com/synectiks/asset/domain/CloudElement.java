@@ -29,27 +29,25 @@ public class CloudElement extends AbstractAuditingEntity implements Serializable
 	@Column(name = "id")
 	private Long id;
 
-//	@Column(name = "instance_id")
-//	private String instanceId;
-
 	@Column(name = "element_type")
 	private String elementType;
 
-//	@Column(name = "arn")
-//	private String arn;
-
-	@Convert(converter = CustomeHashMapConverter.class)
-	@Column(name = "cloud_identity", columnDefinition = "jsonb")
-	private Map<String, Object> cloudIdentity;
-	
-	@Convert(converter = CustomeHashMapConverter.class)
-	@Column(name = "hardware_location", columnDefinition = "jsonb")
-	private Map<String, Object> hardwareLocation;
-	
 	@Convert(converter = CustomeHashMapConverter.class)
 	@Column(name = "hosted_services", columnDefinition = "jsonb")
 	private Map<String, Object> hostedServices;
-	
+
+	@Column(name = "arn")
+	private String arn;
+
+	@Column(name = "instance_id")
+	private String instanceId;
+
+	@Column(name = "instance_name")
+	private String instanceName;
+
+	@Column(name = "category")
+	private String category;
+
 	@Convert(converter = CustomeHashMapConverter.class)
 	@Column(name = "sla_json", columnDefinition = "jsonb")
 	private Map<String, Object> slaJson;
@@ -70,13 +68,16 @@ public class CloudElement extends AbstractAuditingEntity implements Serializable
 	@Column(name = "compliance_json", columnDefinition = "jsonb")
 	private Map<String, Object> complianceJson;
 	
-	@Column(name = "tag_status")
-	private String tagStatus;
-	
 	@Column(name = "status")
 	private String status;
 
 	@ManyToOne
-	private CloudEnvironment cloudEnvironment;
+	private Landingzone landingzone;
+
+	@ManyToOne
+	private DbCategory dbCategory;
+
+	@ManyToOne
+	private ProductEnclave productEnclave;
 
 }

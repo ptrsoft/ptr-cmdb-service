@@ -28,14 +28,12 @@ public class EnvironmentSummaryQueryObj implements Serializable{
     @Column(name = "product_enclave")
     private Long productEnclave;
 
-    @Column(name = "product")
-    private Long product;
+    @Column(name = "total_product")
+    private Long totalProduct;
 
-    @Column(name = "app_service")
-    private Long appService;
+    @Column(name = "total_product_prod_env")
+    private Long totalProductProdEnv;
 
-    @Column(name = "data_service")
-    private Long dataService;
 
 
 }

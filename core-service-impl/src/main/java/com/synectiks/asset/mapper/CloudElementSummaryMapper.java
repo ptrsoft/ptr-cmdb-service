@@ -3,7 +3,7 @@ package com.synectiks.asset.mapper;
 import com.synectiks.asset.api.model.CloudElementSummaryDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElementSummary;
-import com.synectiks.asset.domain.CloudEnvironment;
+import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.service.CustomeHashMapConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.*;
@@ -20,7 +20,7 @@ public interface CloudElementSummaryMapper {
     @Mapping(target="id", ignore = true)
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
-    @Mapping(target = "cloudEnvironmentId", source = "cloudEnvironment.id")
+    @Mapping(target = "landingzoneId", source = "landingzone.id")
     CloudElementSummaryDTO toDto(CloudElementSummary cloudElementSummary);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -34,7 +34,7 @@ public interface CloudElementSummaryMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
     @Mapping(target="summaryJson", ignore = true)
-    @Mapping(target = "cloudEnvironment.id", source = "cloudEnvironmentId")
+    @Mapping(target = "landingzone.id", source = "landingzoneId")
     CloudElementSummary toEntityConvertObjectToMap(CloudElementSummaryDTO cloudElementSummaryDTO);
 
 
@@ -68,8 +68,8 @@ public interface CloudElementSummaryMapper {
     @Mapping(target = "id", ignore = true)
     default CloudElementSummary dtoToEntityForUpdate(CloudElementSummaryDTO cloudElementSummaryDTO, CloudElementSummary cloudElementSummary){
         CloudElementSummary temp = copyDtoToEntity(cloudElementSummaryDTO, cloudElementSummary);
-        if(cloudElementSummaryDTO.getCloudEnvironmentId() != null){
-            temp.setCloudEnvironment(CloudEnvironment.builder().id(cloudElementSummaryDTO.getCloudEnvironmentId()).build());
+        if(cloudElementSummaryDTO.getLandingzoneId() != null){
+            temp.setLandingzone(Landingzone.builder().id(cloudElementSummaryDTO.getLandingzoneId()).build());
         }
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
         temp.setSummaryJson(converter.convertObjectToMap(cloudElementSummaryDTO.getSummaryJson()));
@@ -91,11 +91,11 @@ public interface CloudElementSummaryMapper {
         if(StringUtils.isBlank(cloudElementSummaryDTO.getUpdatedOn())){
             cloudElementSummary.setUpdatedOn(null);
         }
-        if(cloudElementSummaryDTO.getCloudEnvironmentId() != null){
-            cloudElementSummary.setCloudEnvironment(CloudEnvironment.builder().id(cloudElementSummaryDTO.getCloudEnvironmentId()).build());
+        if(cloudElementSummaryDTO.getLandingzoneId() != null){
+            cloudElementSummary.setLandingzone(Landingzone.builder().id(cloudElementSummaryDTO.getLandingzoneId()).build());
         }
-        cloudElementSummary.getCloudEnvironment().setCreatedOn(null);
-        cloudElementSummary.getCloudEnvironment().setUpdatedOn(null);
+        cloudElementSummary.getLandingzone().setCreatedOn(null);
+        cloudElementSummary.getLandingzone().setUpdatedOn(null);
         return cloudElementSummary;
     }
 }

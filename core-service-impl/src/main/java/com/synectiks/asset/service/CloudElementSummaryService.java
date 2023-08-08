@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service Implementation for managing {@link CloudElementSummary}.
+ */
 @Service
 public class CloudElementSummaryService {
 	
@@ -43,9 +46,9 @@ public class CloudElementSummaryService {
 		return oObj;
 	}
 	
-	public CloudElementSummary save(CloudElementSummary obj){
+	public CloudElementSummary save(CloudElementSummary cloudElementSummary){
 		logger.info("Create new cloud element summary");
-		return cloudElementSummaryRepository.save(obj);
+		return cloudElementSummaryRepository.save(cloudElementSummary);
 	}
 
 	public List<CloudElementSummary> search(CloudElementSummary cloudElementSummary) {

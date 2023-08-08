@@ -8,17 +8,17 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 /**
- * A DbCategory.
+ * A ProductEnv.
  */
 @Entity
-@Table(name = "db_category")
+@Table(name = "product_env")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DbCategory extends AbstractAuditingEntity implements Serializable {
+public class ProductEnv extends AbstractAuditingEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -34,5 +34,5 @@ public class DbCategory extends AbstractAuditingEntity implements Serializable {
 	private String status;
 
 	@ManyToOne
-	private Organization organization;
+	private Product product;
 }

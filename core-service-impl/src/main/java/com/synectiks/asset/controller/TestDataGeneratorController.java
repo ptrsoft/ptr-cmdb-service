@@ -42,47 +42,47 @@ public class TestDataGeneratorController {
     @Autowired
     private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
-    @RequestMapping(value = "/cloud-element/generate/cost-data", method = RequestMethod.GET)
-    public void generateCostData(@RequestParam String startDate, @RequestParam String endDate) {
-        logger.debug("REST request to generate cost data ");
-        List<CloudElement> cloudElementList = cloudElementService.findAll();
-        ObjectMapper objectMapper = Constants.instantiateMapper();
-        for(CloudElement cloudElement: cloudElementList){
-
-            ObjectNode objectNode = null;
-            ArrayNode arrayNode = objectMapper.createArrayNode();
-            try{
-                String js = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getCloudIdentity(), Map.class);
-                JsonNode rootNode = objectMapper.readTree(js);
-                if(rootNode != null){
-                    JsonNode elmJson = rootNode.get("elementLists");
-                    if(elmJson != null && elmJson.isArray()){
-                        Iterator<JsonNode> iterator = elmJson.iterator();
-                        while (iterator.hasNext()) {
-                            objectNode = (ObjectNode)iterator.next();
-                            JSONObject obj = DateFormatUtil.generateTestCostData(startDate, endDate);
-                            for(String key: obj.keySet()){
-                                objectNode.put(key, objectMapper.readTree(obj.get(key).toString()));
-                            }
-                            arrayNode.add(objectNode);
-                            System.out.println(objectNode.toString());
-                        }
-                    }
-
-                }
-                if(arrayNode != null){
-                    ObjectNode finalNode =  objectMapper.createObjectNode();
-                    finalNode.put("elementLists", arrayNode);
-                    Map map = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
-                    cloudElement.setCostJson(map);
-                    cloudElementService.save(cloudElement);
-                }
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-        }
-    }
+//    @RequestMapping(value = "/cloud-element/generate/cost-data", method = RequestMethod.GET)
+//    public void generateCostData(@RequestParam String startDate, @RequestParam String endDate) {
+//        logger.debug("REST request to generate cost data ");
+//        List<CloudElement> cloudElementList = cloudElementService.findAll();
+//        ObjectMapper objectMapper = Constants.instantiateMapper();
+//        for(CloudElement cloudElement: cloudElementList){
+//
+//            ObjectNode objectNode = null;
+//            ArrayNode arrayNode = objectMapper.createArrayNode();
+//            try{
+//                String js = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getCloudIdentity(), Map.class);
+//                JsonNode rootNode = objectMapper.readTree(js);
+//                if(rootNode != null){
+//                    JsonNode elmJson = rootNode.get("elementLists");
+//                    if(elmJson != null && elmJson.isArray()){
+//                        Iterator<JsonNode> iterator = elmJson.iterator();
+//                        while (iterator.hasNext()) {
+//                            objectNode = (ObjectNode)iterator.next();
+//                            JSONObject obj = DateFormatUtil.generateTestCostData(startDate, endDate);
+//                            for(String key: obj.keySet()){
+//                                objectNode.put(key, objectMapper.readTree(obj.get(key).toString()));
+//                            }
+//                            arrayNode.add(objectNode);
+//                            System.out.println(objectNode.toString());
+//                        }
+//                    }
+//
+//                }
+//                if(arrayNode != null){
+//                    ObjectNode finalNode =  objectMapper.createObjectNode();
+//                    finalNode.put("elementLists", arrayNode);
+//                    Map map = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
+//                    cloudElement.setCostJson(map);
+//                    cloudElementService.save(cloudElement);
+//                }
+//            }catch(Exception e){
+//                e.printStackTrace();
+//            }
+//
+//        }
+//    }
     
     
     

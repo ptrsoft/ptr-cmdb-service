@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service Implementation for managing {@link Department}.
+ */
 @Service
 public class DepartmentService {
 
@@ -38,12 +41,12 @@ public class DepartmentService {
 
 	@Transactional(readOnly = true)
 	public Optional<Department> findOne(Long id) {
-		logger.debug("Request to get Department : {}", id);
+		logger.debug("Request to get a department : {}", id);
 		return departmentRepository.findById(id);
 	}
 
 	public void delete(Long id) {
-		logger.debug("Request to delete Department : {}", id);
+		logger.debug("Request to delete a department : {}", id);
 		departmentRepository.deleteById(id);
 	}
 

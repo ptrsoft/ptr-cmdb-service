@@ -97,12 +97,13 @@
         <junit.utReportFolder>${project.testresult.directory}/test</junit.utReportFolder>
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <lombok.version>1.18.20</lombok.version>
-        <fly.pwd><![CDATA[postgres]]></fly.pwd>
+        <fly.user><![CDATA[postgres]]></fly.user>
+        <fly.pwd><![CDATA[P0$tGr3$&s3qua1$n3t!k5]]></fly.pwd>
         <!-- jhipster-needle-maven-property -->
 
         <!-- mvn flyway configuraions-->
-        <flyway.url>jdbc:postgresql://localhost:5432/cmdb</flyway.url>
-        <flyway.user>postgres</flyway.user>
+        <flyway.url>jdbc:postgresql://postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com:5431/cmdb</flyway.url>
+        <flyway.user>${fly.user}</flyway.user>
         <flyway.password>${fly.pwd}</flyway.password>
         <flyway.locations>filesystem:dbscript</flyway.locations>
         <mvnflyway.version>9.8.1</mvnflyway.version>

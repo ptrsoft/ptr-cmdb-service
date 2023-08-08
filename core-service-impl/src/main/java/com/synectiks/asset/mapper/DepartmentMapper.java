@@ -1,9 +1,7 @@
 package com.synectiks.asset.mapper;
 
-import com.synectiks.asset.api.model.CloudEnvironmentDTO;
 import com.synectiks.asset.api.model.DepartmentDTO;
 import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.CloudEnvironment;
 import com.synectiks.asset.domain.Department;
 import com.synectiks.asset.domain.Organization;
 import org.apache.commons.lang3.StringUtils;

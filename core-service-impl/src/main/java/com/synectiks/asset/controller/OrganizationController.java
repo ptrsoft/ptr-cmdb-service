@@ -1,11 +1,11 @@
 package com.synectiks.asset.controller;
 
-import com.synectiks.asset.api.controller.OrganizationsApi;
+import com.synectiks.asset.api.controller.OrganizationApi;
 import com.synectiks.asset.api.model.OrganizationDTO;
 import com.synectiks.asset.domain.Organization;
-import com.synectiks.asset.service.OrganizationService;
 import com.synectiks.asset.mapper.OrganizationMapper;
 import com.synectiks.asset.repository.OrganizationRepository;
+import com.synectiks.asset.service.OrganizationService;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class OrganizationController implements OrganizationsApi {
+public class OrganizationController implements OrganizationApi {
 
 	private final Logger logger = LoggerFactory.getLogger(OrganizationController.class);
 

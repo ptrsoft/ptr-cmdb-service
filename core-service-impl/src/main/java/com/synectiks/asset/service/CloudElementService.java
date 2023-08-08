@@ -27,24 +27,24 @@ public class CloudElementService {
     private CloudElementRepository cloudElementRepository;
 
     public CloudElement save(CloudElement cloudElement) {
-        logger.debug("Request to save CloudElement : {}", cloudElement);
+        logger.debug("Request to save cloud element : {}", cloudElement);
         return cloudElementRepository.save(cloudElement);
     }
 
     @Transactional(readOnly = true)
     public List<CloudElement> findAll() {
-        logger.debug("Request to get all CloudElement");
+        logger.debug("Request to get all cloud element");
         return cloudElementRepository.findAll(Sort.by(Direction.DESC, "id"));
     }
 
     @Transactional(readOnly = true)
     public Optional<CloudElement> findOne(Long id) {
-        logger.debug("Request to get CloudElement : {}", id);
+        logger.debug("Request to get cloud element : {}", id);
         return cloudElementRepository.findById(id);
     }
 
     public void delete(Long id) {
-        logger.debug("Request to delete CloudElement : {}", id);
+        logger.debug("Request to delete cloud element : {}", id);
         cloudElementRepository.deleteById(id);
     }
     
