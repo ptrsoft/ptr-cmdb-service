@@ -753,32 +753,31 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = MONTHLY_STATISTICS_QUERY, nativeQuery = true)
 	List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj(@Param("orgId")Long orgId);
 
-	String TOTAL_BUdGET_QUERY = "WITH monthly_costs AS ( " +
-			"  SELECT SUM(cast(value as INT)) AS sum_values   " +
-			"     FROM cloud_element ce,   " +
-			"     cloud_environment cnv,   " +
-			"     department dep,   " +
-			"     organization org,   " +
-			"     jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos),   " +
-			"     jsonb_each_text(c.obj -> 'YEARLYCOST') AS jb(key, value)   " +
-			"     where org.id = dep.organization_id   " +
-			"     and dep.id = cnv.department_id   " +
-			"     and cnv.id = ce.cloud_environment_id   " +
-			"     and cast(jb.key as int) = extract ('year' from current_date)   " +
-			"     and org.id = :orgId   " +
-			" ),  " +
-			" budget_sum AS ( " +
-			" SELECT b.allocated_budget AS total_sum " +
-			" FROM budget b " +
-			" JOIN organization org ON b.organization_id = org.id " +
-			" WHERE org.id = :orgId  " +
-			" ) " +
-			" SELECT " +
-			" budget_sum.total_sum AS total_budget, " +
-			" monthly_costs.sum_values AS budget_used, " +
-			" budget_sum.total_sum  - monthly_costs.sum_values AS remaining_budget, " +
-			" cast((budget_sum.total_sum  - monthly_costs.sum_values ) as float) / budget_sum.total_sum * 100 AS remaining_budget_percentage " +
-			" FROM monthly_costs, budget_sum ";
+	String TOTAL_BUdGET_QUERY = "WITH monthly_costs AS ( \n" +
+			"  SELECT SUM(cast(value as INT)) AS sum_values   \n" +
+			"     FROM cloud_element ce,   \n" +
+			"     landingzone l, \n" +
+			"     department dep,   \n" +
+			"     organization org,   \n" +
+			"     jsonb_each_text(ce.cost_json -> 'cost' -> 'YEARLYCOST') AS jb(key, value)   \n" +
+			"     where org.id = dep.organization_id   \n" +
+			"\t and dep.id = l.department_id   \n" +
+			"\t and l.id = ce.landingzone_id \n" +
+			"     and cast(jb.key as int) = extract ('year' from current_date)   \n" +
+			"     and org.id = :orgId   \n" +
+			" ),  \n" +
+			" budget_sum AS ( \n" +
+			"\t SELECT b.allocated_budget AS total_sum \n" +
+			"\t FROM budget b \n" +
+			"\t JOIN organization org ON b.organization_id = org.id \n" +
+			"\t WHERE org.id = :orgId  \n" +
+			" ) \n" +
+			" SELECT \n" +
+			"\t budget_sum.total_sum AS total_budget, \n" +
+			"\t monthly_costs.sum_values AS budget_used, \n" +
+			"\t budget_sum.total_sum  - monthly_costs.sum_values AS remaining_budget, \n" +
+			"\t cast((budget_sum.total_sum  - monthly_costs.sum_values ) as float) / budget_sum.total_sum * 100 AS remaining_budget_percentage \n" +
+			"\t FROM monthly_costs, budget_sum ";
 	@Query(value = TOTAL_BUdGET_QUERY, nativeQuery = true)
 	TotalBudgetQueryObj getTotalBudget(@Param("orgId") Long orgId);
 
