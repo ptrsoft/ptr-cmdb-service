@@ -519,145 +519,136 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = DISCOVER_ASSTES_LANDING_ZONE_PRODUCT, nativeQuery = true)
 	List<CloudEnvironmentVpcQueryObj> orgVpcSummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
 	
-	String SPEND_TODAY_ANALYTICS_QUERY ="with yesterday_sum as ( " +
-			"select coalesce(SUM(cast(jb.value as INT)), 0) as sum_values " +
-			"from cloud_element ce " +
-			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj,pos) " +
-			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
-			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
-			"join department dep on dep.id = cnv.department_id " +
-			"join organization org on org.id = dep.organization_id " +
-			"where date(jb.key) = current_date - interval '1 day' and org.id = :orgId " +
-			") " +
-			"select " +
-			"coalesce(SUM(cast(jb.value as INT)), 0) as sum_current_date, " +
-			"yesterday_sum.sum_values as sum_previous_date, " +
-			"cast(coalesce(SUM(cast(jb.value as INT)),0) - yesterday_sum.sum_values as float) * 100.0 / yesterday_sum.sum_values as percentage " +
-			"from " +
-			"cloud_element ce " +
-			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos) " +
-			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
-			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
-			"join department dep on dep.id = cnv.department_id " +
-			"join organization org on org.id = dep.organization_id " +
-			"cross join yesterday_sum " +
-			"where " +
-			"date(jb.key) = current_date " +
-			"and org.id = :orgId " +
-			"group by yesterday_sum.sum_values ";
+	String SPEND_TODAY_ANALYTICS_QUERY ="with yesterday_sum as (  " +
+			"   select coalesce(SUM(cast(jb.value as INT)), 0) as sum_values  " +
+			"   from cloud_element ce  " +
+			"   cross join jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value)  " +
+			"   join landingzone l  on l.id = ce.landingzone_id   " +
+			"   join department dep on dep.id = l.department_id  " +
+			"   join organization org on org.id = dep.organization_id  " +
+			"   where date(jb.key) = current_date - interval '1 day' and org.id =:orgId  " +
+			"   )  " +
+			"   select  " +
+			"   coalesce(SUM(cast(jb.value as INT)), 0) as sum_current_date,  " +
+			"   yesterday_sum.sum_values as sum_previous_date,  " +
+			"   cast(coalesce(SUM(cast(jb.value as INT)),0) - yesterday_sum.sum_values as float) * 100.0 / yesterday_sum.sum_values as percentage  " +
+			"   from  " +
+			"   cloud_element ce  " +
+			"   cross join jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value)  " +
+			"   join landingzone l2 on l2.id = ce.landingzone_id   " +
+			"   join department dep on dep.id = l2.department_id  " +
+			"   join organization org on org.id = dep.organization_id  " +
+			"   cross join yesterday_sum  " +
+			"   where  " +
+			"   date(jb.key) = current_date  " +
+			"   and org.id =:orgId  " +
+			"   group by yesterday_sum.sum_values    ";
 	@Query(value = SPEND_TODAY_ANALYTICS_QUERY, nativeQuery = true)
 	public CloudElementSpendAnalyticsQueryObj spendTodayAnalytics(@Param("orgId") Long orgId);
 	
 	String SPEND_YESTERDAY_ANALYTICS_QUERY ="with yesterday_sum as ( " +
-			"select coalesce(SUM(cast(jb.value as INT)), 0) as sum_values " +
-			"from cloud_element ce " +
-			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj,pos) " +
-			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
-			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
-			"join department dep on dep.id = cnv.department_id " +
-			"join organization org on org.id = dep.organization_id " +
-			"where date(jb.key) = current_date - interval '2 day' and org.id = :orgId " +
-			") " +
-			"select " +
-			"coalesce(SUM(cast(jb.value as INT)), 0) as sum_current_date, " +
-			"yesterday_sum.sum_values as sum_previous_date, " +
-			"cast(coalesce(SUM(cast(jb.value as INT)),0) - yesterday_sum.sum_values as float) * 100.0 / yesterday_sum.sum_values as percentage " +
-			"from " +
-			"cloud_element ce " +
-			"cross join lateral jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos) " +
-			"cross join lateral jsonb_each_text(c.obj -> 'DAILYCOST') as jb(key, value) " +
-			"join cloud_environment cnv on cnv.id = ce.cloud_environment_id " +
-			"join department dep on dep.id = cnv.department_id " +
-			"join organization org on org.id = dep.organization_id " +
-			"cross join yesterday_sum " +
-			"where " +
-			"date(jb.key) = current_date - interval '1 day' " +
-			"and org.id = :orgId " +
-			"group by yesterday_sum.sum_values ";
+			"   select coalesce(SUM(cast(jb.value as INT)), 0) as sum_values " +
+			"   from cloud_element ce " +
+			"   cross join jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value) " +
+			"   join landingzone l on l.id = ce.landingzone_id " +
+			"   join department dep on dep.id = l.department_id " +
+			"   join organization org on org.id = dep.organization_id " +
+			"   where date(jb.key) = current_date - interval '2 day' and org.id = :orgId " +
+			"   ) " +
+			"   select " +
+			"   coalesce(SUM(cast(jb.value as INT)), 0) as sum_current_date, " +
+			"   yesterday_sum.sum_values as sum_previous_date, " +
+			"   cast(coalesce(SUM(cast(jb.value as INT)),0) - yesterday_sum.sum_values as float) * 100.0 / yesterday_sum.sum_values as percentage " +
+			"   from " +
+			"   cloud_element ce " +
+			"   cross join jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value) " +
+			"   join landingzone l on l.id = ce.landingzone_id " +
+			"   join department dep on dep.id = l.department_id " +
+			"   join organization org on org.id = dep.organization_id " +
+			"   cross join yesterday_sum " +
+			"   where " +
+			"   date(jb.key) = current_date - interval '1 day' " +
+			"   and org.id = :orgId " +
+			"   group by yesterday_sum.sum_values ";
 	@Query(value = SPEND_YESTERDAY_ANALYTICS_QUERY, nativeQuery = true)
 	public CloudElementSpendAnalyticsQueryObj spendYesterdayAnalytics(@Param("orgId") Long orgId);
 
 	String CURRENT_SPEND_RATE_PER_DAY_QUERY ="select coalesce(sum(cast (jb.value as int)),0) AS sum_values " +
 			"from cloud_element ce, " +
-			"jsonb_array_elements(ce.cost_json  -> 'elementLists') with ordinality c(obj, pos), " +
-			"jsonb_each_text(c.obj -> 'DAILYCOST') AS jb(key, value), " +
-			"cloud_environment cnv, department dep, organization org " +
+			"landingzone l, department dep, organization org,jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value) " +
 			"where date(jb.key) = current_date and " +
 			"org.id = dep.organization_id " +
-			"and dep.id = cnv.department_id " +
-			"and cnv.id = ce.cloud_environment_id " +
+			"and dep.id = l.department_id " +
+			"and l.id = ce.landingzone_id  " +
 			"and org.id = :orgId  ";
 	@Query(value = CURRENT_SPEND_RATE_PER_DAY_QUERY, nativeQuery = true)
 	Long currentSpendRatePerDay(@Param("orgId") Long orgId);
 	
-	String TOTAL_SPEND_ANALYTICS_QUERY ="SELECT SUM(cast(value as INT)) AS sum_values \n" +
-			" FROM cloud_element ce, \n" +
-			" cloud_environment cnv, \n" +
-			" department dep, \n" +
-			" organization org, \n" +
-			" jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos), \n" +
-			" jsonb_each_text(c.obj -> 'YEARLYCOST') AS jb(key, value) \n" +
-			" where org.id = dep.organization_id \n" +
-			" and dep.id = cnv.department_id \n" +
-			" and cnv.id = ce.cloud_environment_id \n" +
-			" and cast(jb.key as int) = extract ('year' from current_date) \n" +
+	String TOTAL_SPEND_ANALYTICS_QUERY ="SELECT SUM(cast(value as INT)) AS sum_values " +
+			" FROM cloud_element ce, " +
+			" landingzone l , " +
+			" department dep, " +
+			" organization org, " +
+			" jsonb_each_text(ce.cost_json -> 'cost' -> 'YEARLYCOST') AS jb(key, value)    " +
+			" where org.id = dep.organization_id " +
+			" and dep.id = l.department_id " +
+			" and l.id = ce.landingzone_id  " +
+			" and cast(jb.key as int) = extract ('year' from current_date) " +
 			" and org.id = :orgId ";
 	@Query(value = TOTAL_SPEND_ANALYTICS_QUERY, nativeQuery = true)
 	Long totalSpendAnalytics(@Param("orgId") Long orgId);
 
-	String CLOUD_WISE_TOTAL_SPEND_QUERY ="select distinct cnv.cloud,   " +
-			"    SUM(cast(value as INT)) AS sum_values,   " +
-			" (SUM(cast(value as INT)) * 100) / (   " +
-			"    SELECT SUM(cast(jb2.value as INT))   " +
-			"    FROM cloud_element ce2,   " +
-			"     cloud_environment cnv2,   " +
-			"     department dep2,   " +
-			"     organization org2,   " +
-			"    jsonb_array_elements(ce2.cost_json -> 'elementLists') with ordinality c2(obj, pos),   " +
-			"    jsonb_each_text(c2.obj -> 'YEARLYCOST') AS jb2(key, value)   " +
-			"    where cast(jb2.key as int) = extract ('year' from current_date)   " +
-			"    AND   org2.id = dep2.organization_id   " +
-			"    AND dep2.id = cnv2.department_id   " +
-			"    AND cnv2.id = ce2.cloud_environment_id   " +
-			"    AND org2.id = :orgId    " +
-			"    and cnv2.cloud = cnv.cloud    " +
-			" ) AS percentage   " +
-			"    FROM cloud_element ce,   " +
-			"    cloud_environment cnv,   " +
-			"    department dep,   " +
-			"    organization org,   " +
-			"    jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos),   " +
-			"    jsonb_each_text(c.obj -> 'YEARLYCOST') AS jb(key, value)   " +
-			"    WHERE org.id = dep.organization_id   " +
-			"    AND dep.id = cnv.department_id   " +
-			"    AND cnv.id = ce.cloud_environment_id   " +
-			"    AND org.id = :orgId    " +
-			"    AND cnv.cloud IN (SELECT DISTINCT ce.cloud   " +
-			"      FROM cloud_environment ce, department d, organization o   " +
-			"      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )   " +
-			"    and cast(jb.key as int) = extract ('year' from current_date)      " +
-			"    GROUP BY cnv.cloud ORDER BY cnv.cloud ASC      ";
+	String CLOUD_WISE_TOTAL_SPEND_QUERY ="select distinct l.cloud,  " +
+			"    SUM(cast(value as INT)) AS sum_values,  " +
+			" (SUM(cast(value as INT)) * 100) / (  " +
+			"    SELECT SUM(cast(jb2.value as INT))  " +
+			"    FROM cloud_element ce2,  " +
+			"     landingzone l2,  " +
+			"     department dep2,  " +
+			"     organization org2, " +
+			"    jsonb_each_text(ce2.cost_json -> 'cost' -> 'YEARLYCOST') AS jb2(key, value) " +
+			"    where cast(jb2.key as int) = extract ('year' from current_date)  " +
+			"    AND   org2.id = dep2.organization_id  " +
+			"    AND dep2.id = l2.department_id  " +
+			"    AND l2.id = ce2.landingzone_id  " +
+			"    AND org2.id = :orgId   " +
+			"    and l2.cloud = l.cloud   " +
+			" ) AS percentage  " +
+			"    FROM cloud_element ce,  " +
+			"    landingzone l,  " +
+			"    department dep,  " +
+			"    organization org,  " +
+			"    jsonb_each_text(ce.cost_json -> 'cost' -> 'YEARLYCOST') AS jb(key, value) " +
+			"    WHERE org.id = dep.organization_id  " +
+			"    AND dep.id = l.department_id  " +
+			"    AND l.id = ce.landingzone_id  " +
+			"    AND org.id = :orgId  " +
+			"    AND l.cloud IN (SELECT DISTINCT ce.cloud  " +
+			"      FROM landingzone ce, department d, organization o  " +
+			"      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )  " +
+			"    and cast(jb.key as int) = extract ('year' from current_date)     " +
+			"    GROUP BY l.cloud ORDER BY l.cloud ASC " +
+			"  ";
 	@Query(value = CLOUD_WISE_TOTAL_SPEND_QUERY, nativeQuery = true)
 	List<CloudElementCloudWiseQueryObj> cloudWiseTotalSpend(@Param("orgId")Long orgId);
 	
 	
-	String CLOUD_WISE_MONTHLY_SPEND_QUERY ="select cnv.cloud,  " +
-			" TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,  " +
-			" SUM(CAST(jb.value AS INT)) AS sum_values " +
-			"from cloud_element ce, " +
-			" jsonb_array_elements(ce.cost_json -> 'elementLists') with ordinality c(obj, pos), " +
-			" jsonb_each_text(c.obj -> 'MONTHLYCOST') AS jb(key, value), " +
-			" cloud_environment cnv, department dep, organization org " +
-			"where org.id = dep.organization_id " +
-			" and dep.id = cnv.department_id " +
-			" and cnv.id = ce.cloud_environment_id " +
-			" and org.id = :orgId " +
-			" and cnv.cloud IN (SELECT DISTINCT ce.cloud " +
-			"      FROM cloud_environment ce, department d, organization o " +
-			"      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId ) " +
-			" and extract ('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract ('year' from current_date)      " +
-			"group by cnv.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key " +
-			"ORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, cnv.cloud ASC";
+	String CLOUD_WISE_MONTHLY_SPEND_QUERY ="select l.cloud,   " +
+			"  TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,   " +
+			"  SUM(CAST(jb.value AS INT)) AS sum_values  " +
+			"from  cloud_element ce,  " +
+			"  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value), " +
+			"   landingzone l, department dep, organization org  " +
+			"where org.id = dep.organization_id  " +
+			" and dep.id = l.department_id  " +
+			" and l.id = ce.landingzone_id  " +
+			" and org.id = :orgId  " +
+			" and l.cloud IN (SELECT DISTINCT ce.cloud  " +
+			"      FROM landingzone ce, department d, organization o  " +
+			"      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )  " +
+			" and extract ('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract ('year' from current_date)       " +
+			"group by l.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key  " +
+			"ORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, l.cloud asc ";
 	@Query(value = CLOUD_WISE_MONTHLY_SPEND_QUERY, nativeQuery = true)
 	List<CloudElementCloudWiseMonthlyQueryObj> cloudWiseMonthlySpend(@Param("orgId")Long orgId);
 	
@@ -697,59 +688,55 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = CLOUD_TYPE_TOPOLOGY_QUERY, nativeQuery = true)
 	List<InfraTopologySummaryQueryObj> getInfraTopologySummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
 	
-	String MONTHLY_STATISTICS_QUERY = " SELECT * FROM ( " +
-			"WITH monthly_costs AS ( " +
-			"SELECT " +
-			"TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month, " +
-			"SUM(CAST(jb.value AS INT)) AS sum_values " +
-			"FROM " +
-			"cloud_element ce, " +
-			"jsonb_array_elements(ce.cost_json -> 'elementLists') WITH ORDINALITY c(obj, pos), " +
-			"jsonb_each_text(c.obj -> 'MONTHLYCOST') AS jb(key, value), " +
-			"cloud_environment cnv, department dep, organization org " +
-			"WHERE " +
-			"org.id = dep.organization_id " +
-			"AND dep.id = cnv.department_id " +
-			"AND cnv.id = ce.cloud_environment_id " +
-			"AND org.id  = :orgId " +
-			"AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE) " +
-			"GROUP BY TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key " +
-			"ORDER BY TO_DATE(jb.key, 'YYYY-MM') DESC " +
-			"LIMIT 3 " +
-			") " +
-			"SELECT " +
-			"'Total Sum of Value' AS month, " +
-			"SUM(sum_values) AS sum_all_values " +
-			"FROM " +
-			"monthly_costs " +
-			"  " +
-			"UNION ALL " +
-			"  " +
-			"SELECT " +
-			"month, " +
-			"sum_values " +
-			"FROM ( " +
-			"SELECT " +
-			"TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month, " +
-			"SUM(CAST(jb.value AS INT)) AS sum_values " +
-			"FROM " +
-			"cloud_element ce, " +
-			"jsonb_array_elements(ce.cost_json -> 'elementLists') WITH ORDINALITY c(obj, pos), " +
-			"jsonb_each_text(c.obj -> 'MONTHLYCOST') AS jb(key, value), " +
-			"cloud_environment cnv, department dep, organization org " +
-			"WHERE " +
-			"org.id = dep.organization_id " +
-			"AND dep.id = cnv.department_id " +
-			"AND cnv.id = ce.cloud_environment_id " +
-			"AND org.id  = :orgId " +
-			"AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE) " +
-			"GROUP BY " +
-			"TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key " +
-			"ORDER BY " +
-			"TO_DATE(jb.key, 'YYYY-MM') DESC " +
-			"LIMIT 3 " +
-			") subquery " +
-			") final_query ";
+	String MONTHLY_STATISTICS_QUERY = " SELECT * FROM (  " +
+			" WITH monthly_costs AS (  " +
+			"  SELECT  " +
+			" TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,  " +
+			" SUM(CAST(jb.value AS INT)) AS sum_values  " +
+			"  FROM  " +
+			" cloud_element ce,  " +
+			" jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  " +
+			" landingzone l, department dep, organization org  " +
+			"  WHERE  " +
+			" org.id = dep.organization_id  " +
+			" AND dep.id = l.department_id  " +
+			" AND l.id = ce.landingzone_id  " +
+			" AND org.id  = :orgId " +
+			" AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE)  " +
+			"  GROUP BY TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key  " +
+			"  ORDER BY TO_DATE(jb.key, 'YYYY-MM') DESC  " +
+			"  LIMIT 3  " +
+			" )  " +
+			" SELECT  " +
+			"  'Total Sum of Value' AS month,  " +
+			"  SUM(sum_values) AS sum_all_values  " +
+			" FROM  " +
+			"  monthly_costs  " +
+			"    " +
+			" UNION ALL  " +
+			"    " +
+			" SELECT  " +
+			"  month,  " +
+			"  sum_values  " +
+			" FROM (  " +
+			"  SELECT  " +
+			" TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,  " +
+			" SUM(CAST(jb.value AS INT)) AS sum_values  " +
+			"  FROM  " +
+			" cloud_element ce,  " +
+			" jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  " +
+			" landingzone l, department dep, organization org  " +
+			"  WHERE  " +
+			" org.id = dep.organization_id  " +
+			" AND dep.id = l.department_id  " +
+			" AND l.id = ce.landingzone_id  " +
+			" AND org.id  = :orgId " +
+			" AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE)  " +
+			"  GROUP BY TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key  " +
+			"  ORDER BY TO_DATE(jb.key, 'YYYY-MM') DESC  " +
+			"  LIMIT 3  " +
+			" ) subquery  " +
+			" ) final_query ";
 	@Query(value = MONTHLY_STATISTICS_QUERY, nativeQuery = true)
 	List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj(@Param("orgId")Long orgId);
 
