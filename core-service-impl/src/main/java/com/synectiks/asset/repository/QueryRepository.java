@@ -850,32 +850,33 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = PRODUCTION_VS_OTHERS_QUERY, nativeQuery = true)
 	List<CostAnalyticQueryObj> getProductionVsOthersCost(@Param("orgId") Long orgId);
 
-	String SERVICE_TYPE_WISE_COST_QUERY = "WITH labels AS ( " +
-			"  select " +
-			"   ce.cloud_identity ->> 'category' as name, " +
-			"   SUM(cast(value as INT)) as total " +
-			"  from " +
-			"   cloud_element ce, " +
-			"   organization org, " +
-			"   JSONB_ARRAY_ELEMENTS(ce.cost_json -> 'elementLists') with ordinality b(obj, pos), " +
-			"   JSONB_EACH_TEXT(b.obj -> 'MONTHLYCOST') as jb(key, value) " +
-			"  where " +
-			"   org.id = :orgId " +
-			"   and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE) " +
-			"  group by ce.cloud_identity ->> 'category' " +
-			" ) " +
-			" select " +
-			"  name, " +
-			"  total, " +
-			"  (total * 100.0) / ( select SUM(total) from labels) as percentage " +
-			" from " +
-			"  labels " +
-			"UNION ALL " +
-			"select " +
-			" 'Cumulative Total', " +
-			" SUM(total) as total_sum, " +
-			" null as percentage " +
-			"from labels ";
+	String SERVICE_TYPE_WISE_COST_QUERY = " WITH labels AS (   " +
+			"   select   " +
+			"    ce.category as name,   " +
+			"    SUM(cast(value as INT)) as total   " +
+			"   from   " +
+			"    cloud_element ce, department d, landingzone l,  " +
+			"    organization org,   " +
+			"    JSONB_EACH_TEXT(ce.cost_json  -> 'cost' -> 'MONTHLYCOST') as jb(key, value)   " +
+			"   where   " +
+			"    d.organization_id = org.id  " +
+			"    and l.department_id = d.id  " +
+			"    and org.id = :orgId   " +
+			"    and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE)   " +
+			"   group by ce.category   " +
+			"  )   " +
+			"  select   " +
+			"   name,   " +
+			"   total,   " +
+			"   (total * 100.0) / ( select SUM(total) from labels) as percentage   " +
+			"  from   " +
+			"   labels   " +
+			" UNION ALL   " +
+			" select   " +
+			"  'Cumulative Total',   " +
+			"  SUM(total) as total_sum,   " +
+			"  null as percentage   " +
+			" from labels   ";
 	@Query(value = SERVICE_TYPE_WISE_COST_QUERY, nativeQuery = true)
 	List<CostAnalyticQueryObj> getServiceTypeWiseCost(@Param("orgId") Long orgId);
 	
