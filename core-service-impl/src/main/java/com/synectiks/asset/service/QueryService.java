@@ -38,122 +38,65 @@ public class QueryService {
 	private EntityManager entityManager;
 
 
-	public List<EnvironmentCountQueryObj> getResourceCounts(Long orgId){
-       logger.debug("Getting cloud wise landing zone and their resource counts for an organization. Org Id: {}", orgId);
-       return queryRepository.getCount(orgId);
+	public List<EnvironmentCountQueryObj> getEnvStats(Long orgId){
+       logger.debug("Getting organization wise account's stats. Org Id: {}", orgId);
+       return queryRepository.getEnvStats(orgId);
    }
 
-    public EnvironmentCountQueryObj getResourceCounts(Long orgId, String cloud) {
-        logger.debug("Getting cloud wise landing zone and their resource counts for an organization and given cloud. Org Id: {}, Cloud: {}", orgId,cloud);
-        return queryRepository.getCount(cloud, orgId);
+    public EnvironmentCountQueryObj getEnvStats(Long orgId, String cloud) {
+        logger.debug("Getting organization and cloud wise account's stats. Org Id: {}, Cloud: {}", orgId,cloud);
+        return queryRepository.getEnvStats(cloud, orgId);
     }
 
-	public EnvironmentCountQueryObj getResourceCounts(Long orgId, String cloud, String landingZone) {
-		logger.debug("Getting cloud and landing-zone wise resource counts of an organization. Org Id: {}, cloud: {}, landing-zone: {}", orgId,cloud, landingZone);
-		return queryRepository.getCount(landingZone, cloud, orgId);
+	public EnvironmentCountQueryObj getEnvStats(Long orgId, String cloud, String landingZone) {
+		logger.debug("Getting organization, cloud and landing-zone wise account's stats. Org Id: {}, cloud: {}, landing-zone: {}", orgId,cloud, landingZone);
+		return queryRepository.getEnvStats(landingZone, cloud, orgId);
 	}
 
-    public List<EnvironmentQueryDTO> getEnvironmentSummaryByFilter(Long orgId, Long departmentId, String product, String env, String cloud)  {
-		StringBuilder primarySql = new StringBuilder(" SELECT distinct ROW_NUMBER() OVER () AS id, cnv.cloud, cnv.account_id AS landing_zone,\n" +
-				" COUNT(DISTINCT ce.hardware_location -> 'productEnclave' ->> 'name') AS product_enclave,\n" +
-				" ( ##TOTAL_PRODUCT## ) AS total_product, " +
-				" ( ##TOTAL_PRODUCT_IN_PROD## ) AS total_product_prod_env " +
-				" FROM\n" +
-				" cloud_element ce\n" +
-				" JOIN cloud_environment cnv ON cnv.id = ce.cloud_environment_id\n" +
-				" JOIN department dep ON dep.id = cnv.department_id \n" +
-				" JOIN organization org ON org.id = dep.organization_id\n" +
-				" WHERE org.id = ?\n");
-
-		StringBuilder totalProductQuery = new StringBuilder();
-		totalProductQuery.append("SELECT COUNT(DISTINCT ce2.hosted_services  -> 'associatedProduct' ->> 'name')\n" +
-				"\tFROM cloud_element ce2\n" +
-				"\tJOIN cloud_environment cnv2 ON cnv2.id = ce2.cloud_environment_id\n" +
-				"\tJOIN department dep2 ON dep2.id = cnv2.department_id\n" +
-				"\tJOIN organization org2 ON org2.id = dep2.organization_id\n" +
-				"\tWHERE org2.id = org.id\n" +
-				"\tAND cnv2.cloud = cnv.cloud\n" +
-				"\tAND cnv2.account_id = cnv.account_id\n" +
-				"\tand dep2.id = dep.id");
-
-		StringBuilder totalProductInProdQuery = new StringBuilder();
-		totalProductInProdQuery.append("SELECT COUNT(distinct ce3.hosted_services  -> 'associatedProduct' ->> 'name')\n" +
-				"\tFROM cloud_element ce3\n" +
-				"\tJOIN cloud_environment cnv3 ON cnv3.id = ce3.cloud_environment_id\n" +
-				"\tJOIN department dep3 ON dep3.id = cnv3.department_id\n" +
-				"\tJOIN organization org3 ON org3.id = dep3.organization_id\n" +
-				"\tWHERE org3.id = org.id\n" +
-				"\tAND cnv3.cloud = cnv.cloud \n" +
-				"\tAND upper(ce3.hosted_services  -> 'associatedEnv' ->> 'name') = upper('PROD')\n" +
-				"\tAND cnv3.account_id = cnv.account_id\n" +
-				"\tand dep3.id = dep.id");
+    public List<EnvironmentQueryDTO> getEnvironmentSummaryList(Long orgId, Long departmentId, Long productId, String env, String cloud)  {
+		StringBuilder primarySql = new StringBuilder(" select distinct sub_query.id, sub_query.cloud, sub_query.landing_zone, sub_query.product_enclave, sub_query.total_product, sub_query.total_product_prod_env from \n" +
+				" (select l.id, l.cloud, l.department_id,be.product_id, l.landing_zone, coalesce(count(distinct pe.instance_id),0) as product_enclave, \n" +
+				" coalesce(count(distinct be.product_id),0) as total_product,\n" +
+				" (select count(distinct be2.product_env_id) from business_element be2 where be2.id = be.id\n" +
+				" \t\t\tand be2.product_env_id in (select pe3.id from product_env pe3 where upper(pe3.\"name\") = upper('PROD'))) as total_product_prod_env\n" +
+				" from landingzone l\n" +
+				" inner join department d on l.department_id = d.id \n" +
+				" inner join organization o on d.organization_id = o.id \n" +
+				" left join cloud_element ce on ce.landingzone_id = l.id \n" +
+				" left join product_enclave pe on pe.landing_zone = l.landing_zone and pe.department_id = d.id\n" +
+				" left join business_element be on be.cloud_element_id = ce.id \n" +
+				" left join product p on be.product_id = p.id and p.department_id = d.id and p.organization_id = o.id \n" +
+				" left join product_env pe2 on pe2.product_id = p.id and be.product_env_id = pe2.id\n" +
+				" where o.id = ? \n" +
+				" and o.id = d.organization_id \n" +
+				" and l.department_id = d.id\n" +
+				" group by l.id,l.cloud, l.landing_zone, be.id, l.department_id,be.product_id) as sub_query\n" +
+				" where 1 = 1 ");
 
 		if(departmentId != null){
-			totalProductQuery.append(" and cast(ce2.hosted_services -> 'associatedDepartment' ->>'id' as int) = ? ");
-			totalProductInProdQuery.append(" and cast(ce3.hosted_services -> 'associatedDepartment' ->>'id' as int) = ? ");
-			primarySql.append(" and cast(ce.hosted_services -> 'associatedDepartment' ->>'id' as int) = ? ");
+			primarySql.append(" and sub_query.department_id = ? ");
 		}
-		if(!StringUtils.isBlank(product)){
-			totalProductQuery.append(" and upper(ce2.hosted_services -> 'associatedProduct' ->>'name')= upper(?) ");
-			totalProductInProdQuery.append(" and upper(ce3.hosted_services -> 'associatedProduct' ->>'name')= upper(?) ");
-			primarySql.append(" and upper(ce.hosted_services -> 'associatedProduct' ->>'name')= upper(?) ");
-		}
-		if(!StringUtils.isBlank(env)){
-			totalProductQuery.append(" and upper(ce2.hosted_services -> 'associatedEnv' ->> 'name') = upper(?) ");
-			totalProductInProdQuery.append(" and upper(ce3.hosted_services -> 'associatedEnv' ->> 'name') = upper(?) ");
-			primarySql.append(" and upper(ce.hosted_services -> 'associatedEnv' ->> 'name') = upper(?) ");
+		if(productId != null ){
+			primarySql.append(" and sub_query.product_id = ?  ");
 		}
 		if(!StringUtils.isBlank(cloud)){
-			primarySql.append("and upper(cnv.cloud) = upper(?) ");
+			primarySql.append(" and upper(sub_query.cloud) = upper(?) ");
 		}
-		primarySql.append(" GROUP BY dep.id, org.id,cnv.cloud, cnv.account_id ") ;
+		logger.debug("Environment summary query {}",primarySql);
 
-		String sql = primarySql.toString().replaceAll(" ##TOTAL_PRODUCT##", totalProductQuery.toString());
-		sql = sql.replaceAll("##TOTAL_PRODUCT_IN_PROD##", totalProductInProdQuery.toString());
-
-		Query query = entityManager.createNativeQuery(sql.toString(), EnvironmentSummaryQueryObj.class);
-		logger.debug("Environment summary query {}",sql);
+		Query query = entityManager.createNativeQuery(primarySql.toString(), EnvironmentSummaryQueryObj.class);
 
 		int index = 0;
-
-		// parameter setup for total_product sub query
-		if(departmentId != null) {
-			query.setParameter(++index, departmentId);
-		}
-		if(!StringUtils.isBlank(product)){
-			query.setParameter(++index, product);
-		}
-		if(!StringUtils.isBlank(env)){
-			query.setParameter(++index, env);
-		}
-
-		// parameter setup for total_product_prod_env sub query
-		if(departmentId != null) {
-			query.setParameter(++index, departmentId);
-		}
-		if(!StringUtils.isBlank(product)){
-			query.setParameter(++index, product);
-		}
-		if(!StringUtils.isBlank(env)){
-			query.setParameter(++index, env);
-		}
-
-		// parameter setup for main query
 		query.setParameter(++index, orgId);
-		if(departmentId != null){
+		if(departmentId != null) {
 			query.setParameter(++index, departmentId);
 		}
-		if(!StringUtils.isBlank(product)){
-			query.setParameter(++index, product);
+		if(productId != null){
+			query.setParameter(++index, productId);
 		}
-		if(!StringUtils.isBlank(env)){
-			query.setParameter(++index, env);
-		}
-
 		if(!StringUtils.isBlank(cloud)){
 			query.setParameter(++index, cloud);
 		}
-
 		List<EnvironmentSummaryQueryObj> list = query.getResultList();
 		return filterEnvironmentSummary(list);
     }
@@ -175,6 +118,7 @@ public class QueryService {
 		for(EnvironmentQueryDTO environmentQueryDTO: environmentQueryDTOList){
 			for(EnvironmentSummaryQueryDTO environmentSummaryQueryDTO: environmentQueryDTO.getEnvironmentSummaryList()){
 				BillingDTO billingDTO = new BillingDTO();
+				billingDTO.setLandingZone(environmentSummaryQueryDTO.getLandingZone());
 				billingDTO.countryCode("US");
 				billingDTO.setCurrencyCode("USD");
 				billingDTO.setCurrencySymbol("$");

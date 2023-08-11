@@ -1711,12 +1711,12 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/landingzones/count:
+  /query/organization/{orgId}/environment/count:
     get:
       tags:
         - OrgWiseQuery
-      summary: Get organization wise account's resource counts
-      operationId: getResourceCountsByOrg
+      summary: Get organization wise account's stats
+      operationId: getEnvStatsByOrg
       parameters:
         - in: path
           name: orgId
@@ -1737,12 +1737,12 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/cloud/{cloud}/landingzones/count:
+  /query/organization/{orgId}/environment/cloud/{cloud}/count:
     get:
       tags:
         - OrgWiseQuery
-      summary: Get organization and cloud wise account's resource counts
-      operationId: getResourceCountsByOrgAndCloud
+      summary: Get organization and cloud wise account's stats
+      operationId: getEnvStatsByOrgCloud
       parameters:
         - in: path
           name: orgId
@@ -1766,12 +1766,12 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/cloud/{cloud}/landing-zone/{landingZone}/landingzones/count:
+  /query/organization/{orgId}/environment/cloud/{cloud}/landing-zone/{landingZone}/count:
     get:
       tags:
         - OrgWiseQuery
-      summary: Get organization, cloud and landing-zone wise account's resource counts
-      operationId: getResourceCountsByOrgCloudAndLandingZone
+      summary: Get organization, cloud and landing-zone wise account's stats
+      operationId: getEnvStatsByOrgCloudLandingZone
       parameters:
         - in: path
           name: orgId
@@ -1800,12 +1800,12 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/landingzones/summary:
+  /query/organization/{orgId}/environment/summary-list:
     get:
       tags:
         - OrgWiseQuery
-      summary: Get organization wise account's resource summary
-      operationId: getResourceSummaryByOrg
+      summary: Get environment summary list
+      operationId: getEnvironmentSummaryList
       parameters:
         - in: path
           name: orgId
@@ -1820,46 +1820,21 @@ paths:
             format: int64
           required: false
         - in: query
-          name: product
+          name: productId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: false
         - in: query
           name: env
           schema:
             type: string
           required: false
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EnvironmentQueryDTO'
-        404:
-          description: "Service Not found"
-        500:
-          description: "Internal Server Error"
-  /query/organization/{orgId}/cloud/{cloud}/landingzones/summary:
-    get:
-      tags:
-        - OrgWiseQuery
-      summary: Get organization and cloud wise account's resource summary
-      operationId: getResourceSummaryByOrgAndCloud
-      parameters:
-        - in: path
-          name: orgId
-          schema:
-            type: integer
-            format: int64
-          required: true
-        - in: path
+        - in: query
           name: cloud
           schema:
             type: string
-          required: true
+          required: false
       responses:
         200:
           description: OK

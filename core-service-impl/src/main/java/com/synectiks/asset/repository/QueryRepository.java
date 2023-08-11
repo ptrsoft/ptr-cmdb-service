@@ -17,41 +17,42 @@ import com.synectiks.asset.domain.Organization;
 @Repository
 public interface QueryRepository extends JpaRepository<Organization, Long>{
 
-    String ENV_COUNT_QUERY ="select cloud, count(*) as environments, "
-            + "sum(cast (summary_json -> 'TotalDiscoveredResources' as integer)) as assets, "
-            + "0 as alerts, 0 as totalbilling "
-            + "from cloud_environment ce, cloud_element_summary ces, department dep, organization org  "
-            + "where ce.id = ces.cloud_environment_id "
-            + "and ce.department_id = dep.id and dep.organization_id = org.id "
-            + "and org.id = :orgId "
-            + "group by ce.cloud, ces.summary_json";
+    String ENV_COUNT_QUERY ="select l.cloud, count(l.id) as environments, \n" +
+			" sum(cast (ces.summary_json -> 'TotalDiscoveredResources' as integer)) as assets, \n" +
+			" 0 as alerts, 0 as totalbilling \n" +
+			" from landingzone l, cloud_element_summary ces, department dep, organization org  \n" +
+			" where l.id = ces.landingzone_id  \n" +
+			" and l.department_id = dep.id and dep.organization_id = org.id \n" +
+			" and org.id = :orgId \n" +
+			" group by l.cloud, ces.summary_json\n";
     @Query(value = ENV_COUNT_QUERY, nativeQuery = true)
-    List<EnvironmentCountQueryObj> getCount(@Param("orgId") Long orgId);
+    List<EnvironmentCountQueryObj> getEnvStats(@Param("orgId") Long orgId);
 
 
-    String ENV_CLOUD_WISE_COUNT_QUERY ="select cloud, count(*) as environments, "
-            + "sum(cast (summary_json -> 'TotalDiscoveredResources' as integer)) as assets, "
-            + "0 as alerts, 0 as totalbilling "
-            + "from cloud_environment ce, cloud_element_summary ces, department dep, organization org "
-            + "where ce.id = ces.cloud_environment_id "
-            + "and ce.department_id = dep.id and dep.organization_id = org.id "
-            + "and upper(ce.cloud) = upper(:cloud) "
-            + "and org.id = :orgId "
-            + "group by ce.cloud, ces.summary_json";
+    String ENV_CLOUD_WISE_COUNT_QUERY ="select l.cloud, count(l.id) as environments, \n" +
+			" sum(cast (ces.summary_json -> 'TotalDiscoveredResources' as integer)) as assets, \n" +
+			" 0 as alerts, 0 as totalbilling \n" +
+			" from landingzone l, cloud_element_summary ces, department dep, organization org  \n" +
+			" where l.id = ces.landingzone_id  \n" +
+			" and l.department_id = dep.id and dep.organization_id = org.id \n" +
+			" and upper(l.cloud) = upper(:cloud) \n" +
+			" and org.id = :orgId \n" +
+			" group by l.cloud, ces.summary_json\n";
     @Query(value = ENV_CLOUD_WISE_COUNT_QUERY, nativeQuery = true)
-    EnvironmentCountQueryObj getCount(@Param("cloud") String cloud, @Param("orgId") Long orgId);
+    EnvironmentCountQueryObj getEnvStats(@Param("cloud") String cloud, @Param("orgId") Long orgId);
 
-	String ENV_LANDINGZONE_CLOUD_WISE_COUNT_QUERY ="select cloud, count(*) as environments, "
-			+ "sum(cast (summary_json -> 'TotalDiscoveredResources' as integer)) as assets, "
-			+ "0 as alerts, 0 as totalbilling "
-			+ "from cloud_environment ce, cloud_element_summary ces, department dep, organization org "
-			+ "where ce.id = ces.cloud_environment_id "
-			+ "and ce.department_id = dep.id and dep.organization_id = org.id "
-			+ "and upper(ce.cloud) = upper(:cloud) "
-			+ "and org.id = :orgId and ce.account_id = :landingZone "
-			+ "group by ce.cloud, ces.summary_json";
+	String ENV_LANDINGZONE_CLOUD_WISE_COUNT_QUERY =" select l.cloud, count(l.id) as environments, \n" +
+			" sum(cast (ces.summary_json -> 'TotalDiscoveredResources' as integer)) as assets, \n" +
+			" 0 as alerts, 0 as totalbilling \n" +
+			" from landingzone l, cloud_element_summary ces, department dep, organization org  \n" +
+			" where l.id = ces.landingzone_id  \n" +
+			" and l.department_id = dep.id and dep.organization_id = org.id \n" +
+			" and upper(l.cloud) = upper(:cloud)\n" +
+			" and org.id = :orgId \n" +
+			" and l.landing_zone = :landingZone \n" +
+			" group by l.cloud, ces.summary_json\n";
 	@Query(value = ENV_LANDINGZONE_CLOUD_WISE_COUNT_QUERY, nativeQuery = true)
-	EnvironmentCountQueryObj getCount(@Param("landingZone") String landingZone, @Param("cloud") String cloud, @Param("orgId") Long orgId);
+	EnvironmentCountQueryObj getEnvStats(@Param("landingZone") String landingZone, @Param("cloud") String cloud, @Param("orgId") Long orgId);
 
 	String ORG_WISE_ENV_SUMMARY_QUERY ="select cnv.cloud, replace(cast(ceo.landing_zone as text), '\"', '') as landing_zone, " +
             "count(ceo.product_enclave) as product_enclave, " +

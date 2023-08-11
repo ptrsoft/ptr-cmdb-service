@@ -2,9 +2,6 @@
 
  import java.util.List;
 
- import com.synectiks.asset.api.model.*;
- import com.synectiks.asset.domain.query.*;
- import com.synectiks.asset.mapper.query.*;
  import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +29,7 @@ import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
 import com.synectiks.asset.domain.query.CostBillingQueryObj;
 import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyObj;
+ import com.synectiks.asset.domain.query.InfraTopologyObj;
 import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
 import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
 import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
@@ -44,8 +40,7 @@ import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
 import com.synectiks.asset.mapper.query.CostAnalyticMapper;
 import com.synectiks.asset.mapper.query.CostBillingMapper;
 import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
-import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
-import com.synectiks.asset.mapper.query.InfraTopologyMapper;
+ import com.synectiks.asset.mapper.query.InfraTopologyMapper;
 import com.synectiks.asset.mapper.query.InfraTopologySummeryMapper;
 import com.synectiks.asset.mapper.query.MonthlyStatisticyMapper;
 import com.synectiks.asset.mapper.query.TotalBudgetMapper;
@@ -62,43 +57,36 @@ public class QueryController implements QueryApi {
 	private QueryService queryService;
 
 	@Override
-	public ResponseEntity<List<EnvironmentCountQueryDTO>> getResourceCountsByOrg(Long orgId) {
-		logger.debug("REST request to Get cloud wise landing zone and their resource counts for an organization: Org Id: {}", orgId);
-		List<EnvironmentCountQueryObj> environmentCountQueryObjList = queryService.getResourceCounts(orgId);
+	public ResponseEntity<List<EnvironmentCountQueryDTO>> getEnvStatsByOrg(Long orgId) {
+		logger.debug("REST request to get organization wise account's stats: Org Id: {}", orgId);
+		List<EnvironmentCountQueryObj> environmentCountQueryObjList = queryService.getEnvStats(orgId);
 		List<EnvironmentCountQueryDTO> environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDtoList(environmentCountQueryObjList);
 		return ResponseEntity.ok(environmentCountQueryDTOList);
 	}
 
 	@Override
-	public ResponseEntity<EnvironmentCountQueryDTO> getResourceCountsByOrgAndCloud(Long orgId, String cloud) {
-		logger.debug("REST request to Get cloud wise landing zone and their resource counts for an organization and cloud: Org Id: {}, Cloud: {}", orgId, cloud);
-		EnvironmentCountQueryObj environmentCountQueryObj = queryService.getResourceCounts(orgId, cloud);
+	public ResponseEntity<EnvironmentCountQueryDTO> getEnvStatsByOrgCloud(Long orgId, String cloud) {
+		logger.debug("REST request to get organization and cloud wise account's stats. Org Id: {}, Cloud: {}", orgId, cloud);
+		EnvironmentCountQueryObj environmentCountQueryObj = queryService.getEnvStats(orgId, cloud);
 		EnvironmentCountQueryDTO environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDto(environmentCountQueryObj);
 		return ResponseEntity.ok(environmentCountQueryDTOList);
 	}
 
 	@Override
-	public ResponseEntity<EnvironmentCountQueryDTO> getResourceCountsByOrgCloudAndLandingZone(Long orgId, String cloud, String landingZone) {
-		logger.debug("REST request to Get cloud and landing-zone wise resource counts of an organization. Org Id: {}, Cloud: {}, LandingZone {}", orgId, cloud, landingZone);
-		EnvironmentCountQueryObj environmentCountQueryObj = queryService.getResourceCounts(orgId, cloud, landingZone);
+	public ResponseEntity<EnvironmentCountQueryDTO> getEnvStatsByOrgCloudLandingZone(Long orgId, String cloud, String landingZone) {
+		logger.debug("REST request to get organization, cloud and landing-zone wise account's stats. Org Id: {}, Cloud: {}, LandingZone {}", orgId, cloud, landingZone);
+		EnvironmentCountQueryObj environmentCountQueryObj = queryService.getEnvStats(orgId, cloud, landingZone);
 		EnvironmentCountQueryDTO environmentCountQueryDTOList = EnvironmentCountQueryMapper.INSTANCE.toDto(environmentCountQueryObj);
 		return ResponseEntity.ok(environmentCountQueryDTOList);
 	}
 
 	@Override
-	public ResponseEntity<List<EnvironmentQueryDTO>> getResourceSummaryByOrg(Long orgId, Long departmentId, String product, String env) {
-		logger.debug("REST request to get list of landing zone and its associated product-enclaves, products, app and data services for a given organization. Org id: {} ", orgId);
-		List<EnvironmentQueryDTO> environmentQueryDTOList = queryService.getEnvironmentSummaryByFilter(orgId, departmentId, product, env, null);
+	public ResponseEntity<List<EnvironmentQueryDTO>> getEnvironmentSummaryList(Long orgId, Long departmentId, Long productId, String env, String cloud) {
+		logger.debug("REST request to get environment summary list for a given organization. Org id: {} ", orgId);
+		List<EnvironmentQueryDTO> environmentQueryDTOList = queryService.getEnvironmentSummaryList(orgId, departmentId, productId, env, cloud);
 		return ResponseEntity.ok(environmentQueryDTOList);
 	}
 
-	@Override
-	public ResponseEntity<List<EnvironmentQueryDTO>> getResourceSummaryByOrgAndCloud(Long orgId, String cloud) {
-		logger.debug("REST request to get list of landing zone and its associated product-enclaves, products, app and data services for a given organization and cloud. Org id: {}, Cloud: {} ", orgId,cloud);
-		List<EnvironmentQueryDTO> environmentQueryDTOList = queryService.getEnvironmentSummaryByFilter(orgId, null, null, null, cloud);
-		return ResponseEntity.ok(environmentQueryDTOList);
-	}
-	
 	@Override
 	public ResponseEntity<List<String>> getOrgWiseProducts(Long orgId) {
 		logger.debug("REST request to Get organization wise products for an organization: Org Id: {}", orgId);
