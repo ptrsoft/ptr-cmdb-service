@@ -24,7 +24,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" where l.id = ces.landingzone_id  \n" +
 			" and l.department_id = dep.id and dep.organization_id = org.id \n" +
 			" and org.id = :orgId \n" +
-			" group by l.cloud, ces.summary_json\n";
+			" group by l.cloud \n";
     @Query(value = ENV_COUNT_QUERY, nativeQuery = true)
     List<EnvironmentCountQueryObj> getEnvStats(@Param("orgId") Long orgId);
 
@@ -37,7 +37,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" and l.department_id = dep.id and dep.organization_id = org.id \n" +
 			" and upper(l.cloud) = upper(:cloud) \n" +
 			" and org.id = :orgId \n" +
-			" group by l.cloud, ces.summary_json\n";
+			" group by l.cloud \n";
     @Query(value = ENV_CLOUD_WISE_COUNT_QUERY, nativeQuery = true)
     EnvironmentCountQueryObj getEnvStats(@Param("cloud") String cloud, @Param("orgId") Long orgId);
 
@@ -50,7 +50,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" and upper(l.cloud) = upper(:cloud)\n" +
 			" and org.id = :orgId \n" +
 			" and l.landing_zone = :landingZone \n" +
-			" group by l.cloud, ces.summary_json\n";
+			" group by l.cloud \n";
 	@Query(value = ENV_LANDINGZONE_CLOUD_WISE_COUNT_QUERY, nativeQuery = true)
 	EnvironmentCountQueryObj getEnvStats(@Param("landingZone") String landingZone, @Param("cloud") String cloud, @Param("orgId") Long orgId);
 
