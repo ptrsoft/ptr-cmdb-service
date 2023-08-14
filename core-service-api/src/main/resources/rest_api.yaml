@@ -3150,11 +3150,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/landing-zone/{landingZone}/infra-topology:
+  /query/organization/{orgId}/infra-topology/landing-zone/{landingZone}:
     get:
       tags:
         - InfraTopologyQuery
-      summary: get infra topology view of given Organization and landingZone
+      summary: Infra topology view of an Organization's and landingZone
       operationId: getInfraTopology
       parameters:
         - in: path
@@ -3179,11 +3179,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/landing-zone/{landingZone}/product-enclave/{productEnclave}/infra-topology-summary:
+  /query/organization/{orgId}/infra-topology/landing-zone/{landingZone}/product-enclave/{productEnclave}/summary:
     get:
       tags:
         - InfraTopologyQuery
-      summary: get infra topology summary of given Organization, landingZone and product enclave
+      summary: Infra topology summary of and Organization's, landing-zone and product-enclave
       operationId: getInfraTopologySummary
       parameters:
         - in: path
@@ -4119,12 +4119,10 @@ components:
           type: string
         id:
           type: string
-        state:
-          type: string
-        hostingTypeList:
-          type: array
-          items:
-            $ref: '#/components/schemas/InfraTopologyHostingTypeDTO'
+        threeTier:
+          $ref: '#/components/schemas/ThreeTierDTO'
+        soa:
+          $ref: '#/components/schemas/SOADTO'
     InfraTopologyDTO:
       type: object
       properties:
@@ -4134,10 +4132,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/InfraTopologyProductEnclaveDTO'
-        globalServiceList:
-          type: array
-          items:
-            type : string
+        # globalServiceList:
+        #   type: array
+        #   items:
+        #     type : string
     CloudElementSpendAnalyticsDTO:
       type: object
       properties:
@@ -4255,3 +4253,36 @@ components:
           type: string
         total:
           type: string
+    ThreeTierDTO:
+      type: object
+      properties:
+        productCount:
+          type: integer
+          format: int64
+        webCount:
+          type: integer
+          format: int64
+        appCount:
+          type: integer
+          format: int64
+        dataCount:
+          type: integer
+          format: int64
+        auxiliaryCount:
+          type: integer
+          format: int64
+    SOADTO:
+      type: object
+      properties:
+        productCount:
+          type: integer
+          format: int64
+        appCount:
+          type: integer
+          format: int64
+        dataCount:
+          type: integer
+          format: int64
+        otherCount:
+          type: integer
+          format: int64

@@ -326,60 +326,49 @@ public class QueryService {
     	return queryRepository.orgVpcSummary(orgId,landingZone,product);
 	}
 
-	public InfraTopologyObj getInfraTopology(Long orgId, String landingZone) throws JsonProcessingException {
-		logger.debug("Getting list of cloud elements to form infra-topology-view for a given organization and landing-zone");
-		List<InfraTopologyQueryObj> list = queryRepository.getInfraTopology(orgId,landingZone);
-		return filterInfraTopologyData(list, landingZone);
+	public InfraTopologyObj getInfraTopology(Long orgId, String landingZone) {
+		logger.debug("Getting infra-topology-view for a given organization and landing-zone");
+		List<InfraTopology3TierQueryObj> threeTierlist = queryRepository.getInfraTopology3TierView(orgId,landingZone);
+		List<InfraTopologySOAQueryObj> soaList = queryRepository.getInfraTopologySOAView(orgId,landingZone);
+		return filterInfraTopologyData(threeTierlist, soaList, landingZone);
 	}
 
-	private InfraTopologyObj filterInfraTopologyData(List<InfraTopologyQueryObj> list, String landingZone) throws JsonProcessingException {
-		ObjectMapper objectMapper = Constants.instantiateMapper();
-		Set<String> productEnclaveSet = list.stream().map(InfraTopologyQueryObj::getProductEnclave).collect(Collectors.toSet());
+	private InfraTopologyObj filterInfraTopologyData(List<InfraTopology3TierQueryObj> threeTierlist, List<InfraTopologySOAQueryObj> soaList, String landingZone) {
+		Set<String> productEnclave3TierSet = threeTierlist.stream().map(InfraTopology3TierQueryObj::getProductEnclaveId).collect(Collectors.toSet());
+		Set<String> productEnclaveSOASet = soaList.stream().map(InfraTopologySOAQueryObj::getProductEnclaveId).collect(Collectors.toSet());
+		productEnclave3TierSet.addAll(productEnclaveSOASet);
 
 		List<InfraTopologyProductEnclaveObj> productEnclaveList = new ArrayList<>();
-		for (String productEnclave: productEnclaveSet){
-			List<InfraTopologyHostingTypeObj> hostingTypeList = new ArrayList<>();
-			List<InfraTopologyQueryObj> filteredProductEnclaveList = list.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclave()) && l.getProductEnclave().equalsIgnoreCase(productEnclave)).collect(Collectors.toList());
-			Set<String> hostingTypeSet = filteredProductEnclaveList.stream().map(InfraTopologyQueryObj::getHostingType).collect(Collectors.toSet());
 
-			for(String hostingType: hostingTypeSet){
-				List<InfraTopologyCategoryObj> categoryList = new ArrayList<>();
-				List<InfraTopologyQueryObj> filteredCategoryList = filteredProductEnclaveList.stream().filter(l -> !StringUtils.isBlank(l.getHostingType()) && l.getHostingType().equalsIgnoreCase(hostingType)).collect(Collectors.toList());
-
-				for(InfraTopologyQueryObj catObj: filteredCategoryList){
-					List<InfraTopologyElementObj> elementList = new ArrayList<>();
-					JsonNode rootNode = objectMapper.readTree(catObj.getElementList());
-
-					if(rootNode != null && rootNode.isArray()){
-						Iterator<JsonNode> iterator = rootNode.iterator();
-						while (iterator.hasNext()) {
-							logger.debug("Creating element object");
-							JsonNode jsonNode = iterator.next();
-							InfraTopologyElementObj elementObj = InfraTopologyElementObj.builder()
-									.arn(jsonNode.get("arn").asText())
-									.name(jsonNode.get("name").asText())
-									.build();
-							elementList.add(elementObj);
-						}
-					}
-
-					InfraTopologyCategoryObj categoryObj = InfraTopologyCategoryObj.builder()
-							.category(catObj.getCategory())
-							.elementType(catObj.getElementType())
-							.elementList(elementList)
-							.build();
-					categoryList.add(categoryObj);
-				}
-				InfraTopologyHostingTypeObj hostingTypeObj = InfraTopologyHostingTypeObj.builder()
-						.hostingType(hostingType)
-						.category(categoryList)
-						.build();
-				hostingTypeList.add(hostingTypeObj);
-			}
+		for (String productEnclave: productEnclave3TierSet){
 			InfraTopologyProductEnclaveObj productEnclaveObj = InfraTopologyProductEnclaveObj.builder()
-					.name(productEnclave)
-					.hostingTypeList(hostingTypeList)
+					.id(productEnclave)
 					.build();
+
+			List<InfraTopology3TierQueryObj> filtered3TierList = threeTierlist.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclaveId()) && l.getProductEnclaveId().equalsIgnoreCase(productEnclave)).collect(Collectors.toList());
+			for(InfraTopology3TierQueryObj threeTierObj :filtered3TierList ){
+				ThreeTierQueryObj threeTierQueryObj = ThreeTierQueryObj.builder()
+						.productCount(threeTierObj.getProductCount())
+						.webCount(threeTierObj.getWebCount())
+						.appCount(threeTierObj.getAppCount())
+						.dataCount(threeTierObj.getDataCount())
+						.auxiliaryCount(threeTierObj.getAuxiliaryCount())
+						.build();
+				productEnclaveObj.setThreeTier(threeTierQueryObj);
+				productEnclaveObj.setName(threeTierObj.getProductEnclaveName());
+			}
+
+			List<InfraTopologySOAQueryObj> filteredSOAList = soaList.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclaveId()) && l.getProductEnclaveId().equalsIgnoreCase(productEnclave)).collect(Collectors.toList());
+			for(InfraTopologySOAQueryObj soaObj :filteredSOAList ){
+				SOAQueryObj soaQueryObj = SOAQueryObj.builder()
+						.productCount(soaObj.getProductCount())
+						.appCount(soaObj.getAppCount())
+						.dataCount(soaObj.getDataCount())
+						.otherCount(soaObj.getOtherCount())
+						.build();
+				productEnclaveObj.setSoa(soaQueryObj);
+				productEnclaveObj.setName(soaObj.getProductEnclaveName());
+			}
 			productEnclaveList.add(productEnclaveObj);
 		}
 
@@ -430,11 +419,10 @@ public class QueryService {
 		return queryRepository.cloudWiseMonthlySpend(orgId);
 	}
 
-	public List<InfraTopologySummaryQueryObj> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave)  {
-		logger.debug("Getting list of cloud elements to form infra-topology-view for a given organization and landing-zone");
-		return queryRepository.getInfraTopologySummary(orgId,landingZone,productEnclave);
-
-	}
+//	public List<InfraTopologySummaryQueryObj> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave)  {
+//		logger.debug("Getting list of cloud elements to form infra-topology-view for a given organization and landing-zone");
+//		return queryRepository.getInfraTopologySummary(orgId,landingZone,productEnclave);
+//	}
 	
 	public List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj(Long orgId)  {
 		logger.debug("Getting list of monthly statistics for given organization");

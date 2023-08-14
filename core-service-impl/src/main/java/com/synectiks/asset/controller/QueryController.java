@@ -363,16 +363,25 @@ public class QueryController implements QueryApi {
 	
 	@Override
 	public ResponseEntity<InfraTopologyDTO> getInfraTopology(Long orgId, String landingZone) {
-		try{
-			InfraTopologyObj infraTopologyObj = queryService.getInfraTopology(orgId, landingZone);
-			InfraTopologyDTO infraTopologyDTO = InfraTopologyMapper.INSTANCE.toDto(infraTopologyObj);
-			return ResponseEntity.ok(infraTopologyDTO);
-		}catch (Exception e){
-			e.printStackTrace();
-			return ResponseEntity.badRequest().body(null);
-		}
+		logger.debug("Rest request to get infra-topology of an organization and landing zone. Org id: {}, Landing-zone: {}", orgId, landingZone);
+
+		InfraTopologyObj infraTopologyObj = queryService.getInfraTopology(orgId, landingZone);
+		InfraTopologyDTO infraTopologyDTO = InfraTopologyMapper.INSTANCE.toDto(infraTopologyObj);
+		return ResponseEntity.ok(infraTopologyDTO);
+
 	}
-	
+
+//	@Override
+//	public ResponseEntity<List<InfraTopologySummaryDTO>> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave) {
+//		try{
+//			List<InfraTopologySummaryQueryObj> infraTopologySummaryQueryObj = queryService.getInfraTopologySummary(orgId, landingZone,productEnclave);
+//			List<InfraTopologySummaryDTO> infraTopologyDTO = InfraTopologySummeryMapper.INSTANCE.toDtoList(infraTopologySummaryQueryObj);
+//			return ResponseEntity.ok(infraTopologyDTO);
+//		}catch (Exception e){
+//			e.printStackTrace();
+//			return ResponseEntity.badRequest().body(null);
+//		}
+//	}
 	@Override
 	public ResponseEntity<CloudElementSpendAnalyticsDTO> spendTodayAnalytics(Long orgId) {
 		logger.debug("REST request to get today's cost spent");
@@ -424,17 +433,7 @@ public class QueryController implements QueryApi {
 		return ResponseEntity.ok(dtoList);
 	}
 	
-	@Override
-	public ResponseEntity<List<InfraTopologySummaryDTO>> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave) {
-		try{
-			List<InfraTopologySummaryQueryObj> infraTopologySummaryQueryObj = queryService.getInfraTopologySummary(orgId, landingZone,productEnclave);
-			List<InfraTopologySummaryDTO> infraTopologyDTO = InfraTopologySummeryMapper.INSTANCE.toDtoList(infraTopologySummaryQueryObj);
-			return ResponseEntity.ok(infraTopologyDTO);
-		}catch (Exception e){
-			e.printStackTrace();
-			return ResponseEntity.badRequest().body(null);
-		}
-	}
+
 	@Override
 	public ResponseEntity<List<MonthlyStatisticsDTO>> monthlyStatistics(Long orgId) {
 		logger.debug("REST request to Get monthly statistics for an organization: Org Id: {}", orgId);

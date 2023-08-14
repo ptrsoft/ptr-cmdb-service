@@ -14,7 +14,7 @@ public class InfraTopologyProductEnclaveObj implements Serializable{
 
     public String name;
     public String id;
-    public String state;
-    public List<InfraTopologyHostingTypeObj> hostingTypeList;
+    public ThreeTierQueryObj threeTier;
+    public SOAQueryObj soa;
 
 }
