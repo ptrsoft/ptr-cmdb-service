@@ -2,6 +2,7 @@ package com.synectiks.asset.repository;
 
 import java.util.List;
 
+import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.query.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -653,7 +654,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = CLOUD_WISE_MONTHLY_SPEND_QUERY, nativeQuery = true)
 	List<CloudElementCloudWiseMonthlyQueryObj> cloudWiseMonthlySpend(@Param("orgId")Long orgId);
 	
-	String INFRA_TOPOLOFY_3TIER_QUERY ="SELECT\n" +
+	String INFRA_TOPOLOGY_3TIER_QUERY ="SELECT\n" +
 			"    l.cloud,\n" +
 			"    p.\"type\",\n" +
 			"    pe.instance_id AS product_enclave_id,\n" +
@@ -677,10 +678,10 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"    and o.id = :orgId\n" +
 			"    AND l.landing_zone = :landingZone\n" +
 			"GROUP BY l.cloud, p.\"type\",pe.instance_id, pe.instance_name\n";
-	@Query(value = INFRA_TOPOLOFY_3TIER_QUERY, nativeQuery = true)
+	@Query(value = INFRA_TOPOLOGY_3TIER_QUERY, nativeQuery = true)
 	List<InfraTopology3TierQueryObj> getInfraTopology3TierView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
 
-	String INFRA_TOPOLOFY_SOA_QUERY ="SELECT\n" +
+	String INFRA_TOPOLOGY_SOA_QUERY ="SELECT\n" +
 			"    l.cloud,\n" +
 			"    p.\"type\",\n" +
 			"    pe.instance_id AS product_enclave_id,\n" +
@@ -703,46 +704,84 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"    and o.id = :orgId\n" +
 			"    AND l.landing_zone = :landingZone\n" +
 			"GROUP BY l.cloud,p.\"type\", pe.instance_id, pe.instance_name\n";
-	@Query(value = INFRA_TOPOLOFY_SOA_QUERY, nativeQuery = true)
+	@Query(value = INFRA_TOPOLOGY_SOA_QUERY, nativeQuery = true)
 	List<InfraTopologySOAQueryObj> getInfraTopologySOAView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
 
-//	String INFRA_TOPOLOGY_QUERY = "select distinct  l.cloud, l.landing_zone, pe.instance_id \n" +
-//			"from landingzone l\n" +
-//			"inner join department d on l.department_id = d.id \n" +
-//			"inner join organization o on d.organization_id = o.id \n" +
-//			"left join product_enclave pe on pe.landing_zone = l.landing_zone and pe.department_id = d.id \n" +
-//			"where \n" +
-//			"o.id = d.organization_id \n" +
-//			"and l.department_id = d.id \n" +
-//			"and o.id = :orgId \n" +
-//			"and l.landing_zone = :landingZone \n" +
-//			"group by l.cloud, l.landing_zone,pe.instance_id  ";
-//	@Query(value = INFRA_TOPOLOGY_QUERY, nativeQuery = true)
-//	List<InfraTopologyQueryObj> getInfraTopology(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
-	
-//	String INFRA_TOPOLOGY_SUMMARY_QUERY = " SELECT DISTINCT\r\n"
-//			+ "  ce.cloud_identity ->> 'hostingType' AS hosting_type,\r\n"
-//			+ "  ce.element_type,\r\n"
-//			+ "  ce.cloud_identity ->> 'category' AS category,\r\n"
-//			+ "  ce.cloud_identity ->> 'dbCategory' AS db_category,\r\n"
-//			+ "  coalesce(jsonb_array_length(ce.cloud_identity -> 'elementLists'), 0) AS total_elements\r\n"
-//			+ "FROM\r\n"
-//			+ "  cloud_element ce,\r\n"
-//			+ "  cloud_environment cnv,\r\n"
-//			+ "  department dep,\r\n"
-//			+ "  organization org\r\n"
-//			+ "WHERE\r\n"
-//			+ "  ce.cloud_environment_id = cnv.id\r\n"
-//			+ "  AND cnv.department_id = dep.id\r\n"
-//			+ "  AND dep.organization_id = org.id\r\n"
-//			+ "  AND org.id = :orgId \r\n"
-//			+ "  AND ce.hardware_location ->> 'landingZone' = :landingZone \r\n"
-//			+ "  AND ce.hardware_location ->> 'productEnclave' = :productEnclave \r\n"
-//			+ "ORDER BY\r\n"
-//			+ "  ce.cloud_identity ->> 'hostingType' ASC ";
-//	@Query(value = INFRA_TOPOLOGY_SUMMARY_QUERY, nativeQuery = true)
-//	List<InfraTopologySummaryQueryObj> getInfraTopologySummary(@Param("orgId") Long orgId, @Param("landingZone") String landingZone,@Param("productEnclave") String productEnclave);
-	
+	String INFRA_TOPOLOGY_CATEGORY_WISE_VIEW_QUERY ="select ce.element_type, ce.category, ce.db_category_id , count(ce.element_type) as total_record  \n" +
+			"from cloud_element ce  \n" +
+			"inner join product_enclave pe on ce.product_enclave_id = pe.id \n" +
+			"inner join landingzone l on ce.landingzone_id = l.id  \n" +
+			"INNER JOIN department d ON l.department_id = d.id\n" +
+			"INNER JOIN organization o ON d.organization_id = o.id\n" +
+			"where ce.product_enclave_id = pe.id and ce.landingzone_id = l.id   \n" +
+			"and pe.instance_id = :productEnclaveInstanceId \n" +
+			"and l.landing_zone = :landingZone \n" +
+			"and o.id = :orgId \n" +
+			"group by ce.product_enclave_id, ce.category, ce.element_type, ce.db_category_id  \n" +
+			"order by ce.element_type asc";
+	@Query(value = INFRA_TOPOLOGY_CATEGORY_WISE_VIEW_QUERY, nativeQuery = true)
+	List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId);
+
+	String INFRA_TOPOLOGY_CLOUD_ELEMENT_QUERY ="select ce.id, ce.element_type, ce.instance_id, ce.instance_name, ce.category  \n" +
+			"from cloud_element ce  \n" +
+			"inner join product_enclave pe on ce.product_enclave_id = pe.id \n" +
+			"inner join landingzone l on ce.landingzone_id = l.id  \n" +
+			"INNER JOIN department d ON l.department_id = d.id \n" +
+			"INNER JOIN organization o ON d.organization_id = o.id \n" +
+			"where ce.product_enclave_id = pe.id and ce.landingzone_id = l.id \n" +
+			"and pe.instance_id = :productEnclaveInstanceId \n" +
+			"and l.landing_zone = :landingZone \n" +
+			"and o.id = :orgId \n" +
+			"order by ce.element_type asc ";
+	@Query(value = INFRA_TOPOLOGY_CLOUD_ELEMENT_QUERY, nativeQuery = true)
+	List<InfraTopologyCloudElementQueryObj> getInfraTopologyCloudElementList(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId);
+
+	String INFRA_TOPOLOGY_3_TIER_STATS_QUERY ="SELECT \n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END),0) AS web_count,\n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END),0) AS app_count,\n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END),0) AS data_count,\n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END),0) as auxiliary_count \n" +
+			"FROM landingzone l\n" +
+			"INNER JOIN department d ON l.department_id = d.id\n" +
+			"INNER JOIN organization o ON d.organization_id = o.id\n" +
+			"LEFT JOIN cloud_element ce ON ce.landingzone_id = l.id\n" +
+			"LEFT JOIN product_enclave pe ON pe.landing_zone = l.landing_zone AND pe.department_id = d.id\n" +
+			"LEFT JOIN business_element be ON be.cloud_element_id = ce.id\n" +
+			"LEFT JOIN product p ON be.product_id = p.id \n" +
+			"where\n" +
+			"\to.id = d.organization_id\n" +
+			"    AND l.department_id = d.id\n" +
+			"    AND upper(p.\"type\") = upper('3 Tier')\n" +
+			"    and o.id = :orgId \n" +
+			"    AND l.landing_zone = :landingZone \n" +
+			"    and pe.instance_id = :productEnclaveInstanceId \n" +
+			"    and ce.instance_id = :cloudElementInstanceId ";
+	@Query(value = INFRA_TOPOLOGY_3_TIER_STATS_QUERY, nativeQuery = true)
+	InfraTopology3TierStatsQueryObj getInfraTopology3TierStats(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId, @Param("cloudElementInstanceId") String cloudElementInstanceId);
+
+	String INFRA_TOPOLOGY_SOA_STATS_QUERY ="SELECT\n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END),0) AS app_count,\n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END),0) AS data_count,\n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) NOT IN (upper('App'), upper('Data')) THEN 1 ELSE 0 END),0) AS other_count\n" +
+			"FROM landingzone l\n" +
+			"INNER JOIN department d ON l.department_id = d.id\n" +
+			"INNER JOIN organization o ON d.organization_id = o.id\n" +
+			"LEFT JOIN cloud_element ce ON ce.landingzone_id = l.id\n" +
+			"LEFT JOIN product_enclave pe ON pe.landing_zone = l.landing_zone AND pe.department_id = l.department_id \n" +
+			"LEFT JOIN business_element be ON be.cloud_element_id = ce.id\n" +
+			"LEFT JOIN product p ON be.product_id = p.id \n" +
+			"where\n" +
+			"\to.id = d.organization_id\n" +
+			"    AND l.department_id = d.id\n" +
+			"    AND upper(p.\"type\") = upper('SOA')\n" +
+			"    and o.id = :orgId \n" +
+			"    AND l.landing_zone = :landingZone \n" +
+			"    and pe.instance_id = :productEnclaveInstanceId \n" +
+			"    and ce.instance_id = :cloudElementInstanceId ";
+	@Query(value = INFRA_TOPOLOGY_SOA_STATS_QUERY, nativeQuery = true)
+	InfraTopologySOAStatsQueryObj getInfraTopologySOAStats(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId, @Param("cloudElementInstanceId") String cloudElementInstanceId);
+
+
 	String MONTHLY_STATISTICS_QUERY = " SELECT * FROM (  " +
 			" WITH monthly_costs AS (  " +
 			"  SELECT  " +

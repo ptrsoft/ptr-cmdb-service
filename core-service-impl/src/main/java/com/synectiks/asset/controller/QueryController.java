@@ -2,6 +2,11 @@
 
  import java.util.List;
 
+ import com.synectiks.asset.api.model.*;
+ import com.synectiks.asset.domain.CloudElement;
+ import com.synectiks.asset.domain.query.*;
+ import com.synectiks.asset.mapper.CloudElementMapper;
+ import com.synectiks.asset.mapper.query.*;
  import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,41 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.asset.api.controller.QueryApi;
-import com.synectiks.asset.api.model.CloudElementCloudWiseAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementCloudWiseMonthlyAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementSpendAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementVpcDTO;
-import com.synectiks.asset.api.model.CostAnalyticDTO;
-import com.synectiks.asset.api.model.CostBillingDTO;
-import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
-import com.synectiks.asset.api.model.EnvironmentQueryDTO;
-import com.synectiks.asset.api.model.InfraTopologyDTO;
-import com.synectiks.asset.api.model.InfraTopologySummaryDTO;
-import com.synectiks.asset.api.model.MonthlyStatisticsDTO;
-import com.synectiks.asset.api.model.TotalBudgetDTO;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.CostBillingQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
- import com.synectiks.asset.domain.query.InfraTopologyObj;
-import com.synectiks.asset.domain.query.InfraTopologySummaryQueryObj;
-import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
-import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
-import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
-import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
-import com.synectiks.asset.mapper.query.CloudElementSpendAnalyticQueryMapper;
-import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
-import com.synectiks.asset.mapper.query.CostAnalyticMapper;
-import com.synectiks.asset.mapper.query.CostBillingMapper;
-import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
- import com.synectiks.asset.mapper.query.InfraTopologyMapper;
-import com.synectiks.asset.mapper.query.InfraTopologySummeryMapper;
-import com.synectiks.asset.mapper.query.MonthlyStatisticyMapper;
-import com.synectiks.asset.mapper.query.TotalBudgetMapper;
-import com.synectiks.asset.service.QueryService;
+ import com.synectiks.asset.service.QueryService;
 
 
 @RestController
@@ -364,24 +335,32 @@ public class QueryController implements QueryApi {
 	@Override
 	public ResponseEntity<InfraTopologyDTO> getInfraTopology(Long orgId, String landingZone) {
 		logger.debug("Rest request to get infra-topology of an organization and landing zone. Org id: {}, Landing-zone: {}", orgId, landingZone);
-
 		InfraTopologyObj infraTopologyObj = queryService.getInfraTopology(orgId, landingZone);
 		InfraTopologyDTO infraTopologyDTO = InfraTopologyMapper.INSTANCE.toDto(infraTopologyObj);
 		return ResponseEntity.ok(infraTopologyDTO);
-
 	}
 
-//	@Override
-//	public ResponseEntity<List<InfraTopologySummaryDTO>> getInfraTopologySummary(Long orgId, String landingZone, String productEnclave) {
-//		try{
-//			List<InfraTopologySummaryQueryObj> infraTopologySummaryQueryObj = queryService.getInfraTopologySummary(orgId, landingZone,productEnclave);
-//			List<InfraTopologySummaryDTO> infraTopologyDTO = InfraTopologySummeryMapper.INSTANCE.toDtoList(infraTopologySummaryQueryObj);
-//			return ResponseEntity.ok(infraTopologyDTO);
-//		}catch (Exception e){
-//			e.printStackTrace();
-//			return ResponseEntity.badRequest().body(null);
-//		}
-//	}
+	@Override
+	public ResponseEntity<List<InfraTopologyCategoryWiseViewDTO>> getInfraTopologyCategoryWiseSummary(Long orgId, String landingZone, String productEnclave) {
+		List<InfraTopologyCategoryWiseViewQueryObj> infraTopologyCategoryWiseViewQueryObjList = queryService.getInfraTopologyCategoryWiseView(orgId, landingZone,productEnclave);
+		List<InfraTopologyCategoryWiseViewDTO> infraTopologyCategoryWiseViewDTOList = InfraTopologyCategoryWiseViewMapper.INSTANCE.toDtoList(infraTopologyCategoryWiseViewQueryObjList);
+		return ResponseEntity.ok(infraTopologyCategoryWiseViewDTOList);
+	}
+
+	@Override
+	public ResponseEntity<List<InfraTopologyCloudElementDTO>> getInfraTopologyCloudElementList(Long orgId, String landingZone, String productEnclave) {
+		List<InfraTopologyCloudElementQueryObj> cloudElementList = queryService.getInfraTopologyCloudElementList(orgId, landingZone,productEnclave);
+		List<InfraTopologyCloudElementDTO> cloudElementDTOList = InfraTopologyCloudElementMapper.INSTANCE.toDtoList(cloudElementList);
+		for(InfraTopologyCloudElementDTO dto: cloudElementDTOList){
+			InfraTopology3TierStatsQueryObj threeTierQueryObj = queryService.getInfraTopology3TierStats(orgId, landingZone,productEnclave, dto.getInstanceId());
+			dto.setThreeTier(InfraTopology3TierStatsMapper.INSTANCE.toDto(threeTierQueryObj));
+
+			InfraTopologySOAStatsQueryObj soaQueryObj = queryService.getInfraTopologySOAStats(orgId, landingZone,productEnclave, dto.getInstanceId());
+			dto.setSoa(InfraTopologySOAStatsMapper.INSTANCE.toDto(soaQueryObj));
+		}
+		return ResponseEntity.ok(cloudElementDTOList);
+	}
+
 	@Override
 	public ResponseEntity<CloudElementSpendAnalyticsDTO> spendTodayAnalytics(Long orgId) {
 		logger.debug("REST request to get today's cost spent");

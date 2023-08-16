@@ -1,7 +1,6 @@
 package com.synectiks.asset.service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,6 +11,7 @@ import javax.persistence.Query;
 import com.synectiks.asset.api.model.BillingDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
+import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.query.*;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -20,10 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.repository.QueryRepository;
 
 @Service
@@ -324,6 +320,25 @@ public class QueryService {
 	public List<CloudEnvironmentVpcQueryObj> orgVpcSummary(Long orgId, String landingZone, String product) {
 		logger.debug("Request to get list of vpc for given organization, landing-zone and product");
     	return queryRepository.orgVpcSummary(orgId,landingZone,product);
+	}
+
+	public List<InfraTopologyCloudElementQueryObj> getInfraTopologyCloudElementList(Long orgId, String landingZone, String productEnclaveInstanceId) {
+		logger.debug("Getting infra-topology cloud elements list for a given organization, landing-zone and product-enclave");
+		return queryRepository.getInfraTopologyCloudElementList(orgId,landingZone,productEnclaveInstanceId);
+	}
+
+	public InfraTopology3TierStatsQueryObj getInfraTopology3TierStats(Long orgId, String landingZone, String productEnclaveInstanceId, String cloudElementInstanceId) {
+		logger.debug("Getting infra-topology 3 tier statistics for a given organization, landing-zone, product-enclave and cloud-element");
+		return queryRepository.getInfraTopology3TierStats(orgId,landingZone,productEnclaveInstanceId, cloudElementInstanceId);
+	}
+	public InfraTopologySOAStatsQueryObj getInfraTopologySOAStats(Long orgId, String landingZone, String productEnclaveInstanceId, String cloudElementInstanceId) {
+		logger.debug("Getting infra-topology SOA statistics for a given organization, landing-zone, product-enclave and cloud-element");
+		return queryRepository.getInfraTopologySOAStats(orgId,landingZone,productEnclaveInstanceId, cloudElementInstanceId);
+	}
+
+	public List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(Long orgId, String landingZone, String productEnclaveInstanceId) {
+		logger.debug("Getting infra-topology category-wise(app/data/data-lake/service-mesh) view for a given organization, landing-zone and product-enclave");
+		return queryRepository.getInfraTopologyCategoryWiseView(orgId,landingZone,productEnclaveInstanceId);
 	}
 
 	public InfraTopologyObj getInfraTopology(Long orgId, String landingZone) {
