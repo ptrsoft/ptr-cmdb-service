@@ -148,6 +148,26 @@ public interface BusinessElementMapper {
             businessElement.setProductEnv(ProductEnv.builder().id(businessElementDTO.getProductEnvId()).build());
         }
 
+        if(businessElement.getCloudElement() != null){
+            businessElement.getCloudElement().setCreatedOn(null);
+            businessElement.getCloudElement().setUpdatedOn(null);
+        }
+        if(businessElement.getDepartment() != null){
+            businessElement.getDepartment().setCreatedOn(null);
+            businessElement.getDepartment().setUpdatedOn(null);
+        }
+        if(businessElement.getProduct() != null){
+            businessElement.getProduct().setCreatedOn(null);
+            businessElement.getProduct().setUpdatedOn(null);
+        }
+        if(businessElement.getProductEnv() != null){
+            businessElement.getProductEnv().setCreatedOn(null);
+            businessElement.getProductEnv().setUpdatedOn(null);
+        }
+        if(businessElement.getModule() != null){
+            businessElement.getModule().setCreatedOn(null);
+            businessElement.getModule().setUpdatedOn(null);
+        }
         return businessElement;
     }
 }

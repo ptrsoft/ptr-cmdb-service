@@ -94,8 +94,11 @@ public interface CloudElementSummaryMapper {
         if(cloudElementSummaryDTO.getLandingzoneId() != null){
             cloudElementSummary.setLandingzone(Landingzone.builder().id(cloudElementSummaryDTO.getLandingzoneId()).build());
         }
-        cloudElementSummary.getLandingzone().setCreatedOn(null);
-        cloudElementSummary.getLandingzone().setUpdatedOn(null);
+        if(cloudElementSummary.getLandingzone() != null){
+            cloudElementSummary.getLandingzone().setCreatedOn(null);
+            cloudElementSummary.getLandingzone().setUpdatedOn(null);
+        }
+
         return cloudElementSummary;
     }
 }

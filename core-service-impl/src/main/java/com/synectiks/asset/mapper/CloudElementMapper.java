@@ -132,14 +132,21 @@ public interface CloudElementMapper {
         if(cloudElementDTO.getProductEnclaveId() != null){
             cloudElement.setProductEnclave(ProductEnclave.builder().id(cloudElementDTO.getProductEnclaveId()).build());
         }
-        cloudElement.getLandingzone().setCreatedOn(null);
-        cloudElement.getLandingzone().setUpdatedOn(null);
 
-        cloudElement.getDbCategory().setCreatedOn(null);
-        cloudElement.getDbCategory().setUpdatedOn(null);
+        if(cloudElement.getLandingzone() != null){
+            cloudElement.getLandingzone().setCreatedOn(null);
+            cloudElement.getLandingzone().setUpdatedOn(null);
+        }
 
-        cloudElement.getProductEnclave().setCreatedOn(null);
-        cloudElement.getProductEnclave().setUpdatedOn(null);
+        if(cloudElement.getDbCategory() != null){
+            cloudElement.getDbCategory().setCreatedOn(null);
+            cloudElement.getDbCategory().setUpdatedOn(null);
+        }
+
+        if(cloudElement.getProductEnclave() != null){
+            cloudElement.getProductEnclave().setCreatedOn(null);
+            cloudElement.getProductEnclave().setUpdatedOn(null);
+        }
 
         return cloudElement;
     }

@@ -96,6 +96,10 @@ public interface ProductEnclaveMapper {
             productEnclave.setDepartment(Department.builder().id(productEnclaveDTO.getDepartmentId()).build());
         }
 
+        if(productEnclave.getDepartment() != null){
+            productEnclave.getDepartment().setCreatedOn(null);
+            productEnclave.getDepartment().setUpdatedOn(null);
+        }
         return productEnclave;
     }
 }

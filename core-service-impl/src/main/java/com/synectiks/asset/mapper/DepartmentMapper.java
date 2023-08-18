@@ -82,8 +82,11 @@ public interface DepartmentMapper {
         if(departmentDTO.getOrganizationId() != null){
             department.setOrganization(Organization.builder().id(departmentDTO.getOrganizationId()).build());
         }
-        department.getOrganization().setCreatedOn(null);
-        department.getOrganization().setUpdatedOn(null);
+        if(department.getOrganization() != null){
+            department.getOrganization().setCreatedOn(null);
+            department.getOrganization().setUpdatedOn(null);
+        }
+
         return department;
     }
 }

@@ -80,8 +80,11 @@ public interface LandingzoneMapper {
         if(landingzoneDTO.getDepartmentId() != null){
             landingzone.setDepartment(Department.builder().id(landingzoneDTO.getDepartmentId()).build());
         }
-        landingzone.getDepartment().setCreatedOn(null);
-        landingzone.getDepartment().setUpdatedOn(null);
+        if(landingzone.getDepartment() != null){
+            landingzone.getDepartment().setCreatedOn(null);
+            landingzone.getDepartment().setUpdatedOn(null);
+        }
+
         return landingzone;
     }
 }

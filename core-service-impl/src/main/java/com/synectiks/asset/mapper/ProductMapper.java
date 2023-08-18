@@ -89,6 +89,14 @@ public interface ProductMapper {
         if(productDTO.getDepartmentId() != null){
             product.setDepartment(Department.builder().id(productDTO.getDepartmentId()).build());
         }
+        if(product.getOrganization() != null){
+            product.getOrganization().setCreatedOn(null);
+            product.getOrganization().setUpdatedOn(null);
+        }
+        if(product.getDepartment() != null){
+            product.getDepartment().setCreatedOn(null);
+            product.getDepartment().setUpdatedOn(null);
+        }
         return product;
     }
 }

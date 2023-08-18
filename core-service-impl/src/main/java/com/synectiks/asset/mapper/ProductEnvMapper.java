@@ -78,10 +78,11 @@ public interface ProductEnvMapper {
             productEnv.setUpdatedOn(null);
         }
         if(productEnvDTO.getProductId() != null){
-            Product product = Product.builder().id(productEnvDTO.getProductId()).build();
-            product.setCreatedOn(null);
-            product.setUpdatedOn(null);
-            productEnv.setProduct(product);
+            productEnv.setProduct(Product.builder().id(productEnvDTO.getProductId()).build());
+        }
+        if(productEnv.getProduct() != null){
+            productEnv.getProduct().setCreatedOn(null);
+            productEnv.getProduct().setUpdatedOn(null);
         }
         return productEnv;
     }
