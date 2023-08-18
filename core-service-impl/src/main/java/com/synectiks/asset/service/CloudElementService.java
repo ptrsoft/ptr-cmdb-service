@@ -55,4 +55,8 @@ public class CloudElementService {
 				Sort.by(Direction.DESC, "id"));
 	}
 
+    @Transactional(readOnly = true)
+    public CloudElement findByInstanceId(String instanceId){
+        return cloudElementRepository.findByInstanceId(instanceId);
+    }
 }

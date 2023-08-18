@@ -134,6 +134,13 @@ public interface CloudElementMapper {
         }
         cloudElement.getLandingzone().setCreatedOn(null);
         cloudElement.getLandingzone().setUpdatedOn(null);
+
+        cloudElement.getDbCategory().setCreatedOn(null);
+        cloudElement.getDbCategory().setUpdatedOn(null);
+
+        cloudElement.getProductEnclave().setCreatedOn(null);
+        cloudElement.getProductEnclave().setUpdatedOn(null);
+
         return cloudElement;
     }
 }

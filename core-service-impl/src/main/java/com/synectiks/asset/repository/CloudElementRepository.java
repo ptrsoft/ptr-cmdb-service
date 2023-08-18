@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface CloudElementRepository extends JpaRepository<CloudElement, Long> {}
+public interface CloudElementRepository extends JpaRepository<CloudElement, Long> {
+    CloudElement findByInstanceId(String instanceId);
+}

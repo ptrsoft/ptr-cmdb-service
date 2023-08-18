@@ -1,13 +1,20 @@
 package com.synectiks.asset.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.controller.CloudElementApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.mapper.CloudElementMapper;
 import com.synectiks.asset.repository.CloudElementRepository;
 import com.synectiks.asset.service.CloudElementService;
+import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -39,6 +47,9 @@ public class CloudElementController implements CloudElementApi {
 
     @Autowired
     private Validator validator;
+
+    @Autowired
+    private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
     @Override
     public ResponseEntity<CloudElementDTO> getCloudElement(Long id) {
@@ -87,4 +98,38 @@ public class CloudElementController implements CloudElementApi {
         return ResponseEntity.ok(cloudElementDTOList);
     }
 
+    @Override
+    public ResponseEntity<CloudElementDTO> associateCloudElement(Object obj){
+        logger.debug("REST request to associate a service with infrastructure or tag a business element");
+        ObjectMapper objectMapper = Constants.instantiateMapper();
+        Map reqObj = (Map)obj;
+        CloudElement cloudElement = cloudElementService.findByInstanceId((String)reqObj.get("instanceId"));
+        if(cloudElement != null){
+            try{
+                String js = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getHostedServices(), Map.class);
+                JsonNode rootNode = null;
+                ArrayNode arrayNode = null;
+                if(!StringUtils.isBlank(js) && !"null".equalsIgnoreCase(js)){
+                    rootNode = objectMapper.readTree(js);
+                    arrayNode = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, rootNode.get("HOSTEDSERVICES"), ArrayNode.class);
+                }else{
+                    arrayNode = objectMapper.createArrayNode();
+                }
+
+                ObjectNode objectNode = objectMapper.createObjectNode();
+                objectNode.put("serviceId",(Integer) reqObj.get("serviceId"));
+                arrayNode.add(objectNode);
+                ObjectNode finalNode =  objectMapper.createObjectNode();
+                finalNode.put("HOSTEDSERVICES", arrayNode);
+                Map map = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
+                cloudElement.setHostedServices(map);
+                cloudElementService.save(cloudElement);
+            }catch (Exception e){
+                logger.error("Exception: ",e);
+//                return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        CloudElementDTO result = CloudElementMapper.INSTANCE.entityToDto(cloudElement);
+        return ResponseEntity.ok(result);
+    }
 }
