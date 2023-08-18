@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -138,6 +139,16 @@ public class ModuleController implements ModuleApi {
 		Module module = ModuleMapper.INSTANCE.dtoToEntityForSearch(moduleDTO);
 		logger.debug("REST request to get all modules on given filters : {} ", module);
 		List<Module> moduleList = moduleService.search(module);
+		List<ModuleDTO> moduleDTOList = ModuleMapper.INSTANCE.entityToDtoList(moduleList);
+		return ResponseEntity.ok(moduleDTOList);
+	}
+
+	@Override
+	public ResponseEntity<List<ModuleDTO>> searchModuleByFilter(@RequestParam("departmentId") Long departmentId,
+																@RequestParam("productId") Long productId,
+																@RequestParam("productEnvId") Long productEnvId,
+																@RequestParam("serviceNature") String serviceNature) {
+		List<Module> moduleList = moduleService.searchByFilter(departmentId,productId, productEnvId, serviceNature);
 		List<ModuleDTO> moduleDTOList = ModuleMapper.INSTANCE.entityToDtoList(moduleList);
 		return ResponseEntity.ok(moduleDTOList);
 	}

@@ -101,16 +101,18 @@ public interface ModuleMapper {
             module.setUpdatedOn(null);
         }
         if(moduleDTO.getProductEnvId() != null){
-            ProductEnv productEnv = ProductEnv.builder().id(moduleDTO.getProductEnvId()).build();
-            productEnv.setCreatedOn(null);
-            productEnv.setUpdatedOn(null);
-            module.setProductEnv(productEnv);
+            module.setProductEnv(ProductEnv.builder().id(moduleDTO.getProductEnvId()).build());
         }
         if(moduleDTO.getProductId() != null){
-            Product product = Product.builder().id(moduleDTO.getProductId()).build();
-            product.setCreatedOn(null);
-            product.setUpdatedOn(null);
-            module.setProduct(product);
+            module.setProduct(Product.builder().id(moduleDTO.getProductId()).build());
+        }
+        if(module.getProductEnv() != null) {
+            module.getProductEnv().setCreatedOn(null);
+            module.getProductEnv().setUpdatedOn(null);
+        }
+        if(module.getProduct() != null) {
+            module.getProduct().setCreatedOn(null);
+            module.getProduct().setUpdatedOn(null);
         }
         return module;
     }

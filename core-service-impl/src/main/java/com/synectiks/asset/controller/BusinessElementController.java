@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -153,4 +154,14 @@ public class BusinessElementController implements BusinessElementApi {
         return ResponseEntity.ok(businessElementDTOList);
     }
 
+    @Override
+    public ResponseEntity<List<BusinessElementDTO>> searchBusinessElementByFilter(@RequestParam("departmentId") Long departmentId,
+                                                                @RequestParam("productId") Long productId,
+                                                                @RequestParam("productEnvId") Long productEnvId,
+                                                                @RequestParam("moduleId") Long moduleId,
+                                                                @RequestParam("serviceNature") String serviceNature) {
+        List<BusinessElement> businessElementList = businessElementService.searchByFilter(departmentId,productId, productEnvId, moduleId, serviceNature);
+        List<BusinessElementDTO> businessElementDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
+        return ResponseEntity.ok(businessElementDTOList);
+    }
 }

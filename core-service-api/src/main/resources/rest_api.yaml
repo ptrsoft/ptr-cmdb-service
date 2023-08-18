@@ -1545,6 +1545,49 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /module/search-by-filters:
+    get:
+      tags:
+        - Module
+      summary: Search module by filters
+      operationId: searchModuleByFilter
+      parameters:
+        - in: query
+          name: departmentId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productEnvId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: serviceNature
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModuleDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /module/bulk-add:
     post:
       tags:
@@ -1694,6 +1737,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BusinessElementDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BusinessElementDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /business-element/search-by-filters:
+    get:
+      tags:
+        - BusinessElement
+      summary: Search business_element by filters
+      operationId: searchBusinessElementByFilter
+      parameters:
+        - in: query
+          name: departmentId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productEnvId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: moduleId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: serviceNature
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

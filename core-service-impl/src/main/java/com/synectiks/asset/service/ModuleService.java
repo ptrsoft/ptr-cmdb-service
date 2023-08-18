@@ -52,5 +52,9 @@ public class ModuleService {
         return moduleRepository.findAll(Example.of(module), Sort.by(Sort.Direction.DESC, "id"));
 	}
 
-
+    @Transactional(readOnly = true)
+    public List<Module> searchByFilter(Long departmentId, Long productId, Long productEnvId, String serviceNature) {
+        logger.debug("Get all modules on the filters provided. Department Id: {}, Product Id: {}, Product Env Id: {}, Service Nature: {}", departmentId, productId, productEnvId, serviceNature);
+        return moduleRepository.searchByFilters(departmentId, productId, productEnvId, serviceNature);
+    }
 }

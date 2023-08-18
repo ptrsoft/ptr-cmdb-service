@@ -54,4 +54,9 @@ public class BusinessElementService {
         return businessElementRepository.findAll(Example.of(businessElement),	Sort.by(Direction.DESC, "id"));
 	}
 
+    @Transactional(readOnly = true)
+    public List<BusinessElement> searchByFilter(Long departmentId, Long productId, Long productEnvId, Long moduleId, String serviceNature) {
+        logger.debug("Get all business elements on the filters provided. Department Id: {}, Product Id: {}, Product Env Id: {}, Module Id: {}, Service Nature: {}", departmentId, productId, productEnvId, moduleId, serviceNature);
+        return businessElementRepository.searchByFilters(departmentId, productId, productEnvId, moduleId, serviceNature);
+    }
 }
