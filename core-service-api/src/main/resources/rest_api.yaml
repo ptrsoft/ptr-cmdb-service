@@ -4236,6 +4236,8 @@ components:
       properties:
         elementType:
           type: string
+        metadata:
+          type: object
         category:
           type: string
         dbCategoryId:

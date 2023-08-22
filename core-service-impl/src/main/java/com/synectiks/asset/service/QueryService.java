@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.model.BillingDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
@@ -338,7 +339,19 @@ public class QueryService {
 
 	public List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(Long orgId, String landingZone, String productEnclaveInstanceId) {
 		logger.debug("Getting infra-topology category-wise(app/data/data-lake/service-mesh) view for a given organization, landing-zone and product-enclave");
-		return queryRepository.getInfraTopologyCategoryWiseView(orgId,landingZone,productEnclaveInstanceId);
+		List<InfraTopologyCategoryWiseViewQueryObj> infraTopologyCategoryWiseViewQueryObjList = queryRepository.getInfraTopologyCategoryWiseView(orgId,landingZone,productEnclaveInstanceId);
+		for(InfraTopologyCategoryWiseViewQueryObj infraTopologyCategoryWiseViewQueryObj: infraTopologyCategoryWiseViewQueryObjList){
+			if("ECS".equalsIgnoreCase(infraTopologyCategoryWiseViewQueryObj.getElementType())
+					|| "EKS".equalsIgnoreCase(infraTopologyCategoryWiseViewQueryObj.getElementType())){
+				infraTopologyCategoryWiseViewQueryObj.getMetadata().put("cpuUtilization",0);
+				infraTopologyCategoryWiseViewQueryObj.getMetadata().put("memory",0);
+				infraTopologyCategoryWiseViewQueryObj.getMetadata().put("networkBytesIn",0);
+				infraTopologyCategoryWiseViewQueryObj.getMetadata().put("networkBytesOut",0);
+				infraTopologyCategoryWiseViewQueryObj.getMetadata().put("cpuReservation",0);
+				infraTopologyCategoryWiseViewQueryObj.getMetadata().put("memoryReservation",0);
+			}
+		}
+		return infraTopologyCategoryWiseViewQueryObjList;
 	}
 
 	public InfraTopologyObj getInfraTopology(Long orgId, String landingZone) {

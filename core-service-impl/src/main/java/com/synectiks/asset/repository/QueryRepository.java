@@ -707,7 +707,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = INFRA_TOPOLOGY_SOA_QUERY, nativeQuery = true)
 	List<InfraTopologySOAQueryObj> getInfraTopologySOAView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
 
-	String INFRA_TOPOLOGY_CATEGORY_WISE_VIEW_QUERY ="select ce.element_type, ce.category, ce.db_category_id , count(ce.element_type) as total_record  \n" +
+	String INFRA_TOPOLOGY_CATEGORY_WISE_VIEW_QUERY ="select ce.element_type, jsonb_build_object() as metadata, ce.category, ce.db_category_id , count(ce.element_type) as total_record  \n" +
 			"from cloud_element ce  \n" +
 			"inner join product_enclave pe on ce.product_enclave_id = pe.id \n" +
 			"inner join landingzone l on ce.landingzone_id = l.id  \n" +
