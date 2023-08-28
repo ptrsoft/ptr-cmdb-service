@@ -3,6 +3,7 @@ package com.synectiks.asset.mapper;
 import com.synectiks.asset.api.model.ProductEnclaveDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Department;
+import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.ProductEnclave;
 import com.synectiks.asset.service.CustomeHashMapConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +22,7 @@ public interface ProductEnclaveMapper {
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "landingzoneId", source = "landingzone.id")
     ProductEnclaveDTO toDto(ProductEnclave productEnclave);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -35,6 +37,7 @@ public interface ProductEnclaveMapper {
     @Mapping(target="id", ignore = true)
     @Mapping(target="metadata", ignore = true)
     @Mapping(target = "department.id", source = "departmentId")
+    @Mapping(target = "landingzone.id", source = "landingzoneId")
     ProductEnclave toEntityConvertObjectToMap(ProductEnclaveDTO productEnclaveDTO);
 
 
@@ -72,6 +75,9 @@ public interface ProductEnclaveMapper {
         if(productEnclaveDTO.getDepartmentId() != null){
             temp.setDepartment(Department.builder().id(productEnclaveDTO.getDepartmentId()).build());
         }
+        if(productEnclaveDTO.getLandingzoneId() != null){
+            temp.setLandingzone(Landingzone.builder().id(productEnclaveDTO.getLandingzoneId()).build());
+        }
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
         temp.setMetadata(converter.convertObjectToMap(productEnclaveDTO.getMetadata()));
         return temp;
@@ -95,10 +101,17 @@ public interface ProductEnclaveMapper {
         if(productEnclaveDTO.getDepartmentId() != null){
             productEnclave.setDepartment(Department.builder().id(productEnclaveDTO.getDepartmentId()).build());
         }
+        if(productEnclaveDTO.getLandingzoneId() != null){
+            productEnclave.setLandingzone(Landingzone.builder().id(productEnclaveDTO.getLandingzoneId()).build());
+        }
 
         if(productEnclave.getDepartment() != null){
             productEnclave.getDepartment().setCreatedOn(null);
             productEnclave.getDepartment().setUpdatedOn(null);
+        }
+        if(productEnclave.getLandingzone() != null){
+            productEnclave.getLandingzone().setCreatedOn(null);
+            productEnclave.getLandingzone().setUpdatedOn(null);
         }
         return productEnclave;
     }

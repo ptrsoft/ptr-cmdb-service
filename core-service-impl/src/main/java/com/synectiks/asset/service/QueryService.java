@@ -51,34 +51,80 @@ public class QueryService {
 	}
 
     public List<EnvironmentQueryDTO> getEnvironmentSummaryList(Long orgId, Long departmentId, Long productId, String env, String cloud)  {
-		StringBuilder primarySql = new StringBuilder(" select distinct sub_query.id, sub_query.cloud, sub_query.landing_zone, sub_query.product_enclave, sub_query.total_product, sub_query.total_product_prod_env from \n" +
-				" (select l.id, l.cloud, l.department_id,be.product_id, l.landing_zone, coalesce(count(distinct pe.instance_id),0) as product_enclave, \n" +
-				" coalesce(count(distinct be.product_id),0) as total_product,\n" +
-				" (select count(distinct be2.product_env_id) from business_element be2 where be2.id = be.id\n" +
-				" \t\t\tand be2.product_env_id in (select pe3.id from product_env pe3 where upper(pe3.\"name\") = upper('PROD'))) as total_product_prod_env\n" +
-				" from landingzone l\n" +
-				" inner join department d on l.department_id = d.id \n" +
-				" inner join organization o on d.organization_id = o.id \n" +
-				" left join cloud_element ce on ce.landingzone_id = l.id \n" +
-				" left join product_enclave pe on pe.landing_zone = l.landing_zone and pe.department_id = d.id\n" +
-				" left join business_element be on be.cloud_element_id = ce.id \n" +
-				" left join product p on be.product_id = p.id and p.department_id = d.id and p.organization_id = o.id \n" +
-				" left join product_env pe2 on pe2.product_id = p.id and be.product_env_id = pe2.id\n" +
-				" where o.id = ? \n" +
-				" and o.id = d.organization_id \n" +
-				" and l.department_id = d.id\n" +
-				" group by l.id,l.cloud, l.landing_zone, be.id, l.department_id,be.product_id) as sub_query\n" +
-				" where 1 = 1 ");
+		String primarySql = "select\n" +
+				"subq1.id, \n" +
+				"subq1.cloud,\n" +
+				"subq1.landing_zone,\n" +
+				"subq1.product_enclave_count as product_enclave,\n" +
+				"subq2.product_count as total_product,\n" +
+				"subq3.env_product_count as total_product_prod_env\n" +
+				"FROM\n" +
+				"(\n" +
+				"select l.id, l.cloud, l.landing_zone,COUNT(DISTINCT pe.instance_id) AS product_enclave_count\n" +
+				"from landingzone l\n" +
+				"inner join department d on l.department_id = d.id\n" +
+				"inner join organization o on d.organization_id = o.id\n" +
+				"left join cloud_element ce on ce.landingzone_id = l.id\n" +
+				"left join product_enclave pe on pe.landingzone_id = l.id and pe.department_id = d.id\n" +
+				"left join business_element be on be.cloud_element_id = ce.id\n" +
+				"left join product p on be.product_id = p.id and p.department_id = d.id and p.organization_id = o.id\n" +
+				"where o.id = ?\n" +
+				"and o.id = d.organization_id \n" +
+				" ##CONDITION## " +
+				" \n" +
+				"GROUP by\n" +
+				"l.id,\n" +
+				"l.cloud,\n" +
+				"l.landing_zone\n" +
+				") AS subq1\n" +
+				"JOIN\n" +
+				"(\n" +
+				"select l.cloud, l.landing_zone,\n" +
+				"coalesce(count(distinct be.product_id),0) as product_count\n" +
+				"from landingzone l\n" +
+				"inner join department d on l.department_id = d.id\n" +
+				"inner join organization o on d.organization_id = o.id\n" +
+				"left join cloud_element ce on ce.landingzone_id = l.id\n" +
+				"left join product_enclave pe on pe.landingzone_id = l.id and pe.department_id = d.id\n" +
+				"left join business_element be on be.cloud_element_id = ce.id\n" +
+				"left join product p on be.product_id = p.id and p.department_id = d.id and p.organization_id = o.id\n" +
+				"left join product_env pe2 on pe2.product_id = p.id and be.product_env_id = pe2.id\n" +
+				"where o.id = ?\n" +
+				"and o.id = d.organization_id\n" +
+				"and l.department_id = d.id\n" +
+				"group by l.cloud, l.landing_zone\n" +
+				") AS subq2\n" +
+				"ON subq1.cloud = subq2.cloud AND subq1.landing_zone = subq2.landing_zone\n" +
+				"JOIN\n" +
+				"(select distinct l.cloud, l.landing_zone,\n" +
+				"coalesce(count(distinct be.product_env_id),0) as env_product_count\n" +
+				"from product_env pe \n" +
+				"left join product p on p.id = pe.product_id \n" +
+				"inner join department d on p.department_id = d.id\n" +
+				"inner join organization o on d.organization_id = o.id\n" +
+				"left join landingzone l on l.department_id = d.id \n" +
+				"left join cloud_element ce on ce.landingzone_id = l.id\n" +
+				"left join product_enclave penc on penc.landingzone_id = l.id and penc.department_id = d.id\n" +
+				"left join business_element be on be.cloud_element_id = ce.id and be.product_env_id = pe.id \n" +
+				"where o.id = ?\n" +
+				"and o.id = d.organization_id\n" +
+				"and l.department_id = d.id and upper(pe.\"name\") = upper('prod')\n" +
+				"group by l.cloud, l.landing_zone\n" +
+				"\n" +
+				") AS subq3\n" +
+				"ON subq1.cloud = subq3.cloud AND subq1.landing_zone = subq3.landing_zone\n";
 
+		StringBuilder sb = new StringBuilder("");
 		if(departmentId != null){
-			primarySql.append(" and sub_query.department_id = ? ");
+			sb.append(" and d.id = ? ");
 		}
 		if(productId != null ){
-			primarySql.append(" and sub_query.product_id = ?  ");
+			sb.append(" and p.id = ?  ");
 		}
 		if(!StringUtils.isBlank(cloud)){
-			primarySql.append(" and upper(sub_query.cloud) = upper(?) ");
+			sb.append(" and upper(l.cloud) = upper(?) ");
 		}
+		primarySql = primarySql.replaceAll("##CONDITION##", sb.toString());
 		logger.debug("Environment summary query {}",primarySql);
 
 		Query query = entityManager.createNativeQuery(primarySql.toString(), EnvironmentSummaryQueryObj.class);
@@ -94,6 +140,8 @@ public class QueryService {
 		if(!StringUtils.isBlank(cloud)){
 			query.setParameter(++index, cloud);
 		}
+		query.setParameter(++index, orgId);
+		query.setParameter(++index, orgId);
 		List<EnvironmentSummaryQueryObj> list = query.getResultList();
 		return filterEnvironmentSummary(list);
     }
@@ -362,18 +410,18 @@ public class QueryService {
 	}
 
 	private InfraTopologyObj filterInfraTopologyData(List<InfraTopology3TierQueryObj> threeTierlist, List<InfraTopologySOAQueryObj> soaList, String landingZone) {
-		Set<String> productEnclave3TierSet = threeTierlist.stream().map(InfraTopology3TierQueryObj::getProductEnclaveId).collect(Collectors.toSet());
-		Set<String> productEnclaveSOASet = soaList.stream().map(InfraTopologySOAQueryObj::getProductEnclaveId).collect(Collectors.toSet());
+		Set<String> productEnclave3TierSet = threeTierlist.stream().map(InfraTopology3TierQueryObj::getInstanceId).collect(Collectors.toSet());
+		Set<String> productEnclaveSOASet = soaList.stream().map(InfraTopologySOAQueryObj::getInstanceId).collect(Collectors.toSet());
 		productEnclave3TierSet.addAll(productEnclaveSOASet);
 
 		List<InfraTopologyProductEnclaveObj> productEnclaveList = new ArrayList<>();
 
-		for (String productEnclave: productEnclave3TierSet){
+		for (String productEnclaveInstanceId: productEnclave3TierSet){
 			InfraTopologyProductEnclaveObj productEnclaveObj = InfraTopologyProductEnclaveObj.builder()
-					.id(productEnclave)
+					.instanceId(productEnclaveInstanceId)
 					.build();
 
-			List<InfraTopology3TierQueryObj> filtered3TierList = threeTierlist.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclaveId()) && l.getProductEnclaveId().equalsIgnoreCase(productEnclave)).collect(Collectors.toList());
+			List<InfraTopology3TierQueryObj> filtered3TierList = threeTierlist.stream().filter(l -> !StringUtils.isBlank(l.getInstanceId()) && l.getInstanceId().equalsIgnoreCase(productEnclaveInstanceId)).collect(Collectors.toList());
 			for(InfraTopology3TierQueryObj threeTierObj :filtered3TierList ){
 				ThreeTierQueryObj threeTierQueryObj = ThreeTierQueryObj.builder()
 						.productCount(threeTierObj.getProductCount())
@@ -383,10 +431,11 @@ public class QueryService {
 						.auxiliaryCount(threeTierObj.getAuxiliaryCount())
 						.build();
 				productEnclaveObj.setThreeTier(threeTierQueryObj);
-				productEnclaveObj.setName(threeTierObj.getProductEnclaveName());
+				productEnclaveObj.setInstanceName(threeTierObj.getProductEnclaveName());
+				productEnclaveObj.setId(threeTierObj.getProductEnclaveId());
 			}
 
-			List<InfraTopologySOAQueryObj> filteredSOAList = soaList.stream().filter(l -> !StringUtils.isBlank(l.getProductEnclaveId()) && l.getProductEnclaveId().equalsIgnoreCase(productEnclave)).collect(Collectors.toList());
+			List<InfraTopologySOAQueryObj> filteredSOAList = soaList.stream().filter(l -> !StringUtils.isBlank(l.getInstanceId()) && l.getInstanceId().equalsIgnoreCase(productEnclaveInstanceId)).collect(Collectors.toList());
 			for(InfraTopologySOAQueryObj soaObj :filteredSOAList ){
 				SOAQueryObj soaQueryObj = SOAQueryObj.builder()
 						.productCount(soaObj.getProductCount())
@@ -395,7 +444,8 @@ public class QueryService {
 						.otherCount(soaObj.getOtherCount())
 						.build();
 				productEnclaveObj.setSoa(soaQueryObj);
-				productEnclaveObj.setName(soaObj.getProductEnclaveName());
+				productEnclaveObj.setInstanceName(soaObj.getProductEnclaveName());
+				productEnclaveObj.setId(soaObj.getProductEnclaveId());
 			}
 			productEnclaveList.add(productEnclaveObj);
 		}

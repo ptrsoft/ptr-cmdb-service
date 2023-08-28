@@ -3922,8 +3922,6 @@ components:
           type: string
         instanceId:
           type: string
-        landingZone:
-          type: string
         state:
           type: string
         metadata:
@@ -3939,6 +3937,9 @@ components:
         updatedOn:
           type: string
         departmentId:
+          type: integer
+          format: int64
+        landingzoneId:
           type: integer
           format: int64
     BudgetDTO:
@@ -4267,9 +4268,12 @@ components:
     InfraTopologyProductEnclaveDTO:
       type: object
       properties:
-        name:
-          type: string
         id:
+          type: integer
+          format: int64
+        instanceName:
+          type: string
+        instanceId:
           type: string
         threeTier:
           $ref: '#/components/schemas/ThreeTierDTO'

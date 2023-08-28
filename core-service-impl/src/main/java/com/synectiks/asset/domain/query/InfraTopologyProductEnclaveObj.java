@@ -12,8 +12,9 @@ import java.util.List;
 @Builder
 public class InfraTopologyProductEnclaveObj implements Serializable{
 
-    public String name;
-    public String id;
+    public Long id;
+    public String instanceName;
+    public String instanceId;
     public ThreeTierQueryObj threeTier;
     public SOAQueryObj soa;
 

@@ -35,9 +35,6 @@ public class ProductEnclave extends AbstractAuditingEntity implements Serializab
 	@Column(name = "instance_id")
 	private String instanceId;
 
-	@Column(name = "landing_zone")
-	private String landingZone;
-
 	@Column(name = "state")
 	private String state;
 
@@ -50,4 +47,7 @@ public class ProductEnclave extends AbstractAuditingEntity implements Serializab
 
 	@ManyToOne
 	private Department department;
+
+	@ManyToOne
+	private Landingzone landingzone;
 }

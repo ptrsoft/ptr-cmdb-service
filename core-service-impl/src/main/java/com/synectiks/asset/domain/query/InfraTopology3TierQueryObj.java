@@ -13,7 +13,10 @@ public interface InfraTopology3TierQueryObj extends Serializable{
     String getType();
 
     @Value("#{target.product_enclave_id}")
-	String getProductEnclaveId();
+	Long getProductEnclaveId();
+
+    @Value("#{target.instance_id}")
+    String getInstanceId();
 
     @Value("#{target.product_enclave_name}")
     String getProductEnclaveName();
