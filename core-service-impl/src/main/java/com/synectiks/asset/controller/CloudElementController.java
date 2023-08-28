@@ -12,7 +12,10 @@ import com.synectiks.asset.domain.CloudElementSummary;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.mapper.CloudElementMapper;
 import com.synectiks.asset.repository.CloudElementRepository;
-import com.synectiks.asset.service.*;
+import com.synectiks.asset.service.CloudElementService;
+import com.synectiks.asset.service.CloudElementSummaryService;
+import com.synectiks.asset.service.LandingzoneService;
+import com.synectiks.asset.service.VaultService;
 import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -22,10 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -58,8 +63,8 @@ public class CloudElementController implements CloudElementApi {
     @Autowired
     private LandingzoneService landingzoneService;
 
-    @Autowired
-    private ConfigService configService;
+//    @Autowired
+//    private ConfigService configService;
 
     @Autowired
     RestTemplate restTemplate;
