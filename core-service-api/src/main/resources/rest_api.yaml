@@ -4212,6 +4212,9 @@ components:
           type: string
         landingZone:
           type: string
+        landingZoneId:
+          type: integer
+          format: int64
         productEnclave:
           type: integer
           format: int64
