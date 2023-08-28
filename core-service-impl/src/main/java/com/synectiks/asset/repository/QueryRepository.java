@@ -746,7 +746,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"INNER JOIN department d ON l.department_id = d.id\n" +
 			"INNER JOIN organization o ON d.organization_id = o.id\n" +
 			"LEFT JOIN cloud_element ce ON ce.landingzone_id = l.id\n" +
-			"LEFT JOIN product_enclave pe ON pe.landing_zone = l.landing_zone AND pe.department_id = d.id\n" +
+			"LEFT JOIN product_enclave pe ON pe.landingzone_id  = l.id AND pe.department_id = d.id\n" +
 			"LEFT JOIN business_element be ON be.cloud_element_id = ce.id\n" +
 			"LEFT JOIN product p ON be.product_id = p.id \n" +
 			"where\n" +
@@ -768,7 +768,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"INNER JOIN department d ON l.department_id = d.id\n" +
 			"INNER JOIN organization o ON d.organization_id = o.id\n" +
 			"LEFT JOIN cloud_element ce ON ce.landingzone_id = l.id\n" +
-			"LEFT JOIN product_enclave pe ON pe.landing_zone = l.landing_zone AND pe.department_id = l.department_id \n" +
+			"LEFT JOIN product_enclave pe ON pe.landingzone_id  = l.id AND pe.department_id = l.department_id \n" +
 			"LEFT JOIN business_element be ON be.cloud_element_id = ce.id\n" +
 			"LEFT JOIN product p ON be.product_id = p.id \n" +
 			"where\n" +
