@@ -139,6 +139,21 @@ proxy-grafana:
   grafana-user: admin
   grafana-password: password
 
+hashicorp-vault:
+  secret-version: v1
+  secret-engine: kv-v1
+  url: http://34.199.12.114:8200/_secret-version_/_secret-engine_
+  root-token: s.X22v2Ma60lzujd1OlKVhMy0Q
+  landing-zone-path: /_organization_/_department_/_cloud_/_landing-zone_
+  provider-aws-creds-key: /PROVIDER/AWS/CREDS
+  provider-azure-creds-key: /PROVIDER/AZURE/CREDS
+  provider-gcp-creds-key: /PROVIDER/GCP/CREDS
+
+awsx-api:
+  base-url: http://localhost:7000/awsx
+  appconfig-api: /appconfig
+  lambda-api: /lambda
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

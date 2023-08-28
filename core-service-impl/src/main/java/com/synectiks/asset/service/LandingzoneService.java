@@ -1,5 +1,6 @@
 package com.synectiks.asset.service;
 
+import com.synectiks.asset.domain.CloudElementSummary;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.repository.LandingzoneRepository;
 import org.slf4j.Logger;
@@ -52,5 +53,9 @@ public class LandingzoneService {
         return landingzoneRepository.findAll(Example.of(landingzone), Sort.by(Sort.Direction.DESC, "id"));
 	}
 
-
+    @Transactional(readOnly = true)
+    public List<Landingzone> getLandingZone(String organization, String department, String cloud, String landingZone) {
+        logger.debug("Get all landingzones on given criteria");
+        return landingzoneRepository.getLandingZone(organization, department, cloud, landingZone);
+    }
 }

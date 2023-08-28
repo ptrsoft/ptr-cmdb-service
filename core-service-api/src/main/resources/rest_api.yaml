@@ -847,6 +847,21 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /landingzone/addall-to-vault:
+    post:
+      tags:
+        - Landingzone
+      summary: Add all landingzones to vault
+      operationId: addAllLandingzonesToVault
+      responses:
+        200:
+          description: OK
+        201:
+          description: Created
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /product-enclave:
     get:
       tags:

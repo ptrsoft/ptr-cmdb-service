@@ -8,9 +8,11 @@ import com.synectiks.asset.api.controller.CloudElementApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.CloudElementSummary;
+import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.mapper.CloudElementMapper;
 import com.synectiks.asset.repository.CloudElementRepository;
-import com.synectiks.asset.service.CloudElementService;
+import com.synectiks.asset.service.*;
 import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -20,12 +22,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 @RestController
@@ -43,6 +44,9 @@ public class CloudElementController implements CloudElementApi {
     private CloudElementService cloudElementService;
 
     @Autowired
+    private CloudElementSummaryService cloudElementSummaryService;
+
+    @Autowired
     private CloudElementRepository cloudElementRepository;
 
     @Autowired
@@ -50,6 +54,18 @@ public class CloudElementController implements CloudElementApi {
 
     @Autowired
     private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
+
+    @Autowired
+    private LandingzoneService landingzoneService;
+
+    @Autowired
+    private ConfigService configService;
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Autowired
+    private VaultService vaultService;
 
     @Override
     public ResponseEntity<CloudElementDTO> getCloudElement(Long id) {
@@ -93,7 +109,7 @@ public class CloudElementController implements CloudElementApi {
     public ResponseEntity<List<CloudElementDTO>> searchCloudElement(CloudElementDTO cloudElementDTO) {
         CloudElement cloudElement = CloudElementMapper.INSTANCE.dtoToEntityForSearch(cloudElementDTO);
         logger.debug("REST request to get all CloudElements on given filters : {} ", cloudElement);
-        List<CloudElement> cloudElementList = cloudElementService.search(cloudElement);
+        List<CloudElement> cloudElementList = cloudElementService.search(cloudElementDTO);
         List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
         return ResponseEntity.ok(cloudElementDTOList);
     }
@@ -132,4 +148,96 @@ public class CloudElementController implements CloudElementApi {
         CloudElementDTO result = CloudElementMapper.INSTANCE.entityToDto(cloudElement);
         return ResponseEntity.ok(result);
     }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/cloud-element/get-elements/aws/{organization}/{department}/{landingZone}/{awsRegion}")
+    public void addAwsCloudElements(
+            @PathVariable(name = "organization") String organization ,
+            @PathVariable(name = "department") String department ,
+            @PathVariable(name = "landingZone") String landingZone,
+            @PathVariable(name = "awsRegion") String awsRegion )  {
+
+            String vaultAccountKey =  vaultService.resolveLandingZonePath(organization, department, Constants.AWS, landingZone);
+
+            String appConfigUrl = Constants.AWSX_API_APPCONFIG_URL+"?zone="+awsRegion+"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
+            Map configSummary = this.restTemplate.getForObject(appConfigUrl, Map.class);
+            saveAwsAppConfigSummary(organization, department, landingZone, configSummary);
+
+            List resourceList = configSummary.get("ResourceCounts") != null ? (ArrayList)configSummary.get("ResourceCounts") : Collections.emptyList();
+            for(Object obj: resourceList){
+            Map awsResource = (Map)obj;
+            String value = (String)awsResource.get("ResourceType");
+            if(Constants.AWS_LAMBDA_FUNCTION_KEY.equalsIgnoreCase(value)){
+                String lambdaUrl = Constants.AWSX_API_LAMBDA_URL+"?zone="+awsRegion+"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
+                Object awsLambda = this.restTemplate.getForObject(lambdaUrl, Object.class);
+                System.out.println("Lambda Map "+awsLambda.getClass().getName());
+                if(awsLambda != null && awsLambda.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+                    List lambdaList = (ArrayList)awsLambda;
+                    for(Object lambdaObj: lambdaList){
+                        Map lambdaMap = (Map)lambdaObj;
+                        saveAwsLambda(organization, department, landingZone, lambdaMap);
+                    }
+
+                }else if(awsLambda != null && awsLambda.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
+                    Map lambdaMap = (LinkedHashMap)awsLambda;
+                    saveAwsLambda(organization, department, landingZone, lambdaMap);
+                }
+            }
+        }
+    }
+
+    private void saveAwsAppConfigSummary(String organization, String department, String landingZone, Map configSummary) {
+        List<CloudElementSummary> cloudElementSummaryList =  cloudElementSummaryService.getCloudElementSummary(organization, department, Constants.AWS, landingZone);
+        if(cloudElementSummaryList != null && cloudElementSummaryList.size() > 0){
+            logger.info("Updating cloud-element-summary for existing landing-zone: {}", landingZone);
+            for(CloudElementSummary cloudElementSummary: cloudElementSummaryList){
+                cloudElementSummary.setSummaryJson(configSummary);
+                cloudElementSummaryService.save(cloudElementSummary);
+            }
+        }else{
+            List<Landingzone> landingzoneList =  landingzoneService.getLandingZone(organization, department, Constants.AWS, landingZone);
+            for(Landingzone landingzone: landingzoneList){
+                logger.info("Adding cloud-element-summary for landing-zone: {}", landingZone);
+                CloudElementSummary cloudElementSummary = CloudElementSummary.builder()
+                        .summaryJson(configSummary)
+                        .landingzone(landingzone)
+                        .build();
+                cloudElementSummaryService.save(cloudElementSummary);
+            }
+        }
+    }
+
+    private void saveAwsLambda(String organization, String department, String landingZone, Map lambdaMap) {
+        List<CloudElement> cloudElementList =  cloudElementService.getCloudElement(organization, department, Constants.AWS, landingZone, (String)lambdaMap.get("FunctionArn"));
+        if(cloudElementList != null && cloudElementList.size() > 0){
+            logger.info("Updating cloud-element for existing landing-zone: {}", landingZone);
+            for(CloudElement cloudElement: cloudElementList){
+                if(((String)lambdaMap.get("FunctionArn")).equalsIgnoreCase(cloudElement.getArn())){
+                    cloudElement.setConfigJson(lambdaMap);
+                    cloudElement.setInstanceId((String)lambdaMap.get("FunctionName"));
+                    cloudElement.setInstanceName((String)lambdaMap.get("FunctionName"));
+                    cloudElementService.save(cloudElement);
+                }
+            }
+        }else{
+            addLambdaInDb(organization, department, landingZone, lambdaMap);
+        }
+    }
+
+    private void addLambdaInDb(String organization, String department, String landingZone, Map lambdaMap) {
+        List<Landingzone> landingzoneList =  landingzoneService.getLandingZone(organization, department, Constants.AWS, landingZone);
+        for(Landingzone landingzone: landingzoneList){
+            logger.info("Adding cloud-element for landing-zone: {}", landingZone);
+            CloudElement cloudElementObj = CloudElement.builder()
+                    .elementType(Constants.LAMBDA)
+                    .arn((String) lambdaMap.get("FunctionArn"))
+                    .instanceId((String) lambdaMap.get("FunctionName"))
+                    .instanceName((String) lambdaMap.get("FunctionName"))
+                    .category(Constants.APP_SERVICES)
+                    .landingzone(landingzone)
+                    .configJson(lambdaMap)
+                    .build();
+            cloudElementService.save(cloudElementObj);
+        }
+    }
+
 }

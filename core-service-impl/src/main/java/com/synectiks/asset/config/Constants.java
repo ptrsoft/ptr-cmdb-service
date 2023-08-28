@@ -110,7 +110,7 @@ public final class Constants {
     public static final String AWS = "AWS";
     public static final String AZURE = "AZURE";
     public static final String GCP = "GCP";
-    public static String VAULT_URL = "";
+
     public static final DecimalFormat decfor = new DecimalFormat("0.00");
     public static final String DEFAULT_TIMEZONE = "Asia/Kolkata";
     public static final String ORGANIZATION_ID = "organizationId";
@@ -136,7 +136,37 @@ public final class Constants {
     public static final String CLOUD_ENVIRONMENT_ID = "cloudEnvironmentId";
     
     public static final String MODULE_ID = "moduleId";
-    
+
+//    public static final String AWS_PROVIDER_SECRET_KEY = "aws-provider-secret-key";
+//    public static final String AWS_PROVIDER_ACCESS_KEY = "aws-provider-access-key";
+//    public static final String AWS_PROVIDER_ZONE = "aws-provider-zone";
+
+    public static final String VAULT_HEADER = "X-Vault-Token";
+    public static String VAULT_SECRET_VERSION = "";
+    public static String VAULT_SECRET_ENGINE = "";
+    public static String VAULT_URL = "";
+    public static String VAULT_ROOT_TOKEN = "";
+    public static String VAULT_LANDING_ZONE_PATH = "";
+    public static String VAULT_PROVIDER_AWS_CREDS_KEY = "";
+
+    public static final String ACCESS_KEY = "accessKey";
+    public static final String SECRET_KEY = "secretKey";
+
+    public static final String CLOUD = "cloud";
+
+    public static final String ZONE = "zone";
+    public static final String REGION = "region";
+    public static final String EXTERNAL_ID = "externalId";
+    public static final String CROSS_ACCOUNT_ROLE_ARN = "crossAccountRoleArn";
+    public static final String DISPLAY_NAME = "displayName";
+
+    public static String AWSX_API_BASE_URL = "";
+    public static String AWSX_API_APPCONFIG_URL = "";
+
+    public static String AWSX_API_LAMBDA_URL = "";
+    public static final String AWS_LAMBDA_FUNCTION_KEY = "AWS::Lambda::Function";
+
+    public static final String LAMBDA = "LAMBDA";
     private Constants() {
     }
 }

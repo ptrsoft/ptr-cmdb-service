@@ -1,6 +1,5 @@
 package com.synectiks.asset.service;
 
-
 import com.synectiks.asset.domain.CloudElementSummary;
 import com.synectiks.asset.repository.CloudElementSummaryRepository;
 import org.slf4j.Logger;
@@ -10,6 +9,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +55,12 @@ public class CloudElementSummaryService {
 		logger.info("Search cloud element summary");
 		return cloudElementSummaryRepository.findAll(Example.of(cloudElementSummary), Sort.by(Direction.DESC, "id"));
 	}
-	
 
+
+	@Transactional(readOnly = true)
+	public List<CloudElementSummary> getCloudElementSummary(String organization, String department, String cloud, String landingZone) {
+		logger.debug("Get all cloud-element-summaries on given criteria");
+		return cloudElementSummaryRepository.getCloudElementSummary(organization, department, cloud, landingZone);
+	}
 	
 }

@@ -31,6 +31,9 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Utils {
 
@@ -203,7 +206,13 @@ public class Utils {
 //		String arn[] = roleArn.split(":");
 //		System.out.println(arn[4]);
 //		stringReplace();
-		removeLeadingAndTrailingDoubleQuotes("\"d\"");
+//		removeLeadingAndTrailingDoubleQuotes("\"d\"");
+		Object obj = new ArrayList<>();
+		Object obj2 = new HashMap<>();
+		Object obj3 = new LinkedHashMap<>();
+		System.out.println("class: "+obj.getClass()+", class name: "+obj.getClass().getName());
+		System.out.println("class: "+obj2.getClass()+", class name: "+obj2.getClass().getName());
+		System.out.println("class: "+obj3.getClass()+", class name: "+obj3.getClass().getName());
 	}
 
 }

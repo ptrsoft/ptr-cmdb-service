@@ -5,6 +5,7 @@ import com.synectiks.asset.config.Constants;
 import io.github.jhipster.config.DefaultProfileUtil;
 import io.github.jhipster.config.JHipsterConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.apache.bcel.classfile.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -123,5 +124,20 @@ public class AssetserviceApp {
         Constants.PROXY_GRAFANA_BASE_API = env.getProperty("proxy-grafana.protocol")+"://"+env.getProperty("proxy-grafana.address")+":"+env.getProperty("proxy-grafana.port")+"/api";
         Constants.PROXY_GRAFANA_USER = env.getProperty("proxy-grafana.grafana-user");
         Constants.PROXY_GRAFANA_PASSWORD = env.getProperty("proxy-grafana.grafana-password");
+
+        Constants.VAULT_SECRET_VERSION = env.getProperty("hashicorp-vault.secret-version");
+        Constants.VAULT_SECRET_ENGINE = env.getProperty("hashicorp-vault.secret-engine");
+        Constants.VAULT_URL = env.getProperty("hashicorp-vault.url").replaceAll("_secret-version_",Constants.VAULT_SECRET_VERSION).replaceAll("_secret-engine_",Constants.VAULT_SECRET_ENGINE);
+        Constants.VAULT_ROOT_TOKEN = env.getProperty("hashicorp-vault.root-token");
+        Constants.VAULT_LANDING_ZONE_PATH = env.getProperty("hashicorp-vault.landing-zone-path");
+        Constants.VAULT_PROVIDER_AWS_CREDS_KEY = env.getProperty("hashicorp-vault.provider-aws-creds-key");
+
+        log.info("VAULT_URL: {}",Constants.VAULT_URL);
+
+        Constants.AWSX_API_BASE_URL = env.getProperty("awsx-api.base-url");
+        Constants.AWSX_API_APPCONFIG_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.appconfig-api");
+        Constants.AWSX_API_LAMBDA_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.lambda-api");
+
+        log.info("AWSX_API_APPCONFIG_URL: {}",Constants.AWSX_API_APPCONFIG_URL);
     }
 }
