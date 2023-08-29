@@ -3289,6 +3289,36 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organization/{orgId}/infra-topology/landing-zone-id/{landingZoneId}:
+    get:
+      tags:
+        - InfraTopologyQuery
+      summary: Infra-topology view by landing-zone-id
+      operationId: getInfraTopologyByLandingZoneId
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfraTopologyDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/organization/{orgId}/infra-topology/landing-zone/{landingZone}:
     get:
       tags:
@@ -4288,10 +4318,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/InfraTopologyProductEnclaveDTO'
-        # globalServiceList:
-        #   type: array
-        #   items:
-        #     type : string
+        globalServiceList:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfraTopologyProductEnclaveDTO'
     CloudElementSpendAnalyticsDTO:
       type: object
       properties:

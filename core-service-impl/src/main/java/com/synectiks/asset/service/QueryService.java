@@ -2,6 +2,7 @@ package com.synectiks.asset.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import com.synectiks.asset.api.model.BillingDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
 import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.query.*;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +35,9 @@ public class QueryService {
 
 	@Autowired
 	private EntityManager entityManager;
+
+	@Autowired
+	private LandingzoneService landingzoneService;
 
 
 	public List<EnvironmentCountQueryObj> getEnvStats(Long orgId){
@@ -408,6 +413,19 @@ public class QueryService {
 		List<InfraTopologySOAQueryObj> soaList = queryRepository.getInfraTopologySOAView(orgId,landingZone);
 		return filterInfraTopologyData(threeTierlist, soaList, landingZone);
 	}
+	public InfraTopologyObj getInfraTopologyByLandingZoneId(Long orgId, Long landingZoneId) {
+		logger.debug("Getting infra-topology-view for a given organization and landing-zone, Landing zone id: {}",landingZoneId);
+		List<InfraTopology3TierQueryObj> threeTierlist = queryRepository.getInfraTopology3TierViewByLandingZoneId(orgId,landingZoneId);
+		List<InfraTopologySOAQueryObj> soaList = queryRepository.getInfraTopologySOAViewByLandingZoneId(orgId,landingZoneId);
+		Optional<Landingzone> o = landingzoneService.findOne(landingZoneId);
+
+		List<InfraTopology3TierQueryObj> globalThreeTierlist = queryRepository.getInfraTopologyGlobal3TierViewByLandingZoneId(orgId,landingZoneId);
+		List<InfraTopologySOAQueryObj> globalSoaList = queryRepository.getInfraTopologyGlobalSOAViewByLandingZoneId(orgId,landingZoneId);
+
+		InfraTopologyObj infraTopologyObj = filterInfraTopologyData(threeTierlist, soaList, o.isPresent() ? o.get().getLandingZone() : null);
+		infraTopologyObj.setGlobalServiceList(filterInfraTopologyGlobalServiceData(globalThreeTierlist, globalSoaList));
+		return infraTopologyObj;
+	}
 
 	private InfraTopologyObj filterInfraTopologyData(List<InfraTopology3TierQueryObj> threeTierlist, List<InfraTopologySOAQueryObj> soaList, String landingZone) {
 		Set<String> productEnclave3TierSet = threeTierlist.stream().map(InfraTopology3TierQueryObj::getInstanceId).collect(Collectors.toSet());
@@ -444,8 +462,8 @@ public class QueryService {
 						.otherCount(soaObj.getOtherCount())
 						.build();
 				productEnclaveObj.setSoa(soaQueryObj);
-				productEnclaveObj.setInstanceName(soaObj.getProductEnclaveName());
-				productEnclaveObj.setId(soaObj.getProductEnclaveId());
+//				productEnclaveObj.setInstanceName(soaObj.getProductEnclaveName());
+//				productEnclaveObj.setId(soaObj.getProductEnclaveId());
 			}
 			productEnclaveList.add(productEnclaveObj);
 		}
@@ -457,6 +475,35 @@ public class QueryService {
 		return infraTopologyObj;
 	}
 
+	private List<InfraTopologyProductEnclaveObj> filterInfraTopologyGlobalServiceData(List<InfraTopology3TierQueryObj> threeTierlist, List<InfraTopologySOAQueryObj> soaList) {
+		List<InfraTopologyProductEnclaveObj> globalServiceList = new ArrayList<>();
+
+		InfraTopologyProductEnclaveObj globalServiceObject = InfraTopologyProductEnclaveObj.builder().build();
+		for(InfraTopology3TierQueryObj threeTierObj :threeTierlist ){
+			ThreeTierQueryObj threeTierQueryObj = ThreeTierQueryObj.builder()
+					.productCount(threeTierObj.getProductCount())
+					.webCount(threeTierObj.getWebCount())
+					.appCount(threeTierObj.getAppCount())
+					.dataCount(threeTierObj.getDataCount())
+					.auxiliaryCount(threeTierObj.getAuxiliaryCount())
+					.build();
+			globalServiceObject.setThreeTier(threeTierQueryObj);
+		}
+		for(InfraTopologySOAQueryObj soaObj :soaList ){
+			SOAQueryObj soaQueryObj = SOAQueryObj.builder()
+					.productCount(soaObj.getProductCount())
+					.appCount(soaObj.getAppCount())
+					.dataCount(soaObj.getDataCount())
+					.otherCount(soaObj.getOtherCount())
+					.build();
+			globalServiceObject.setSoa(soaQueryObj);
+		}
+		if(threeTierlist != null && threeTierlist.size() > 0 && soaList != null && soaList.size() > 0){
+			globalServiceList.add(globalServiceObject);
+		}
+
+		return globalServiceList;
+	}
 
 	public CloudElementSpendAnalyticsQueryObj getSpendTodayAnalytics(Long orgId) {
 		logger.debug("Get today's cost spent");

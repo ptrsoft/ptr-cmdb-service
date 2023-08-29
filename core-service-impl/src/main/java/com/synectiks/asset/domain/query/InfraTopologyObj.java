@@ -13,5 +13,5 @@ import java.util.List;
 public class InfraTopologyObj implements Serializable{
     public String landingZone;
     public List<InfraTopologyProductEnclaveObj> productEnclaveList;
-//    public List<String> globalServiceList;
+    public List<InfraTopologyProductEnclaveObj> globalServiceList;
 }
