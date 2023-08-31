@@ -2,6 +2,7 @@ package com.synectiks.asset.service;
 
 import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.repository.BusinessElementRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +56,12 @@ public class BusinessElementService {
 	}
 
     @Transactional(readOnly = true)
-    public List<BusinessElement> searchByFilter(Long departmentId, Long productId, Long productEnvId, Long moduleId, String serviceNature) {
-        logger.debug("Get all business elements on the filters provided. Department Id: {}, Product Id: {}, Product Env Id: {}, Module Id: {}, Service Nature: {}", departmentId, productId, productEnvId, moduleId, serviceNature);
-        return businessElementRepository.searchByFilters(departmentId, productId, productEnvId, moduleId, serviceNature);
+    public List<BusinessElement> searchByFilter(Long departmentId, Long productId, Long productEnvId, Long moduleId, String serviceNature, String serviceType) {
+        if(moduleId != null && !StringUtils.isBlank(serviceNature)){
+            logger.debug("Get all business elements on the filters provided. Department Id: {}, Product Id: {}, Product Env Id: {}, Module Id: {}, Service Nature: {}", departmentId, productId, productEnvId, moduleId, serviceNature);
+            return businessElementRepository.searchByFiltersForSoaAssociation(departmentId, productId, productEnvId, moduleId, serviceNature);
+        }
+        logger.debug("Get all business elements on the filters provided. Department Id: {}, Product Id: {}, Product Env Id: {}, Service Type: {}", departmentId, productId, productEnvId, serviceType);
+        return businessElementRepository.searchByFiltersFor3TierAssociation(departmentId, productId, productEnvId, serviceType);
     }
 }

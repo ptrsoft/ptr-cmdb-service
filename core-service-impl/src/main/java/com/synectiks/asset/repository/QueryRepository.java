@@ -654,190 +654,127 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = CLOUD_WISE_MONTHLY_SPEND_QUERY, nativeQuery = true)
 	List<CloudElementCloudWiseMonthlyQueryObj> cloudWiseMonthlySpend(@Param("orgId")Long orgId);
 	
-	String INFRA_TOPOLOGY_3TIER_QUERY ="SELECT l.cloud, \n" +
-			"\t    p.type, \n" +
-			"\t    pe.id as product_enclave_id,\n" +
-			"\t    pe.instance_id AS instance_id, \n" +
-			"\t   pe.instance_name as product_enclave_name, \n" +
-			"\t    COALESCE(COUNT(DISTINCT be.product_id), 0) AS product_count, \n" +
-			"\t    SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END) AS Web_Count, \n" +
-			"\t    SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS App_Count, \n" +
-			"\t    SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS Data_Count, \n" +
-			"\t    SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END) as Auxiliary_Count  \n" +
-			"\tFROM landingzone l \n" +
-			"\tINNER JOIN department d ON l.department_id = d.id \n" +
-			"\tINNER JOIN organization o ON d.organization_id = o.id \n" +
-			"\tLEFT JOIN cloud_element ce ON ce.landingzone_id = l.id \n" +
-			"\tLEFT JOIN product_enclave pe ON pe.landingzone_id = l.id AND pe.department_id = d.id \n" +
-			"\tLEFT JOIN business_element be ON be.cloud_element_id = ce.id \n" +
-			"\tLEFT JOIN product p ON be.product_id = p.id  \n" +
-			"\twhere \n" +
-			"\to.id = d.organization_id \n" +
-			"\t    AND l.department_id = d.id \n" +
-			"\t    AND upper(p.type) = upper('3 Tier') \n" +
-			"\t    and o.id = :orgId\n" +
-			"\t    AND l.landing_zone = :landingZone \n" +
-			"\tGROUP BY l.cloud, p.type, pe.id, pe.instance_id, pe.instance_name ";
-	@Query(value = INFRA_TOPOLOGY_3TIER_QUERY, nativeQuery = true)
-	List<InfraTopology3TierQueryObj> getInfraTopology3TierView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
-
-	String INFRA_TOPOLOGY_3TIER_BY_LANDINGZONE_ID_QUERY ="with vpc as(\n" +
-			"    select  l.cloud,pe.id, \n" +
-			"            pe.instance_id , \n" +
-			"            pe.instance_name \n" +
-			"    from product_enclave pe, landingzone l, department d, organization o  \n" +
-			"    where pe.landingzone_id = l.id and l.department_id = d.id " +
-			"	 and d.organization_id = o.id and o.id = :orgId " +
-			"	 and l.id = :landingZoneId), \n" +
-			" vpc_data as (\n" +
-			"     select  p.type, pe.id,\n" +
-			"     pe.instance_id , \n" +
-			"     pe.instance_name ,\n" +
-			"     count(distinct be.product_id) as product_count,\n" +
-			"     SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END) AS web_count, \n" +
-			"        SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count, \n" +
-			"        SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count, \n" +
-			"        SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END) as auxiliary_count\n" +
-			"     from cloud_element ce, business_element be, product p, product_enclave pe, landingzone l  \n" +
-			"     where ce.id = be.cloud_element_id \n" +
-			"     and p.id = be.product_id and pe.id = ce.product_enclave_id \n" +
-			"     and ce.landingzone_id = l.id and l.id = :landingZoneId \n" +
-			"     and upper(p.type) = upper('3 Tier')   \n" +
-			"     group by p.type,pe.instance_id, pe.instance_name, pe.id\n" +
-			"    )\n" +
-			"    select  vpc.cloud, '3 Tier' as type, vpc.id as product_enclave_id, vpc.instance_id as instance_id, vpc.instance_name as product_enclave_name,\n" +
-			"            coalesce(vpc_data.product_count,0) as product_count, coalesce(vpc_data.web_count,0) as web_count, \n" +
-			"            coalesce(vpc_data.app_count,0) as app_count, coalesce(vpc_data.data_count,0) as data_count, \n" +
-			"            coalesce(vpc_data.auxiliary_count,0) as auxiliary_count \n" +
-			"    from vpc\n" +
-			"    left join vpc_data on vpc.id = vpc_data.id  \n" +
-			"                and vpc.instance_id = vpc_data.instance_id \n" +
-			"                and vpc.instance_name = vpc_data.instance_name";
-	@Query(value = INFRA_TOPOLOGY_3TIER_BY_LANDINGZONE_ID_QUERY, nativeQuery = true)
-	List<InfraTopology3TierQueryObj> getInfraTopology3TierViewByLandingZoneId(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
-
-
-	String INFRA_TOPOLOGY_GLOBAL_3TIER_BY_LANDINGZONE_ID_QUERY =" with vpc as( \n" +
-			"    select l.cloud, l.id  \n" +
-			"    from landingzone l, department d, organization o   \n" +
-			"    where  l.department_id = d.id  \n" +
-			"            and d.organization_id = o.id  \n" +
-			"            and o.id = :orgId and l.id = :landingZoneId), \n" +
-			" vpc_data as ( \n" +
-			"   select l.id, '3 Tier' as type, count(distinct be.product_id) as product_count,  \n" +
-			"     SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END) AS web_count,  \n" +
-			"     SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
-			"     SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count,  \n" +
-			"     SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END) as auxiliary_count \n" +
-			"   from cloud_element ce, business_element be, landingzone l, product p   \n" +
-			"   where ce.product_enclave_id is null  \n" +
-			"    and ce.id = be.cloud_element_id \n" +
-			"    and ce.landingzone_id = l.id  \n" +
-			"    and p.id = be.product_id \n" +
-			"    and upper(p.type) = upper('3 Tier') \n" +
-			"    and l.id = :landingZoneId \n" +
-			"    group by l.id, p.type) \n" +
-			" select vpc.cloud, '3 Tier' as type, null product_enclave_id, null as instance_id, null as product_enclave_name, \n" +
-			"        coalesce(vpc_data.product_count,0) as product_count, \n" +
-			"        coalesce(vpc_data.web_count,0) as web_count, \n" +
-			"        coalesce(vpc_data.app_count,0) as app_count, \n" +
-			"        coalesce(vpc_data.data_count,0) as data_count, \n" +
-			"        coalesce(vpc_data.auxiliary_count,0) as auxiliary_count \n" +
-			" from vpc \n" +
-			" left join vpc_data on vpc.id = vpc_data.id ";
-	@Query(value = INFRA_TOPOLOGY_GLOBAL_3TIER_BY_LANDINGZONE_ID_QUERY, nativeQuery = true)
-	List<InfraTopology3TierQueryObj> getInfraTopologyGlobal3TierViewByLandingZoneId(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
-
-	String INFRA_TOPOLOGY_SOA_QUERY ="\tSELECT \n" +
-			"\t    l.cloud, \n" +
-			"\t    p.type,\n" +
-			"\t    pe.id as product_enclave_id,\n" +
-			"\t    pe.instance_id AS instance_id, \n" +
-			"\t    pe.instance_name as product_enclave_name, \n" +
-			"\t    COALESCE(COUNT(DISTINCT be.product_id), 0) AS product_count, \n" +
-			"\t    SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count, \n" +
-			"\t    SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count, \n" +
-			"\t    SUM(CASE WHEN upper(be.service_type) NOT IN (upper('App'), upper('Data')) THEN 1 ELSE 0 END) AS other_count \n" +
-			"\tFROM landingzone l \n" +
-			"\tINNER JOIN department d ON l.department_id = d.id \n" +
-			"\tINNER JOIN organization o ON d.organization_id = o.id \n" +
-			"\tLEFT JOIN cloud_element ce ON ce.landingzone_id = l.id \n" +
-			"\tLEFT JOIN product_enclave pe ON pe.landingzone_id  = l.id AND pe.department_id = l.department_id  \n" +
-			"\tLEFT JOIN business_element be ON be.cloud_element_id = ce.id \n" +
-			"\tLEFT JOIN product p ON be.product_id = p.id  \n" +
-			"\twhere \n" +
-			"\to.id = d.organization_id \n" +
-			"\t    AND l.department_id = d.id \n" +
-			"\t    AND upper(p.type) = upper('SOA') \n" +
-			"\t    and o.id = :orgId\n" +
-			"\t    AND l.landing_zone = :landingZone \n" +
-			"\tGROUP BY l.cloud,p.type, pe.id, pe.instance_id, pe.instance_name";
-	@Query(value = INFRA_TOPOLOGY_SOA_QUERY, nativeQuery = true)
-	List<InfraTopologySOAQueryObj> getInfraTopologySOAView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone);
-
-	String INFRA_TOPOLOGY_SOA_BY_LANDINGZONE_ID_QUERY ="with vpc as( \n" +
+	String INFRA_TOPOLOGY_BY_LANDINGZONE_ID_QUERY ="with vpc as( \n" +
 			"    select  l.cloud,pe.id,  \n" +
-			"    		 pe.instance_id ,  \n" +
-			"        	 pe.instance_name  \n" +
+			"            pe.instance_id ,  \n" +
+			"            pe.instance_name  \n" +
 			"    from product_enclave pe, landingzone l, department d, organization o  \n" +
-			"    where pe.landingzone_id = l.id and l.department_id = d.id " +
-			"	 and d.organization_id = o.id and o.id = :orgId " +
-			"	 and l.id = :landingZoneId), \n" +
-			" vpc_data as ( \n" +
-			"    select  p.type, pe.id, \n" +
-			"    pe.instance_id ,  \n" +
-			"    pe.instance_name , \n" +
-			"    count(distinct be.product_id) as product_count, \n" +
-			"    SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
+			"    where pe.landingzone_id = l.id \n" +
+			"        and l.department_id = d.id  \n" +
+			"        and d.organization_id = o.id and o.id = :orgId and l.id =:landingZoneId), \n" +
+			"threeTierObj as ( \n" +
+			"    select  p. type , pe.id, \n" +
+			"        pe.instance_id ,  \n" +
+			"        pe.instance_name , \n" +
+			"        count(distinct be.product_id) as product_count, \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END) AS web_count,  \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count,  \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END) as auxiliary_count \n" +
+			"    from cloud_element ce, business_element be, product p, product_enclave pe, landingzone l   \n" +
+			"    where ce.id = be.cloud_element_id  \n" +
+			"        and p.id = be.product_id and pe.id = ce.product_enclave_id  \n" +
+			"        and ce.landingzone_id = l.id and l.id = :landingZoneId \n" +
+			"        and upper(p.type) = upper('3 Tier')    \n" +
+			"    group by p.type ,pe.instance_id, pe.instance_name, pe.id \n" +
+			"    ), \n" +
+			"soaObj as ( \n" +
+			"    select  p.type , pe.id, \n" +
+			"        pe.instance_id ,  \n" +
+			"        pe.instance_name , \n" +
+			"        count(distinct be.product_id) as product_count, \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) NOT IN (upper('App'), upper('Data')) THEN 1 ELSE 0 END) AS other_count \n" +
 			"    from cloud_element ce, business_element be, product p, product_enclave pe, landingzone l   \n" +
 			"    where ce.id = be.cloud_element_id   \n" +
-			"    and p.id = be.product_id and pe.id = ce.product_enclave_id \n" +
-			"    and ce.landingzone_id = l.id and l.id = 1 \n" +
-			"    and upper(p.type) = upper('soa')    \n" +
+			"        and p.id = be.product_id and pe.id = ce.product_enclave_id \n" +
+			"        and ce.landingzone_id = l.id and l.id = :landingZoneId \n" +
+			"        and upper(p.type) = upper('soa')    \n" +
 			"    group by p.type,pe.instance_id, pe.instance_name, pe.id \n" +
-			" ) \n" +
-			" select  vpc.cloud, upper('soa') as type, vpc.id as product_enclave_id, vpc.instance_id as instance_id, vpc.instance_name as product_enclave_name, \n" +
-			"    coalesce(vpc_data.product_count,0) as product_count, coalesce(vpc_data.app_count,0) as app_count, \n" +
-			"    coalesce(vpc_data.data_count,0) as data_count, \n" +
-			"    coalesce(vpc_data.other_count,0) as other_count    \n" +
-			" from vpc \n" +
-			" left join vpc_data on vpc.id = vpc_data.id  \n" +
-			"                    and vpc.instance_id = vpc_data.instance_id  \n" +
-			"                    and vpc.instance_name = vpc_data.instance_name ";
-	@Query(value = INFRA_TOPOLOGY_SOA_BY_LANDINGZONE_ID_QUERY, nativeQuery = true)
-	List<InfraTopologySOAQueryObj> getInfraTopologySOAViewByLandingZoneId(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
+			"    ) \n" +
+			"    select  vpc.id,  \n" +
+			"        vpc.instance_id ,  \n" +
+			"        vpc.instance_name ,    \n" +
+			"        jsonb_build_object( \n" +
+			"            'productCount', coalesce(threeTierObj.product_count,0), \n" +
+			"            'webCount', coalesce(threeTierObj.web_count,0), \n" +
+			"            'appCount', coalesce(threeTierObj.app_count,0), \n" +
+			"            'dataCount', coalesce(threeTierObj.data_count,0), \n" +
+			"            'auxiliaryCount', coalesce(threeTierObj.auxiliary_count,0) \n" +
+			"        ) as three_tier, \n" +
+			"        jsonb_build_object(  \n" +
+			"            'productCount', coalesce(soaObj.product_count,0),  \n" +
+			"            'appCount', coalesce(soaObj.app_count,0),  \n" +
+			"            'dataCount', coalesce(soaObj.data_count,0),  \n" +
+			"            'otherCount', coalesce(soaObj.other_count,0)) as soa    \n" +
+			"    from vpc \n" +
+			"        left join threeTierObj on vpc.id = threeTierObj.id   \n" +
+			"            and vpc.instance_id = threeTierObj.instance_id  \n" +
+			"            and vpc.instance_name = threeTierObj.instance_name \n" +
+			"        left join soaObj on vpc.id = soaObj.id   \n" +
+			"            and vpc.instance_id = soaObj.instance_id  \n" +
+			"            and vpc.instance_name = soaObj.instance_name";
+	@Query(value = INFRA_TOPOLOGY_BY_LANDINGZONE_ID_QUERY, nativeQuery = true)
+	List<InfraTopologyQueryObj> getInfraTopologyByLandingZoneId(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
 
-	String INFRA_TOPOLOGY_GLOBAL_SOA_BY_LANDINGZONE_ID_QUERY ="with vpc as( \n" +
-			"    select l.cloud, l.id  \n" +
-			"    from landingzone l, department d, organization o   \n" +
-			"    where l.department_id = d.id  \n" +
-			"       and d.organization_id = o.id  \n" +
-			"       and o.id = :orgId and l.id = :landingZoneId), \n" +
-			" vpc_data as ( \n" +
-			"    select l.id, p.type, count(distinct be.product_id) as product_count,  \n" +
-			"     SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
+	String INFRA_TOPOLOGY_GLOBAL_BY_LANDINGZONE_ID_QUERY ="with vpc as( \n" +
+			"    select l.cloud, l.id \n" +
+			"\tfrom landingzone l, department d, organization o  \n" +
+			"\twhere l.department_id = d.id \n" +
+			"            and d.organization_id = o.id \n" +
+			"            and o.id = :orgId and l.id =:landingZoneId),\n" +
+			"threeTierObj as ( \n" +
+			"    select  l.id, p.type, \n" +
+			"        count(distinct be.product_id) as product_count, \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END) AS web_count,  \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count,  \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END) as auxiliary_count \n" +
+			"    from cloud_element ce, business_element be, product p, landingzone l   \n" +
+			"    where  ce.product_enclave_id is null \n" +
+			"   \t\t\tand ce.id = be.cloud_element_id\n" +
+			"   \t\t\tand ce.landingzone_id = l.id \n" +
+			"   \t\t\tand p.id = be.product_id\n" +
+			"   \t\t\tand upper(p.type) = upper('3 Tier')\n" +
+			"   \t\t\tand l.id = :landingZoneId\n" +
+			"    group by l.id, p.type \n" +
+			"    ), \n" +
+			"soaObj as ( \n" +
+			"    select  l.id, p.type, \n" +
+			"        count(distinct be.product_id) as product_count, \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) NOT IN (upper('App'), upper('Data')) THEN 1 ELSE 0 END) AS other_count \n" +
-			"    from  \n" +
-			"    cloud_element ce, business_element be, landingzone l, product p   \n" +
-			"    where  ce.product_enclave_id is null  \n" +
-			"       and ce.id = be.cloud_element_id \n" +
-			"       and ce.landingzone_id = l.id  \n" +
-			"       and p.id = be.product_id \n" +
-			"       and upper(p.type) = upper('soa') \n" +
-			"       and l.id = :landingZoneId \n" +
-			"  group by l.id, p.type) \n" +
-			" select  vpc.cloud, upper('soa') as type, null product_enclave_id, null as instance_id, null as product_enclave_name,  \n" +
-			"         coalesce(vpc_data.product_count,0) as product_count, \n" +
-			"         coalesce(vpc_data.app_count,0) as app_count, \n" +
-			"         coalesce(vpc_data.data_count,0) as data_count, \n" +
-			"         coalesce(vpc_data.other_count,0) as other_count    \n" +
-			" from vpc \n" +
-			" left join vpc_data on vpc.id = vpc_data.id  ";
-	@Query(value = INFRA_TOPOLOGY_GLOBAL_SOA_BY_LANDINGZONE_ID_QUERY, nativeQuery = true)
-	List<InfraTopologySOAQueryObj> getInfraTopologyGlobalSOAViewByLandingZoneId(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
+			"    from cloud_element ce, business_element be, product p, landingzone l   \n" +
+			"    where ce.product_enclave_id is null \n" +
+			"        and ce.id = be.cloud_element_id\n" +
+			"        and ce.landingzone_id = l.id \n" +
+			"        and p.id = be.product_id\n" +
+			"        and upper(p.type) = upper('soa')\n" +
+			"        and l.id = :landingZoneId\n" +
+			"    group by l.id, p.type \n" +
+			"    ) \n" +
+			"    select  null as id,  \n" +
+			"         null as instance_id ,  \n" +
+			"        null as instance_name ,    \n" +
+			"        jsonb_build_object( \n" +
+			"            'productCount', coalesce(threeTierObj.product_count,0), \n" +
+			"            'webCount', coalesce(threeTierObj.web_count,0), \n" +
+			"            'appCount', coalesce(threeTierObj.app_count,0), \n" +
+			"            'dataCount', coalesce(threeTierObj.data_count,0), \n" +
+			"            'auxiliaryCount', coalesce(threeTierObj.auxiliary_count,0) \n" +
+			"        ) as three_tier, \n" +
+			"        jsonb_build_object(  \n" +
+			"            'productCount', coalesce(soaObj.product_count,0),  \n" +
+			"            'appCount', coalesce(soaObj.app_count,0),  \n" +
+			"            'dataCount', coalesce(soaObj.data_count,0),  \n" +
+			"            'otherCount', coalesce(soaObj.other_count,0)) as soa    \n" +
+			"    from vpc \n" +
+			"        left join threeTierObj on vpc.id = threeTierObj.id   \n" +
+			"        left join soaObj on vpc.id = soaObj.id";
+	@Query(value = INFRA_TOPOLOGY_GLOBAL_BY_LANDINGZONE_ID_QUERY, nativeQuery = true)
+	List<InfraTopologyQueryObj> getInfraTopologyGlobalByLandingZoneId(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
 
 	String INFRA_TOPOLOGY_CATEGORY_WISE_VIEW_QUERY ="select ce.element_type, jsonb_build_object() as metadata, ce.category, ce.db_category_id , count(ce.element_type) as total_record  \n" +
 			"from cloud_element ce  \n" +

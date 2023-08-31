@@ -1,30 +1,25 @@
 package com.synectiks.asset.domain.query;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public interface InfraTopologyQueryObj extends Serializable{
-
-    @Value("#{target.cloud}")
-    String getCloud();
-    @Value("#{target.landing_zone}")
-    String getLandingZone();
+    @Value("#{target.id}")
+    Long getId();
 
     @Value("#{target.instance_id}")
-	String getProductEnclave();
+    String getInstanceId();
 
-//    @Value("#{target.hosting_type}")
-//    String getHostingType();
-//
-//    @Value("#{target.category}")
-//    String getCategory();
-//
-//    @Value("#{target.element_type}")
-//    String getElementType();
-//
-//    @Value("#{target.element_list}")
-//    String getElementList();
+    @Value("#{target.instance_name}")
+    String getInstanceName();
 
+    @Value("#{target.three_tier}")
+    ObjectNode getThreeTier();
+
+    @Value("#{target.soa}")
+    ObjectNode getSoa();
 
 }

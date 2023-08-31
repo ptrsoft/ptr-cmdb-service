@@ -1795,12 +1795,17 @@ paths:
           schema:
             type: integer
             format: int64
-          required: true
+          required: false
         - in: query
           name: serviceNature
           schema:
             type: string
-          required: true
+          required: false
+        - in: query
+          name: serviceType
+          schema:
+            type: string
+          required: false
       responses:
         200:
           description: OK
@@ -3307,35 +3312,6 @@ paths:
           schema:
             type: integer
             format: int64
-          required: true
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InfraTopologyDTO'
-        404:
-          description: "Service Not found"
-        500:
-          description: "Internal Server Error"
-  /query/organization/{orgId}/infra-topology/landing-zone/{landingZone}:
-    get:
-      tags:
-        - InfraTopologyQuery
-      summary: Infra topology view
-      operationId: getInfraTopology
-      parameters:
-        - in: path
-          name: orgId
-          schema:
-            type: integer
-            format: int64
-          required: true
-        - in: path
-          name: landingZone
-          schema:
-            type: string
           required: true
       responses:
         200:

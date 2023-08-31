@@ -329,13 +329,13 @@ public class QueryController implements QueryApi {
 		return ResponseEntity.ok(dtoList);
 	}
 	
-	@Override
-	public ResponseEntity<InfraTopologyDTO> getInfraTopology(Long orgId, String landingZone) {
-		logger.debug("Rest request to get infra-topology of an organization and landing zone. Org id: {}, Landing-zone: {}", orgId, landingZone);
-		InfraTopologyObj infraTopologyObj = queryService.getInfraTopology(orgId, landingZone);
-		InfraTopologyDTO infraTopologyDTO = InfraTopologyMapper.INSTANCE.toDto(infraTopologyObj);
-		return ResponseEntity.ok(infraTopologyDTO);
-	}
+//	@Override
+//	public ResponseEntity<InfraTopologyDTO> getInfraTopology(Long orgId, String landingZone) {
+//		logger.debug("Rest request to get infra-topology of an organization and landing zone. Org id: {}, Landing-zone: {}", orgId, landingZone);
+//		InfraTopologyObj infraTopologyObj = queryService.getInfraTopology(orgId, landingZone);
+//		InfraTopologyDTO infraTopologyDTO = InfraTopologyMapper.INSTANCE.toDto(infraTopologyObj);
+//		return ResponseEntity.ok(infraTopologyDTO);
+//	}
 
 	@Override
 	public ResponseEntity<InfraTopologyDTO> getInfraTopologyByLandingZoneId(Long orgId, Long landingZoneId) {

@@ -158,9 +158,10 @@ public class BusinessElementController implements BusinessElementApi {
     public ResponseEntity<List<BusinessElementDTO>> searchBusinessElementByFilter(@RequestParam("departmentId") Long departmentId,
                                                                 @RequestParam("productId") Long productId,
                                                                 @RequestParam("productEnvId") Long productEnvId,
-                                                                @RequestParam("moduleId") Long moduleId,
-                                                                @RequestParam("serviceNature") String serviceNature) {
-        List<BusinessElement> businessElementList = businessElementService.searchByFilter(departmentId,productId, productEnvId, moduleId, serviceNature);
+                                                                @RequestParam(value = "moduleId", required = false) Long moduleId,
+                                                                @RequestParam(value = "serviceNature", required = false) String serviceNature,
+                                                                @RequestParam(value = "serviceType", required = false) String serviceType) {
+        List<BusinessElement> businessElementList = businessElementService.searchByFilter(departmentId,productId, productEnvId, moduleId, serviceNature, serviceType);
         List<BusinessElementDTO> businessElementDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
         return ResponseEntity.ok(businessElementDTOList);
     }
