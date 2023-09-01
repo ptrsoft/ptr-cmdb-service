@@ -353,6 +353,13 @@ public class QueryController implements QueryApi {
 	}
 
 	@Override
+	public ResponseEntity<List<InfraTopologyGlobalServiceCategoryWiseViewDTO>> getInfraTopologyGlobalServiceCategoryWiseSummary(Long orgId, Long landingZoneId) {
+		List<InfraTopologyGlobalServiceCategoryWiseViewQueryObj> infraTopologyGlobalServiceCategoryWiseViewQueryObjList = queryService.getInfraTopologyGlobalServiceCategoryWiseView(orgId, landingZoneId);
+		List<InfraTopologyGlobalServiceCategoryWiseViewDTO> infraTopologyGlobalServiceCategoryWiseViewDTOList = InfraTopologyGlobalServiceCategoryWiseViewMapper.INSTANCE.toDtoList(infraTopologyGlobalServiceCategoryWiseViewQueryObjList);
+		return ResponseEntity.ok(infraTopologyGlobalServiceCategoryWiseViewDTOList);
+	}
+
+	@Override
 	public ResponseEntity<List<InfraTopologyCloudElementDTO>> getInfraTopologyCloudElementList(Long orgId, String landingZone, String productEnclave) {
 		List<InfraTopologyCloudElementQueryObj> cloudElementList = queryService.getInfraTopologyCloudElementList(orgId, landingZone,productEnclave);
 		List<InfraTopologyCloudElementDTO> cloudElementDTOList = InfraTopologyCloudElementMapper.INSTANCE.toDtoList(cloudElementList);

@@ -3360,6 +3360,38 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organization/{orgId}/infra-topology/landing-zone-id/{landingZoneId}/global-service-category-wise-summary:
+    get:
+      tags:
+        - InfraTopologyQuery
+      summary: Infra topology global service category-wise view
+      operationId: getInfraTopologyGlobalServiceCategoryWiseSummary
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InfraTopologyGlobalServiceCategoryWiseViewDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/organization/{orgId}/infra-topology/landing-zone/{landingZone}/product-enclave/{productEnclave}/cloud-elements:
     get:
       tags:
@@ -4268,6 +4300,16 @@ components:
         dbCategoryId:
           type: integer
           format: int64
+        totalRecord:
+          type: integer
+          format: int64
+    InfraTopologyGlobalServiceCategoryWiseViewDTO:
+      type: object
+      properties:
+        elementType:
+          type: string
+        metadata:
+          type: object
         totalRecord:
           type: integer
           format: int64

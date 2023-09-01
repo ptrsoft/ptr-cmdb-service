@@ -407,6 +407,12 @@ public class QueryService {
 		return infraTopologyCategoryWiseViewQueryObjList;
 	}
 
+	public List<InfraTopologyGlobalServiceCategoryWiseViewQueryObj> getInfraTopologyGlobalServiceCategoryWiseView(Long orgId, Long landingZoneId) {
+		logger.debug("Getting infra-topology category-wise(app/data/data-lake/service-mesh) view of global services for a given organization, landing-zone");
+		List<InfraTopologyGlobalServiceCategoryWiseViewQueryObj> infraTopologyGlobalServiceCategoryWiseViewQueryObjList = queryRepository.getInfraTopologyGlobalServiceCategoryWiseView(orgId,landingZoneId);
+		return infraTopologyGlobalServiceCategoryWiseViewQueryObjList;
+	}
+
 //	public InfraTopologyObj getInfraTopology(Long orgId, String landingZone) {
 //		logger.debug("Getting infra-topology-view for a given organization and landing-zone");
 //		List<InfraTopology3TierQueryObj> threeTierlist = queryRepository.getInfraTopology3TierView(orgId,landingZone);

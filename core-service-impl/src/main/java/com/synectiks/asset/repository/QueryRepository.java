@@ -791,6 +791,20 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = INFRA_TOPOLOGY_CATEGORY_WISE_VIEW_QUERY, nativeQuery = true)
 	List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId);
 
+	String INFRA_TOPOLOGY_GLOBAL_SERVICE_CATEGORY_WISE_VIEW_QUERY =" select ce.element_type, jsonb_build_object() as metadata, count(ce.element_type) as total_record   \n" +
+			"    from cloud_element ce   \n" +
+			"    inner join landingzone l on ce.landingzone_id = l.id   \n" +
+			"    INNER JOIN department d ON l.department_id = d.id \n" +
+			"    INNER JOIN organization o ON d.organization_id = o.id \n" +
+			" where ce.product_enclave_id is null \n" +
+			"    and ce.landingzone_id = l.id    \n" +
+			"    and l.id = :landingZoneId  \n" +
+			"    and o.id = :orgId  \n" +
+			" group by ce.element_type\n" +
+			" order by ce.element_type asc";
+	@Query(value = INFRA_TOPOLOGY_GLOBAL_SERVICE_CATEGORY_WISE_VIEW_QUERY, nativeQuery = true)
+	List<InfraTopologyGlobalServiceCategoryWiseViewQueryObj> getInfraTopologyGlobalServiceCategoryWiseView(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
+
 	String INFRA_TOPOLOGY_CLOUD_ELEMENT_QUERY ="select ce.id, ce.element_type, ce.instance_id, ce.instance_name, ce.category  \n" +
 			"from cloud_element ce  \n" +
 			"inner join product_enclave pe on ce.product_enclave_id = pe.id \n" +

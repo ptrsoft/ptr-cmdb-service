@@ -167,6 +167,10 @@ public final class Constants {
     public static final String AWS_LAMBDA_FUNCTION_KEY = "AWS::Lambda::Function";
 
     public static final String LAMBDA = "LAMBDA";
+    public static final String S3 = "S3";
+
+    public static final String GLACIER = "GLACIER";
+    public static final String CDN = "CDN";
     private Constants() {
     }
 }

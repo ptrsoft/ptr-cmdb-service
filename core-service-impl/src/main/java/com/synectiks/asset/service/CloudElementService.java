@@ -146,6 +146,18 @@ public class CloudElementService {
                     Constants.LAMBDA.equalsIgnoreCase(cloudElement.getElementType())){
                 getLambdaConfigMap(cloudElement);
             }
+            if(!StringUtils.isBlank(cloudElement.getElementType()) &&
+                    Constants.S3.equalsIgnoreCase(cloudElement.getElementType())){
+                getS3ConfigMap(cloudElement);
+            }
+            if(!StringUtils.isBlank(cloudElement.getElementType()) &&
+                    Constants.GLACIER.equalsIgnoreCase(cloudElement.getElementType())){
+                getGlacierConfigMap(cloudElement);
+            }
+            if(!StringUtils.isBlank(cloudElement.getElementType()) &&
+                    Constants.CDN.equalsIgnoreCase(cloudElement.getElementType())){
+                getCdnConfigMap(cloudElement);
+            }
         }
 
         return list;
@@ -180,6 +192,76 @@ public class CloudElementService {
         configMap.put("latency", "45");
         configMap.put("networkReceived", "10");
         configMap.put("requests", "100");
+        configMap.put("product", "Procurement");
+        configMap.put("environment", "PROD");
+        cloudElement.setConfigJson(configMap);
+    }
+
+    private void getS3ConfigMap(CloudElement cloudElement){
+        Map<String, Object> configMap = null;
+        if(cloudElement.getConfigJson() != null && !"null".equals(cloudElement.getConfigJson())){
+            configMap = cloudElement.getConfigJson();
+        }else if(cloudElement.getConfigJson() != null && "null".equals(cloudElement.getConfigJson())){
+            configMap = new HashMap<>();
+        }else{
+            configMap = new HashMap<>();
+        }
+
+        configMap.put("bucketName", "project-files");
+        configMap.put("replication", "replicated-files");
+        configMap.put("objects", "136k");
+        configMap.put("dataTransfer", "125mb");
+        configMap.put("responseTime", "3.5ms");
+        configMap.put("errors", "95");
+        configMap.put("latency", "22");
+        configMap.put("totalStorage", "200mb");
+        configMap.put("requests", "230");
+        configMap.put("product", "Procurement");
+        configMap.put("environment", "PROD");
+        cloudElement.setConfigJson(configMap);
+    }
+    private void getGlacierConfigMap(CloudElement cloudElement){
+        Map<String, Object> configMap = null;
+        if(cloudElement.getConfigJson() != null && !"null".equals(cloudElement.getConfigJson())){
+            configMap = cloudElement.getConfigJson();
+        }else if(cloudElement.getConfigJson() != null && "null".equals(cloudElement.getConfigJson())){
+            configMap = new HashMap<>();
+        }else{
+            configMap = new HashMap<>();
+        }
+
+        configMap.put("vaultName", "data-storage-vault");
+        configMap.put("replication", "replicated-vault");
+        configMap.put("archive", "136k");
+        configMap.put("dataTransfer", "125mb");
+        configMap.put("responseTime", "3.5ms");
+        configMap.put("errors", "95");
+        configMap.put("latency", "22");
+        configMap.put("requests", "52");
+        configMap.put("totalStorage", "200mb");
+        configMap.put("product", "Procurement");
+        configMap.put("environment", "PROD");
+        cloudElement.setConfigJson(configMap);
+    }
+    private void getCdnConfigMap(CloudElement cloudElement){
+        Map<String, Object> configMap = null;
+        if(cloudElement.getConfigJson() != null && !"null".equals(cloudElement.getConfigJson())){
+            configMap = cloudElement.getConfigJson();
+        }else if(cloudElement.getConfigJson() != null && "null".equals(cloudElement.getConfigJson())){
+            configMap = new HashMap<>();
+        }else{
+            configMap = new HashMap<>();
+        }
+
+        configMap.put("originName", "my-origin-server-1");
+        configMap.put("edges", "NorthStar");
+        configMap.put("request", "136k");
+        configMap.put("byteTransfer", "125mb");
+        configMap.put("cacheHit", "58%");
+        configMap.put("errors", "95");
+        configMap.put("latency", "150ms");
+        configMap.put("invalidation", "52");
+        configMap.put("byteHitRate", "58%");
         configMap.put("product", "Procurement");
         configMap.put("environment", "PROD");
         cloudElement.setConfigJson(configMap);
