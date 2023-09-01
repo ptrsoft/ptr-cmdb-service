@@ -442,28 +442,68 @@ public class QueryController implements QueryApi {
 	}
 
 	@Override
-	public ResponseEntity<List<CostAnalyticDTO>> getProductWiseCost(Long orgId) {
-		logger.debug("REST request to Get product wise cost for an organization: Org Id: {}", orgId);
-		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductWiseCost(orgId);
+	public ResponseEntity<List<CostAnalyticDTO>> 	getProductWiseCostNonAassociate(Long orgId) {
+		logger.debug("REST request to Get product wise cost non associate for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductWiseCostNonAssociate(orgId);
+		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+	}
+	
+	@Override
+	public ResponseEntity<List<CostAnalyticDTO>> 	getProductWiseCostAassociate(Long orgId) {
+		logger.debug("REST request to Get product wise cost associate for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductWiseCostAssociate(orgId);
 		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
 		return ResponseEntity.ok(costAnalyticDTOList);
 	}
 
 	@Override
-	public ResponseEntity<List<CostAnalyticDTO>> getProductionVsOthersCost(Long orgId) {
-		logger.debug("REST request to Get production vs others cost for an organization: Org Id: {}", orgId);
-		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductionVsOthersCost(orgId);
+	public ResponseEntity<List<CostAnalyticDTO>> getProductionVsOthersCostNonAssociate(Long orgId) {
+		logger.debug("REST request to Get production vs others non associate cost for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductionVsOthersCostNonAssociate(orgId);
 		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
 		return ResponseEntity.ok(costAnalyticDTOList);
 	}
-
+    
 	@Override
-	public ResponseEntity<List<CostAnalyticDTO>> getServiceTypeWiseCost(Long orgId) {
-		logger.debug("REST request to Get service type wise cost for an organization: Org Id: {}", orgId);
-		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getServiceTypeWiseCost(orgId);
+	public ResponseEntity<List<CostAnalyticDTO>> getProductionVsOthersCostAssociate(Long orgId) {
+		logger.debug("REST request to Get production vs others cost associate for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getProductionVsOthersCostAssociate(orgId);
+		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+	} 
+	
+	@Override
+	public ResponseEntity<List<CostAnalyticDTO>> getServiceTypeWiseCostNonAssociate(Long orgId) {
+		logger.debug("REST request to Get service type wise cost non associate for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getServiceTypeWiseCostNonAssociate(orgId);
 		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
 		return ResponseEntity.ok(costAnalyticDTOList);
 	}
+	
+	@Override
+	public ResponseEntity<List<CostAnalyticDTO>> getServiceTypeWiseCostAssociate(Long orgId) {
+		logger.debug("REST request to Get service type wise cost  associate for an organization: Org Id: {}", orgId);
+		List<CostAnalyticQueryObj> costAnalyticQueryObj = queryService.getServiceTypeWiseCostAssociate(orgId);
+		List<CostAnalyticDTO> costAnalyticDTOList = CostAnalyticMapper.INSTANCE.toDtoList(costAnalyticQueryObj);
+		return ResponseEntity.ok(costAnalyticDTOList);
+	}
+	
+	@Override
+	public ResponseEntity<List<SlaAnalyticDTO>> getSlaWiseCostNonAssociate(Long orgId) {
+		logger.debug("REST request to Get sla non associate an organization: Org Id: {}", orgId);
+		List<SlaAnalyticQueryObj> slaWiseCostQueryObj = queryService.getSlaWiseCostNonAssociate(orgId);
+		List<SlaAnalyticDTO> slaAnalyticDTOList = SlaAnalyticMapper.INSTANCE.toDtoList(slaWiseCostQueryObj);
+		return ResponseEntity.ok(slaAnalyticDTOList);
+	} 
+	
+	@Override
+	public ResponseEntity<List<SlaAnalyticDTO>> getSlaWiseCostAssociate(Long orgId) {
+		logger.debug("REST request to Get sla  associate an organization: Org Id: {}", orgId);
+		List<SlaAnalyticQueryObj> slaWiseCostQueryObj = queryService.getSlaWiseCostAssociate(orgId);
+		List<SlaAnalyticDTO> slaAnalyticDTOList = SlaAnalyticMapper.INSTANCE.toDtoList(slaWiseCostQueryObj);
+		return ResponseEntity.ok(slaAnalyticDTOList);
+	} 
 	
 	@Override
 	public ResponseEntity<List<CostBillingDTO>> dataGeneratorOrgBilling(Long orgId,String entity ){

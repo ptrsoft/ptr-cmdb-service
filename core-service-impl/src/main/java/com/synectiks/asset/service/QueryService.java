@@ -23,6 +23,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.synectiks.asset.api.model.BillingDTO;
+import com.synectiks.asset.api.model.EnvironmentQueryDTO;
+import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
+import com.synectiks.asset.api.model.SlaAnalyticDTO;
+import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
+import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
+import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
+import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
+import com.synectiks.asset.domain.query.CostBillingQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
+import com.synectiks.asset.domain.query.InfraTopology3TierQueryObj;
+import com.synectiks.asset.domain.query.InfraTopology3TierStatsQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologyCategoryWiseViewQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologyCloudElementQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologyObj;
+import com.synectiks.asset.domain.query.InfraTopologyProductEnclaveObj;
+import com.synectiks.asset.domain.query.InfraTopologySOAQueryObj;
+import com.synectiks.asset.domain.query.InfraTopologySOAStatsQueryObj;
+import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
+import com.synectiks.asset.domain.query.SOAQueryObj;
+import com.synectiks.asset.domain.query.SlaAnalyticQueryObj;
+import com.synectiks.asset.domain.query.ThreeTierQueryObj;
+import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
+import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.repository.QueryRepository;
 
 @Service
@@ -525,21 +553,34 @@ public class QueryService {
 		return queryRepository.getTotalBudget(orgId);
 	}
 
-	public List<CostAnalyticQueryObj> getProductWiseCost(Long orgId) {
-		logger.debug("Get product wise cost ");
-		return queryRepository.getProductWiseCost(orgId);
+	 public List<CostAnalyticQueryObj> getProductWiseCostNonAssociate(Long orgId) {
+		logger.debug("Get product wise cost non associate ");
+		return queryRepository.getProductWiseCostNonAssociate(orgId);
+	}
+	public List<CostAnalyticQueryObj> getProductWiseCostAssociate(Long orgId) {
+		logger.debug("Get product wise cost associate");
+		return queryRepository.getProductWiseCostAssociate(orgId);
 	}
 
-	public List<CostAnalyticQueryObj> getProductionVsOthersCost(Long orgId) {
-		logger.debug("Get production vs others cost ");
-		return queryRepository.getProductionVsOthersCost(orgId);
+	public List<CostAnalyticQueryObj> getProductionVsOthersCostAssociate(Long orgId) {
+		logger.debug("Get production vs others associate cost ");
+		return queryRepository.getProductionVsOthersCostAssociate(orgId);
+	}
+	
+	public List<CostAnalyticQueryObj> getProductionVsOthersCostNonAssociate(Long orgId) {
+		logger.debug("Get production vs others non associate cost ");
+		return queryRepository.getProductionVsOthersCostNonAssociate(orgId);
 	}
 
-	public List<CostAnalyticQueryObj> getServiceTypeWiseCost(Long orgId) {
-		logger.debug("Get service type wise cost ");
-		return queryRepository.getServiceTypeWiseCost(orgId);
+	public List<CostAnalyticQueryObj> getServiceTypeWiseCostNonAssociate(Long orgId) {
+		logger.debug("Get service type wise cost non associate ");
+		return queryRepository.getServiceTypeWiseCostNonAssociate(orgId);
 	}
-
+	
+	public List<CostAnalyticQueryObj> getServiceTypeWiseCostAssociate(Long orgId) {
+		logger.debug("Get service type wise cost  associate ");
+		return queryRepository.getServiceTypeWiseCostAssociate(orgId);
+	}
 
 
 	public List<CostBillingQueryObj> getDataGeneratorOrgBilling(Long orgId , String entity ) {
@@ -561,6 +602,15 @@ public class QueryService {
 			Long landingZone, String elementName) {
 		logger.debug("Get  org and landingZone  wise billing ");
 		 return queryRepository.getOrgAndElementNameAndLandingZoneBilling(orgId,entity,landingZone,elementName);
+	}
+		public List<SlaAnalyticQueryObj> getSlaWiseCostNonAssociate(Long orgId) {
+		logger.debug("Get  org   wise sla non associate ");
+		 return queryRepository.getSlaWiseCostNonAssociate(orgId);
+	}
+	
+	public List<SlaAnalyticQueryObj> getSlaWiseCostAssociate(Long orgId) {
+		logger.debug("Get  org   wise sla  associate ");
+		 return queryRepository.getSlaWiseCostAssociate(orgId);
 	}
 
 //	public EnvironmentCountQueryObj getResourceCountsByOrgAndCloudAndLandingZone(Long orgId, String cloud,Long landingZone) {
