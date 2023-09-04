@@ -21,6 +21,6 @@ public interface SlaAnalyticQueryObj extends Serializable{
     @Value("#{target.security}")
     String getSecurity();
     
-    @Value("#{target.endUsage}")
+    @Value("#{target.end_usage}")
     String getEndUsage();
 }

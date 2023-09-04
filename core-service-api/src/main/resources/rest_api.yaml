@@ -3655,11 +3655,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/cost-analytics/product-wise-cost/non-associate:
+  /query/organization/{orgId}/analytics/cost-analytics/product-wise-cost/non-associated:
     get:
       tags:
         - CostAnalyticsQuery
-      summary: get product wise cost non associate of an organization
+      summary: get product wise cost non-associated with cloud-element
       operationId: getProductWiseCostNonAassociate
       parameters:
         - in: path
@@ -3681,11 +3681,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/cost-analytics/product-wise-cost/associate:
+  /query/organization/{orgId}/analytics/cost-analytics/product-wise-cost/associated:
     get:
       tags:
         - CostAnalyticsQuery
-      summary: get product wise cost associate of an organization
+      summary: get product wise cost associated with cloud-element
       operationId: getProductWiseCostAassociate
       parameters:
         - in: path
@@ -3707,11 +3707,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/cost-analytics/production-vs-others/non-associate:
+  /query/organization/{orgId}/analytics/cost-analytics/production-vs-others/non-associated:
     get:
       tags:
         - CostAnalyticsQuery
-      summary: get production vs others non associate cost of an organization
+      summary: get production vs others cost non-associated with cloud-element
       operationId: getProductionVsOthersCostNonAssociate
       parameters:
         - in: path
@@ -3733,11 +3733,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/cost-analytics/production-vs-others/associate:
+  /query/organization/{orgId}/analytics/cost-analytics/production-vs-others/associated:
     get:
       tags:
         - CostAnalyticsQuery
-      summary: get production vs others  associate cost of an organization
+      summary: get production vs others cost associated with cloud-element
       operationId: getProductionVsOthersCostAssociate
       parameters:
         - in: path
@@ -3759,11 +3759,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/cost-analytics/service-type-wise-cost/non-associate:
+  /query/organization/{orgId}/analytics/cost-analytics/service-type-wise-cost/non-associated:
     get:
       tags:
         - CostAnalyticsQuery
-      summary: get service type wise cost non associate of an organization
+      summary: get service type wise cost non-associated with cloud-element
       operationId: getServiceTypeWiseCostNonAssociate
       parameters:
         - in: path
@@ -3785,11 +3785,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/cost-analytics/service-type-wise-cost/associate:
+  /query/organization/{orgId}/analytics/cost-analytics/service-type-wise-cost/associated:
     get:
       tags:
         - CostAnalyticsQuery
-      summary: get service type wise cost  associate of an organization
+      summary: get service type wise cost associated with cloud-element
       operationId: getServiceTypeWiseCostAssociate
       parameters:
         - in: path
@@ -3811,11 +3811,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/sla-analytics/sla-wise-product/non-associate:
+  /query/organization/{orgId}/analytics/sla-analytics/product-wise-sla/non-associated:
     get:
       tags:
         - SlaAnalyticsQuery
-      summary: get sla  wise product non associate of an organization
+      summary: get product wise sla non-associated with cloud-element
       operationId: getSlaWiseCostNonAssociate
       parameters:
         - in: path
@@ -3837,11 +3837,11 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/analytics/sla-analytics/sla-wise-product/associate:
+  /query/organization/{orgId}/analytics/sla-analytics/product-wise-sla/associated:
     get:
       tags:
         - SlaAnalyticsQuery
-      summary: get sla  wise product  associate of an organization
+      summary: get product wise sla associated with cloud-element
       operationId: getSlaWiseCostAssociate
       parameters:
         - in: path
