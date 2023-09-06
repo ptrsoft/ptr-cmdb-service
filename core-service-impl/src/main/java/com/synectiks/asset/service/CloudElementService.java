@@ -3,6 +3,7 @@ package com.synectiks.asset.service;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
 import com.synectiks.asset.repository.CloudElementRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -172,6 +173,18 @@ public class CloudElementService {
     public List<CloudElement> getCloudElement(String organization, String department, String cloud, String landingZone, String arn) {
         logger.debug("Get all cloud-elements on given criteria");
         return cloudElementRepository.getCloudElement(organization, department, cloud, landingZone, arn);
+    }
+
+    @Transactional(readOnly = true)
+    public CloudElement getCloudElement(Long landingZoneId,Long serviceId, String instanceId) {
+        logger.debug("Get all cloud-elements on given criteria");
+        return cloudElementRepository.getCloudElementForTag(landingZoneId, serviceId, instanceId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CloudElementTagQueryObj> getCloudElementTag(Long landingZoneId) {
+        logger.debug("Get all tags of a landing-zone");
+        return cloudElementRepository.getCloudElementTag(landingZoneId);
     }
 
     private void getLambdaConfigMap(CloudElement cloudElement){

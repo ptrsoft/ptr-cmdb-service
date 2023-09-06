@@ -1436,6 +1436,67 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-element/tag/landing-zone-id/{landingZoneId}:
+    parameters:
+      - in: path
+        name: landingZoneId
+        schema:
+          type: integer
+          format: int64
+        required: true
+    get:
+      tags:
+        - CloudElement
+      summary: Fetch tags of a given landing-zone-id
+      operationId: getCloudElementTag
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementTagDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-element/tag/landing-zone-id/{landingZoneId}/instance-id/{instanceId}/service-id/{serviceId}:
+    parameters:
+      - in: path
+        name: landingZoneId
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - in: path
+        name: instanceId
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: serviceId
+        schema:
+          type: integer
+          format: int64
+        required: true
+    delete:
+      tags:
+        - CloudElement
+      summary: Delete a tag of a given landing-zone-id, instance-id and service-id
+      operationId: deleteCloudElementTag
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /module:
     get:
       tags:
@@ -4671,3 +4732,16 @@ components:
         otherCount:
           type: integer
           format: int64
+    CloudElementTagDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        landingzoneId:
+          type: integer
+          format: int64
+        instanceId:
+          type: string
+        tag:
+          type: object

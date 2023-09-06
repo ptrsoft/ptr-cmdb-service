@@ -1,16 +1,20 @@
 package com.synectiks.asset.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.controller.CloudElementApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
+import com.synectiks.asset.api.model.CloudElementTagDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.CloudElementSummary;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
 import com.synectiks.asset.mapper.CloudElementMapper;
+import com.synectiks.asset.mapper.query.CloudElementTagMapper;
 import com.synectiks.asset.repository.CloudElementRepository;
 import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.CloudElementSummaryService;
@@ -24,13 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.*;
 
 
@@ -120,6 +127,51 @@ public class CloudElementController implements CloudElementApi {
     }
 
     @Override
+    public ResponseEntity<List<CloudElementTagDTO>> getCloudElementTag(Long landingZoneId) {
+        logger.debug("REST request to get all the tags of a landing-zone : LandingZoneId: {}", landingZoneId);
+        List<CloudElementTagQueryObj> cloudElementTagQueryObjList = cloudElementService.getCloudElementTag(landingZoneId);
+        List<CloudElementTagDTO>  cloudElementTagDTOList = CloudElementTagMapper.INSTANCE.toDtoList(cloudElementTagQueryObjList);
+        return ResponseUtil.wrapOrNotFound(Optional.of(cloudElementTagDTOList));
+    }
+
+    @Override
+    public ResponseEntity<Object> deleteCloudElementTag(Long landingZoneId, String instanceId, Long serviceId) {
+        logger.debug("REST request to delete a tag. LandingZoneId: {}, instanceId: {}, serviceId: {}", landingZoneId,instanceId,serviceId);
+        CloudElement cloudElement = cloudElementService.getCloudElement(landingZoneId,serviceId,instanceId);
+        if(cloudElement != null){
+            ObjectMapper objectMapper = Constants.instantiateMapper();
+            try{
+                String js = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getHostedServices(), Map.class);
+                JsonNode rootNode = null;
+
+                if(!StringUtils.isBlank(js) && !"null".equalsIgnoreCase(js)){
+                    rootNode = objectMapper.readTree(js);
+                    ArrayNode arrayNode = null;
+                    arrayNode = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, rootNode.get("HOSTEDSERVICES"), ArrayNode.class);
+                    ArrayNode updatedArrayNode = objectMapper.createArrayNode();
+                    Iterator<JsonNode> nodeIterator = arrayNode.iterator();
+                    while (nodeIterator.hasNext()) {
+                        JsonNode elementNode = nodeIterator.next();
+                        if(elementNode.get("serviceId").asLong() != serviceId){
+                            updatedArrayNode.add(elementNode);
+                        }
+                    }
+                    ObjectNode finalNode =  objectMapper.createObjectNode();
+                    finalNode.put("HOSTEDSERVICES", updatedArrayNode);
+                    Map map = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
+                    cloudElement.setHostedServices(map);
+                    cloudElementService.save(cloudElement);
+                }
+            }catch (IOException e){
+                logger.error("IOException ", e);
+                return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.INTERNAL_SERVER_ERROR));
+            }
+        }
+        return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.OK));
+
+    }
+
+    @Override
     public ResponseEntity<CloudElementDTO> associateCloudElement(Object obj){
         logger.debug("REST request to associate a service with infrastructure or tag a business element");
         ObjectMapper objectMapper = Constants.instantiateMapper();
@@ -138,7 +190,11 @@ public class CloudElementController implements CloudElementApi {
                 }
 
                 ObjectNode objectNode = objectMapper.createObjectNode();
+                if(reqObj.get("instanceId") != null){
+                    objectNode.put("instanceId",(String) reqObj.get("instanceId"));
+                }
                 objectNode.put("serviceId",(Integer) reqObj.get("serviceId"));
+                objectNode.set("tag", jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, (Map)reqObj.get("tag"), JsonNode.class));
                 arrayNode.add(objectNode);
                 ObjectNode finalNode =  objectMapper.createObjectNode();
                 finalNode.put("HOSTEDSERVICES", arrayNode);
@@ -147,7 +203,7 @@ public class CloudElementController implements CloudElementApi {
                 cloudElementService.save(cloudElement);
             }catch (Exception e){
                 logger.error("Exception: ",e);
-//                return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
         CloudElementDTO result = CloudElementMapper.INSTANCE.entityToDto(cloudElement);
