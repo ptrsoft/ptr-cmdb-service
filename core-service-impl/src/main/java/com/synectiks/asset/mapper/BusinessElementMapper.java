@@ -29,6 +29,9 @@ public interface BusinessElementMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     default BusinessElement toEntity(BusinessElementDTO businessElementDTO){
         BusinessElement businessElement = toEntityConvertObjectToMap(businessElementDTO);
+        if(businessElementDTO.getCloudElementId() == null){
+            businessElement.setCloudElement(null);
+        }
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
         businessElement.setMetadata(converter.convertObjectToMap(businessElementDTO.getMetadata()));
         businessElement.setSlaJson(converter.convertObjectToMap(businessElementDTO.getSlaJson()));
