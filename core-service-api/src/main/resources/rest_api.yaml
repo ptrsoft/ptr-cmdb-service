@@ -1436,13 +1436,18 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /cloud-element/tag/landing-zone-id/{landingZoneId}:
+  /cloud-element/tag/landing-zone-id/{landingZoneId}/instance-id/{instanceId}:
     parameters:
       - in: path
         name: landingZoneId
         schema:
           type: integer
           format: int64
+        required: true
+      - in: path
+        name: instanceId
+        schema:
+          type: string
         required: true
     get:
       tags:

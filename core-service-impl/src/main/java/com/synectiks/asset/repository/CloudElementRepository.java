@@ -35,9 +35,9 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
 
     String CLOUD_ELEMENT_TAG_QUERY ="select ce.id, ce.landingzone_id,  ce.instance_id, c.obj -> 'tag' as tag  \n" +
             " from cloud_element ce, jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos)\n" +
-            " where ce.landingzone_id = :landingZoneId and c.obj -> 'tag' is not null order by c.obj -> 'tag' asc";
+            " where ce.landingzone_id = :landingZoneId and ce.instance_id = :instanceId and c.obj -> 'tag' is not null order by c.obj -> 'tag' asc";
     @Query(value = CLOUD_ELEMENT_TAG_QUERY, nativeQuery = true)
-    List<CloudElementTagQueryObj> getCloudElementTag(@Param("landingZoneId") Long landingZoneId);
+    List<CloudElementTagQueryObj> getCloudElementTag(@Param("landingZoneId") Long landingZoneId, @Param("instanceId") String instanceId);
 
 
     String SEARCH_CLOUD_ELEMENT_FOR_TAG_QUERY ="select ce.*   \n" +

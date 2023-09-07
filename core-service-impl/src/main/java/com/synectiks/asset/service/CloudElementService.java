@@ -182,9 +182,9 @@ public class CloudElementService {
     }
 
     @Transactional(readOnly = true)
-    public List<CloudElementTagQueryObj> getCloudElementTag(Long landingZoneId) {
+    public List<CloudElementTagQueryObj> getCloudElementTag(Long landingZoneId, String instanceId) {
         logger.debug("Get all tags of a landing-zone");
-        return cloudElementRepository.getCloudElementTag(landingZoneId);
+        return cloudElementRepository.getCloudElementTag(landingZoneId, instanceId);
     }
 
     private void getLambdaConfigMap(CloudElement cloudElement){

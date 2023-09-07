@@ -127,9 +127,9 @@ public class CloudElementController implements CloudElementApi {
     }
 
     @Override
-    public ResponseEntity<List<CloudElementTagDTO>> getCloudElementTag(Long landingZoneId) {
+    public ResponseEntity<List<CloudElementTagDTO>> getCloudElementTag(Long landingZoneId, String instanceId) {
         logger.debug("REST request to get all the tags of a landing-zone : LandingZoneId: {}", landingZoneId);
-        List<CloudElementTagQueryObj> cloudElementTagQueryObjList = cloudElementService.getCloudElementTag(landingZoneId);
+        List<CloudElementTagQueryObj> cloudElementTagQueryObjList = cloudElementService.getCloudElementTag(landingZoneId, instanceId);
         List<CloudElementTagDTO>  cloudElementTagDTOList = CloudElementTagMapper.INSTANCE.toDtoList(cloudElementTagQueryObjList);
         return ResponseUtil.wrapOrNotFound(Optional.of(cloudElementTagDTOList));
     }
