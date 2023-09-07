@@ -92,7 +92,10 @@ public interface BudgetMapper {
             budget.setUpdatedOn(null);
         }
         if(budgetDTO.getOrganizationId() != null){
-            budget.setOrganization(Organization.builder().id(budgetDTO.getOrganizationId()).build());
+            Organization org = Organization.builder().id(budgetDTO.getOrganizationId()).build();
+            org.setCreatedOn(null);
+            org.setUpdatedOn(null);
+            budget.setOrganization(org);
         }
         return budget;
     }

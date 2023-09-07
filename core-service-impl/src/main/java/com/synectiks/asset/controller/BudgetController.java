@@ -80,9 +80,8 @@ public class BudgetController implements BudgetApi {
 
     @Override
     public ResponseEntity<List<BudgetDTO>> searchBudget(BudgetDTO budgetDTO) {
-        Budget budget = BudgetMapper.INSTANCE.dtoToEntityForSearch(budgetDTO);
-        logger.debug("REST request to get all budgets on given filters : {} ", budget);
-        List<Budget> budgetList = budgetService.search(budget);
+        logger.debug("REST request to get all budgets on given filters : {} ", budgetDTO);
+        List<Budget> budgetList = budgetService.search(budgetDTO);
         List<BudgetDTO> budgetDTOList = BudgetMapper.INSTANCE.entityToDtoList(budgetList);
         return ResponseEntity.ok(budgetDTOList);
     }

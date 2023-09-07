@@ -119,8 +119,8 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<List<CloudElementDTO>> searchCloudElement(CloudElementDTO cloudElementDTO) {
-        CloudElement cloudElement = CloudElementMapper.INSTANCE.dtoToEntityForSearch(cloudElementDTO);
-        logger.debug("REST request to get all CloudElements on given filters : {} ", cloudElement);
+//        CloudElement cloudElement = CloudElementMapper.INSTANCE.dtoToEntityForSearch(cloudElementDTO);
+//        logger.debug("REST request to get all CloudElements on given filters : {} ", cloudElement);
         List<CloudElement> cloudElementList = cloudElementService.search(cloudElementDTO);
         List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
         return ResponseEntity.ok(cloudElementDTOList);
