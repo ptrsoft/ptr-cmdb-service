@@ -20,6 +20,7 @@ public interface LandingzoneMapper {
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "departmentName", source = "department.name")
     LandingzoneDTO toDto(Landingzone landingzone);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

@@ -20,6 +20,7 @@ public interface ProductEnvMapper {
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "productName", source = "product.name")
     ProductEnvDTO toDto(ProductEnv productEnv);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

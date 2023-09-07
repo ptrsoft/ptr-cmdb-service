@@ -20,6 +20,7 @@ public interface DepartmentMapper {
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "organizationId", source = "organization.id")
+    @Mapping(target = "organizationName", source = "organization.name")
     DepartmentDTO toDto(Department department);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

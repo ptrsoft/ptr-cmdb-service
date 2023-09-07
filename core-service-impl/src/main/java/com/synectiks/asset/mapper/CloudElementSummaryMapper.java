@@ -21,6 +21,7 @@ public interface CloudElementSummaryMapper {
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "landingzoneId", source = "landingzone.id")
+    @Mapping(target = "landingZone", source = "landingzone.landingZone")
     CloudElementSummaryDTO toDto(CloudElementSummary cloudElementSummary);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

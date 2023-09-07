@@ -20,6 +20,7 @@ public interface BudgetMapper {
     @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "organizationId", source = "organization.id")
+    @Mapping(target = "organizationName", source = "organization.name")
     BudgetDTO toDto(Budget budget);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

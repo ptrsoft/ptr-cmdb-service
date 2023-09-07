@@ -24,6 +24,11 @@ public interface BusinessElementMapper {
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "moduleId", source = "module.id")
     @Mapping(target = "productEnvId", source = "productEnv.id")
+    @Mapping(target = "cloudElementInstanceId", source = "cloudElement.instanceId")
+    @Mapping(target = "departmentName", source = "department.name")
+    @Mapping(target = "productName", source = "product.name")
+    @Mapping(target = "moduleName", source = "module.name")
+    @Mapping(target = "productEnvName", source = "productEnv.name")
     BusinessElementDTO toDto(BusinessElement businessElement);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

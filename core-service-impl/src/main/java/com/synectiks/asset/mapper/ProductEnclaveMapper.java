@@ -23,6 +23,8 @@ public interface ProductEnclaveMapper {
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "departmentId", source = "department.id")
     @Mapping(target = "landingzoneId", source = "landingzone.id")
+    @Mapping(target = "departmentName", source = "department.name")
+    @Mapping(target = "landingZone", source = "landingzone.landingZone")
     ProductEnclaveDTO toDto(ProductEnclave productEnclave);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

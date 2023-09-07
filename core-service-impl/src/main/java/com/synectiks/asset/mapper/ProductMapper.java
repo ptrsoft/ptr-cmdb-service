@@ -22,6 +22,8 @@ public interface ProductMapper {
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "organizationId", source = "organization.id")
     @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "organizationName", source = "organization.name")
+    @Mapping(target = "departmentName", source = "department.name")
     ProductDTO toDto(Product product);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

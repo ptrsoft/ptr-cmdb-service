@@ -25,6 +25,9 @@ public interface CloudElementMapper {
     @Mapping(target = "landingzoneId", source = "landingzone.id")
     @Mapping(target = "dbCategoryId", source = "dbCategory.id")
     @Mapping(target = "productEnclaveId", source = "productEnclave.id")
+    @Mapping(target = "landingZone", source = "landingzone.landingZone")
+    @Mapping(target = "dbCategoryName", source = "dbCategory.name")
+    @Mapping(target = "productEnclaveInstanceId", source = "productEnclave.instanceId")
     CloudElementDTO toDto(CloudElement cloudElement);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

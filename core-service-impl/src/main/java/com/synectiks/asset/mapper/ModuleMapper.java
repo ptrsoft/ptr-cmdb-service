@@ -23,6 +23,8 @@ public interface ModuleMapper {
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "productEnvId", source = "productEnv.id")
+    @Mapping(target = "productName", source = "product.name")
+    @Mapping(target = "productEnvName", source = "productEnv.name")
     ModuleDTO toDto(Module module);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

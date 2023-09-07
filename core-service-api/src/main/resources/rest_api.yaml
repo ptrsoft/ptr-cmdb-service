@@ -4122,6 +4122,8 @@ components:
         organizationId:
           type: integer
           format: int64
+        organizationName:
+          type: string
     ProductDTO:
       type: object
       properties:
@@ -4138,6 +4140,10 @@ components:
         departmentId:
           type: integer
           format: int64
+        organizationName:
+          type: string
+        departmentName:
+          type: string
         status:
           type: string
         createdBy:
@@ -4175,9 +4181,13 @@ components:
         departmentId:
           type: integer
           format: int64
+        departmentName:
+          type: string
         landingzoneId:
           type: integer
           format: int64
+        landingZone:
+          type: string
     BudgetDTO:
       type: object
       properties:
@@ -4192,6 +4202,8 @@ components:
         organizationId:
           type: integer
           format: int64
+        organizationName:
+          type: string
         status:
           type: string
         createdBy:
@@ -4233,6 +4245,8 @@ components:
         departmentId:
           type: integer
           format: int64
+        departmentName:
+          type: string
     CloudElementSummaryDTO:
       type: object
       properties:
@@ -4254,6 +4268,8 @@ components:
         landingzoneId:
           type: integer
           format: int64
+        landingZone:
+          type: string
     CloudElementDTO:
       type: object
       properties:
@@ -4295,12 +4311,18 @@ components:
         landingzoneId:
           type: integer
           format: int64
+        landingZone:
+          type: string
         dbCategoryId:
           type: integer
           format: int64
+        dbCategoryName:
+          type: string
         productEnclaveId:
           type: integer
           format: int64
+        productEnclaveInstanceId:
+          type: string
     ModuleDTO:
       type: object
       properties:
@@ -4312,9 +4334,13 @@ components:
         productId:
           type: integer
           format: int64
+        productName:
+          type: string
         productEnvId:
           type: integer
           format: int64
+        productEnvName:
+          type: string
         moduleNature:
           type: string
         serviceTopology:
@@ -4348,18 +4374,28 @@ components:
         cloudElementId:
           type: integer
           format: int64
+        cloudElementInstanceId:
+          type: string
         departmentId:
           type: integer
           format: int64
+        departmentName:
+          type: string
         productId:
           type: integer
           format: int64
+        productName:
+          type: string
         moduleId:
           type: integer
           format: int64
+        moduleName:
+          type: string
         productEnvId:
           type: integer
           format: int64
+        productEnvName:
+          type: string
         slaJson:
           type: object
         costJson:
@@ -4401,6 +4437,8 @@ components:
         productId:
           type: integer
           format: int64
+        productName:
+          type: string
     DbCategoryDTO:
       type: object
       properties:
@@ -4422,6 +4460,8 @@ components:
         organizationId:
           type: integer
           format: int64
+        organizationName:
+          type: string
     EnvironmentCountQueryDTO:
       type: object
       properties:
