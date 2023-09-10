@@ -90,6 +90,8 @@ tags:
     description: sla analytics
   - name: BillingAnalyticsQuery
     description: billing  cost analytics
+  - name: ApplicationTopologyQuery
+    description: get application topology data
 
 
 paths:
@@ -4076,6 +4078,38 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organization/{orgId}/application-topology/landing-zone-id/{landingZoneId}:
+    get:
+      tags:
+        - ApplicationTopologyQuery
+      summary: Application-topology view by landing-zone-id
+      operationId: getApplicationTopologyByLandingZoneId
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationTopologyDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -4789,4 +4823,21 @@ components:
         instanceId:
           type: string
         tag:
+          type: object
+    ApplicationTopologyDTO:
+      type: object
+      properties:
+        application:
+          type: string
+        lob:
+          type: string
+        environment:
+          type: string
+        appType:
+          type: string
+        sle:
+          type: object
+        endUsage:
+          type: object
+        cost:
           type: object

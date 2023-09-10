@@ -613,6 +613,11 @@ public class QueryService {
 		 return queryRepository.getSlaWiseCostAssociate(orgId);
 	}
 
+	public List<ApplicationTopologyQueryObj> getApplicationTopology(Long orgId, Long landingZoneId) {
+		logger.debug("Get application topology data");
+		return queryRepository.getApplicationTopology(orgId, landingZoneId);
+	}
+
 //	public EnvironmentCountQueryObj getResourceCountsByOrgAndCloudAndLandingZone(Long orgId, String cloud,Long landingZone) {
 //		  logger.debug("Getting cloud wise landing zone and their resource counts for an organization and given cloud. Org Id: {}, Cloud: {}", orgId,cloud);
 //	        return queryRepository.getResourceCountsByOrgAndCloudAndLandingZone(cloud, orgId,landingZone);

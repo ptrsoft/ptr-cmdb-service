@@ -1302,4 +1302,34 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = SLA_COST_ASSOCIATE_QUERY, nativeQuery = true)
 	List<SlaAnalyticQueryObj> getSlaWiseCostAssociate(@Param("orgId") Long orgId);
 
+	String APPLICATION_TOPOLOGY_QUERY=" select l.id as landing_zone_id, l.landing_zone, d.id as department_id, p.name as application, d.name as lob, pe.name as environment, p.type as app_type, \n" +
+			"  jsonb_build_object( \n" +
+			"    'location', 'US-East EC2-6523', " +
+			"    'performance', cast (floor(random() * 100 + 1) as int),  \n" +
+			"    'availability', cast (floor(random() * 100 + 1) as int), \n" +
+			"    'security', cast (floor(random() * 100 + 1) as int), \n" +
+			"    'dataProtection', cast (floor(random() * 100 + 1) as int), \n" +
+			"    'userExp', cast (floor(random() * 100 + 1) as int) \n" +
+			"    ) as sle, \n" +
+			"  jsonb_build_object( \n" +
+			"    'location', 'US-East EC2-6523', " +
+			"    'performance', cast (floor(random() * 100 + 1) as int),  \n" +
+			"    'availability', cast (floor(random() * 100 + 1) as int), \n" +
+			"    'security', cast (floor(random() * 100 + 1) as int), \n" +
+			"    'dataProtection', cast (floor(random() * 100 + 1) as int), \n" +
+			"    'userExp', cast (floor(random() * 100 + 1) as int) \n" +
+			"    ) as end_usage, " +
+			"  jsonb_build_object( \n" +
+			"    'landingZone', l.landing_zone, " +
+			"    'countryCode', 'US',  \n" +
+			"    'currencyCode', 'USD', \n" +
+			"    'currencySymbol', '$', \n" +
+			"    'total', '0' \n" +
+			"    ) as cost " +
+			"  from product p, department d, product_env pe, landingzone l   \n" +
+			"  where p.department_id = d.id and pe.product_id = p.id and l.department_id = d.id  \n" +
+			"  and p.organization_id = :orgId and l.id = :landingZoneId order by p.name asc ";
+	@Query(value = APPLICATION_TOPOLOGY_QUERY, nativeQuery = true)
+	List<ApplicationTopologyQueryObj> getApplicationTopology(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
+
 }

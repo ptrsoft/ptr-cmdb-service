@@ -511,7 +511,6 @@ public class QueryController implements QueryApi {
 		List<CostBillingQueryObj> costBillingQueryObj = queryService.getDataGeneratorOrgBilling(orgId,entity);
 		List<CostBillingDTO> billingAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costBillingQueryObj);
 		return ResponseEntity.ok(billingAnalyticDTOList);
-		
 	}
 	@Override
 	public ResponseEntity<List<CostBillingDTO>> orgAndElementNameBilling(Long orgId ,String entity,String elementName){
@@ -519,7 +518,6 @@ public class QueryController implements QueryApi {
 		List<CostBillingQueryObj> costSummaryQueryObj = queryService.getOrgAndElementNameBilling(orgId,entity,elementName);
 		List<CostBillingDTO> costAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costSummaryQueryObj);
 		return ResponseEntity.ok(costAnalyticDTOList);
-		
 	}
 	
 	@Override
@@ -528,7 +526,6 @@ public class QueryController implements QueryApi {
 		List<CostBillingQueryObj> costSummaryQueryObj = queryService.getOrgAndLandingZoneBilling(orgId,entity,landingZone);
 		List<CostBillingDTO> costAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costSummaryQueryObj);
 		return ResponseEntity.ok(costAnalyticDTOList);
-		
 	}
 	
 	@Override
@@ -537,8 +534,14 @@ public class QueryController implements QueryApi {
 		List<CostBillingQueryObj> costSummaryQueryObj = queryService.getOrgAndElementNameAndLandingZoneBilling(orgId,entity,landingZone,elementName);
 		List<CostBillingDTO> costAnalyticDTOList = CostBillingMapper.INSTANCE.toDtoList(costSummaryQueryObj);
 		return ResponseEntity.ok(costAnalyticDTOList);
-		
 	}
 
+	@Override
+	public ResponseEntity<List<ApplicationTopologyDTO>> getApplicationTopologyByLandingZoneId(Long orgId, Long landingZoneId){
+		logger.debug("REST request to get application topology data for org id: {}, landing-zone-id: {} ", orgId, landingZoneId);
+		List<ApplicationTopologyQueryObj> applicationTopologyQueryObjList = queryService.getApplicationTopology(orgId,landingZoneId);
+		List<ApplicationTopologyDTO> applicationTopologyDTOList = ApplicationTopologyMapper.INSTANCE.toDtoList(applicationTopologyQueryObjList);
+		return ResponseEntity.ok(applicationTopologyDTOList);
+	}
 }
 
