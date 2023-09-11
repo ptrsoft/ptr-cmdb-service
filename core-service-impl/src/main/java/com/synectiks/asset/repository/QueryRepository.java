@@ -1332,4 +1332,71 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = APPLICATION_TOPOLOGY_QUERY, nativeQuery = true)
 	List<ApplicationTopologyQueryObj> getApplicationTopology(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId);
 
+	String PROCESS_CENTRAL_ANALYTIC_QUERY="select \n" +
+			" jsonb_build_object( \n" +
+			"    'volume',jsonb_build_object(\n" +
+			"    \t'product',jsonb_build_object('current','56%', 'previous','62%', 'diff','4%'),\n" +
+			"    \t'services',jsonb_build_object('current','22%', 'previous','24%', 'diff','-2%'),\n" +
+			"    \t'release',jsonb_build_object('current','36%', 'previous','40%', 'diff','-3%'),\n" +
+			"    \t'useCase',jsonb_build_object('current','41%', 'previous','39%', 'diff','2%'),\n" +
+			"    \t'bugs',jsonb_build_object('current','46%', 'previous','40%', 'diff','6%'),\n" +
+			"    \t'workflow',jsonb_build_object('current','33%', 'previous','36%', 'diff','-3%'),\n" +
+			"    \t'documentation',jsonb_build_object('current','11%', 'previous','14%', 'diff','-3%'),\n" +
+			"    \t'automationTest',jsonb_build_object('current','46%', 'previous','50%', 'diff','-4%')\n" +
+			"    ),\n" +
+			"    'velocity',jsonb_build_object(\n" +
+			"    \t'scheduleDeviation',jsonb_build_object('current','55%', 'previous','50%', 'diff','5%'),\n" +
+			"    \t'releaseTime',jsonb_build_object('current','20%', 'previous','23%', 'diff','-3%'),\n" +
+			"    \t'bugFixing',jsonb_build_object('current','46%', 'previous','50%', 'diff','-4%'),\n" +
+			"    \t'useCaseDelivery',jsonb_build_object('current','40%', 'previous','35%', 'diff','5%'),\n" +
+			"    \t'bugs',jsonb_build_object('current','44%', 'previous','40%', 'diff','4%'),\n" +
+			"    \t'workflowGeneration',jsonb_build_object('current','31%', 'previous','33%', 'diff','-2%'),\n" +
+			"    \t'documentation',jsonb_build_object('current','9%', 'previous','14%', 'diff','-5%'),\n" +
+			"    \t'automationTest',jsonb_build_object('current','11%', 'previous','17%', 'diff','-6%')\n" +
+			"    ),\n" +
+			"    'reliability',jsonb_build_object(\n" +
+			"    \t'postReleaseDefects',jsonb_build_object('current','57%', 'previous','50%', 'diff','7%'),\n" +
+			"    \t'usageStats',jsonb_build_object('current','22%', 'previous','28%', 'diff','-6%'))\n" +
+			"  ) as dev_central,\n" +
+			"  jsonb_build_object( \n" +
+			"    'infra',jsonb_build_object(\n" +
+			"    \t'account',jsonb_build_object('current','55%', 'previous','50%', 'diff','5%'),\n" +
+			"    \t'vpc',jsonb_build_object('current','20%', 'previous','22%', 'diff','-2%'),\n" +
+			"    \t'cluster',jsonb_build_object('current','34%', 'previous','38%', 'diff','-4%'),\n" +
+			"    \t'managedServices',jsonb_build_object('current','39%', 'previous','35%', 'diff','4%')\n" +
+			"    ),\n" +
+			"    'app',jsonb_build_object(\n" +
+			"    \t'container',jsonb_build_object('current','58%', 'previous','53%', 'diff','5%'),\n" +
+			"    \t'code',jsonb_build_object('current','22%', 'previous','26%', 'diff','-4%')\n" +
+			"    ),\n" +
+			"    'data',jsonb_build_object(\n" +
+			"    \t'accessCentral',jsonb_build_object('current','59%', 'previous','51%', 'diff','8%'),\n" +
+			"    \t'governance',jsonb_build_object('current','23%', 'previous','25%', 'diff','-2%'),\n" +
+			"    \t'transitAndStore',jsonb_build_object('current','35%', 'previous','38%', 'diff','-3%'))\n" +
+			"   ) as sec_central,\n" +
+			"  jsonb_build_object( \n" +
+			"    'volume',jsonb_build_object(\n" +
+			"    \t'newCloudProvisioning',jsonb_build_object('current','59%', 'previous','50%', 'diff','9%'),\n" +
+			"    \t'newProduct',jsonb_build_object('current','25%', 'previous','28%', 'diff','-3%'),\n" +
+			"    \t'serviceOnboarding',jsonb_build_object('current','40%', 'previous','50%', 'diff','-10%'),\n" +
+			"    \t'newAutomation',jsonb_build_object('current','45%', 'previous','42%', 'diff','3%'),\n" +
+			"    \t'alertsResolved',jsonb_build_object('current','50%', 'previous','48%', 'diff','2%')\n" +
+			"    ),\n" +
+			"    'velocity',jsonb_build_object(\n" +
+			"    \t'scheduleDeviation',jsonb_build_object('current','58%', 'previous','50%', 'diff','8%'),\n" +
+			"    \t'releaseTime',jsonb_build_object('current','23%', 'previous','25%', 'diff','-2%'),\n" +
+			"    \t'bugFixing',jsonb_build_object('current','59%', 'previous','53%', 'diff','6%'),\n" +
+			"    \t'useCaseDelivery',jsonb_build_object('current','24%', 'previous','28%', 'diff','-4%'),\n" +
+			"    \t'bugs',jsonb_build_object('current','59%', 'previous','55%', 'diff','4%'),\n" +
+			"    \t'workflowGeneration',jsonb_build_object('current','34%', 'previous','35%', 'diff','-1%'),\n" +
+			"    \t'documentation',jsonb_build_object('current','59%', 'previous','50%', 'diff','9%'),\n" +
+			"    \t'automationTest',jsonb_build_object('current','24%', 'previous','28%', 'diff','-4%')\n" +
+			"    ),\n" +
+			"    'reliability',jsonb_build_object(\n" +
+			"    \t'rateOfReopenTickets',jsonb_build_object('current','51%', 'previous','50%', 'diff','1%'))\n" +
+			"  ) as ops_central\n" +
+			" from organization o where o.id = :orgId";
+	@Query(value = PROCESS_CENTRAL_ANALYTIC_QUERY, nativeQuery = true)
+	List<ProcessCentralAnalyticQueryObj> getProcessCentralAnalyticData(@Param("orgId") Long orgId);
+
 }

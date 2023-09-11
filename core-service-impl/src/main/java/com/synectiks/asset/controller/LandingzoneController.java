@@ -1,16 +1,12 @@
 package com.synectiks.asset.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.controller.LandingzoneApi;
 import com.synectiks.asset.api.model.LandingzoneDTO;
-import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.Department;
+import com.synectiks.asset.api.model.LandingzoneResponseDTO;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.repository.LandingzoneRepository;
-import com.synectiks.asset.service.DepartmentService;
 import com.synectiks.asset.service.LandingzoneService;
 import com.synectiks.asset.service.VaultService;
 import com.synectiks.asset.web.rest.validation.Validator;
@@ -52,38 +48,37 @@ public class LandingzoneController implements LandingzoneApi {
     private VaultService vaultService;
 
     @Override
-    public ResponseEntity<LandingzoneDTO> getLandingzone(Long id) {
+    public ResponseEntity<LandingzoneResponseDTO> getLandingzone(Long id) {
         logger.debug("REST request to get a landing-zone : ID: {}", id);
         Optional<Landingzone> oObj = landingzoneService.findOne(id);
-        LandingzoneDTO LandingzoneDTO = LandingzoneMapper.INSTANCE.entityToDto(oObj.orElse(null));
-        return ResponseUtil.wrapOrNotFound(Optional.of(LandingzoneDTO));
+        LandingzoneResponseDTO landingzoneResponseDTO = LandingzoneMapper.INSTANCE.entityToResponseDto(oObj.orElse(null));
+        return ResponseUtil.wrapOrNotFound(Optional.of(landingzoneResponseDTO));
     }
 
     @Override
-    public ResponseEntity<List<LandingzoneDTO>> getLandingzoneList(){
+    public ResponseEntity<List<LandingzoneResponseDTO>> getLandingzoneList(){
         logger.debug("REST request to get all landing-zones");
         List<Landingzone> landingzoneList = landingzoneService.findAll();
-        List<LandingzoneDTO> landingzoneDTOList = LandingzoneMapper.INSTANCE.entityToDtoList(landingzoneList);
-        return ResponseEntity.ok(landingzoneDTOList);
+        List<LandingzoneResponseDTO> landingzoneResponseDTOList = LandingzoneMapper.INSTANCE.entityToResponseDtoList(landingzoneList);
+        return ResponseEntity.ok(landingzoneResponseDTOList);
     }
 
     @Override
-    public ResponseEntity<LandingzoneDTO> addLandingzone(LandingzoneDTO landingzoneDTO){
+    public ResponseEntity<LandingzoneResponseDTO> addLandingzone(LandingzoneDTO landingzoneDTO){
         logger.debug("REST request to add a landing-zone : {}", landingzoneDTO);
         validator.validateNotNull(landingzoneDTO.getId(), ENTITY_NAME);
         Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntity(landingzoneDTO);
         landingzone = landingzoneService.save(landingzone);
-        LandingzoneDTO result = LandingzoneMapper.INSTANCE.entityToDto(landingzone);
-
-        addLandingZoneInVault(landingzoneDTO);
-
+        Optional<Landingzone> optionalLandingzone = landingzoneService.findOne(landingzone.getId());
+        LandingzoneResponseDTO result = LandingzoneMapper.INSTANCE.entityToResponseDto(optionalLandingzone.orElse(null));
+        addLandingZoneInVault(result);
         return ResponseEntity.ok(result);
     }
 
-    private void addLandingZoneInVault(LandingzoneDTO landingzoneDTO) {
+    private void addLandingZoneInVault(LandingzoneResponseDTO landingzoneResponseDTO) {
         try{
             logger.debug("REST request to save landing zone to vault");
-            ObjectNode objectNode = vaultService.prepareObjectToSaveInVault(landingzoneDTO);
+            ObjectNode objectNode = vaultService.prepareObjectToSaveInVault(landingzoneResponseDTO);
             HttpStatus httpStatus = vaultService.saveLandingZone(objectNode);
             if(httpStatus.isError()){
                 logger.error("Landing Zone could not be saved in vault. Status code :{}",httpStatus.value());
@@ -98,33 +93,33 @@ public class LandingzoneController implements LandingzoneApi {
 
 
     @Override
-    public ResponseEntity<LandingzoneDTO> updateLandingzone(LandingzoneDTO landingzoneDTO) {
+    public ResponseEntity<LandingzoneResponseDTO> updateLandingzone(LandingzoneDTO landingzoneDTO) {
         logger.debug("REST request to update a landing-zone : {}", landingzoneDTO);
         validator.validateNull(landingzoneDTO.getId(), ENTITY_NAME);
         validator.validateEntityExistsInDb(landingzoneDTO.getId(), ENTITY_NAME, landingzoneRepository);
         Landingzone existingLandingzone = landingzoneRepository.findById(landingzoneDTO.getId()).get();
         Landingzone tempLandingzone = LandingzoneMapper.INSTANCE.dtoToEntityForUpdate(landingzoneDTO, existingLandingzone);
         Landingzone landingzone = landingzoneService.save(tempLandingzone);
-        LandingzoneDTO result = LandingzoneMapper.INSTANCE.entityToDto(landingzone);
+        LandingzoneResponseDTO result = LandingzoneMapper.INSTANCE.entityToResponseDto(landingzone);
         return ResponseEntity.ok(result);
     }
 
     @Override
-    public ResponseEntity<List<LandingzoneDTO>> searchLandingzone(LandingzoneDTO landingzoneDTO) {
+    public ResponseEntity<List<LandingzoneResponseDTO>> searchLandingzone(LandingzoneDTO landingzoneDTO) {
         Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntityForSearch(landingzoneDTO);
         logger.debug("REST request to get all landing-zones on given filters : {} ", landingzone);
         List<Landingzone> landingzoneList = landingzoneService.search(landingzone);
-        List<LandingzoneDTO> landingzoneDTOList = LandingzoneMapper.INSTANCE.entityToDtoList(landingzoneList);
-        return ResponseEntity.ok(landingzoneDTOList);
+        List<LandingzoneResponseDTO> landingzoneResponseDTOList = LandingzoneMapper.INSTANCE.entityToResponseDtoList(landingzoneList);
+        return ResponseEntity.ok(landingzoneResponseDTOList);
     }
 
 
     @Override
     public ResponseEntity<Void> addAllLandingzonesToVault(){
         List<Landingzone> landingzoneList = landingzoneService.findAll();
-        List<LandingzoneDTO> landingzoneDTOList = LandingzoneMapper.INSTANCE.entityToDtoList(landingzoneList);
-        for(LandingzoneDTO landingzoneDTO: landingzoneDTOList){
-            addLandingZoneInVault(landingzoneDTO);
+        List<LandingzoneResponseDTO> landingzoneResponseDTOList = LandingzoneMapper.INSTANCE.entityToResponseDtoList(landingzoneList);
+        for(LandingzoneResponseDTO landingzoneResponseDTO: landingzoneResponseDTOList){
+            addLandingZoneInVault(landingzoneResponseDTO);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

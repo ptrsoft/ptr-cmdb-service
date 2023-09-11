@@ -88,6 +88,8 @@ tags:
     description: cost analytics
   - name: SlaAnalyticsQuery
     description: sla analytics
+  - name: ProcessCentralAnalyticsQuery
+    description: sla analytics
   - name: BillingAnalyticsQuery
     description: billing  cost analytics
   - name: ApplicationTopologyQuery
@@ -739,7 +741,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/LandingzoneDTO'
+                  $ref: '#/components/schemas/LandingzoneResponseDTO'
         404:
           description: "Service Not found"
         500:
@@ -761,13 +763,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LandingzoneDTO'
+                $ref: '#/components/schemas/LandingzoneResponseDTO'
         201:
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LandingzoneDTO'
+                $ref: '#/components/schemas/LandingzoneResponseDTO'
         404:
           description: "Service Not found"
         500:
@@ -789,13 +791,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LandingzoneDTO'
+                $ref: '#/components/schemas/LandingzoneResponseDTO'
         201:
           description: Updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LandingzoneDTO'
+                $ref: '#/components/schemas/LandingzoneResponseDTO'
         404:
           description: "Service Not found"
         500:
@@ -819,7 +821,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LandingzoneDTO'
+                $ref: '#/components/schemas/LandingzoneResponseDTO'
         404:
           description: "Service Not found"
         500:
@@ -846,7 +848,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/LandingzoneDTO'
+                  $ref: '#/components/schemas/LandingzoneResponseDTO'
         404:
           description: "Service Not found"
         500:
@@ -3931,6 +3933,32 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organization/{orgId}/analytics/process-central-analytics:
+    get:
+      tags:
+        - ProcessCentralAnalyticsQuery
+      summary: get process central analytic data
+      operationId: getProcessCentralAnalytics
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProcessCentralAnalyticDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/organization/{orgId}/billing/cloud-element/entity/{entity}/organization-wise-billing:
     get:
       tags:
@@ -4280,6 +4308,44 @@ components:
           type: integer
           format: int64
         departmentName:
+          type: string
+    LandingzoneResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        description:
+          type: string
+        landingZone:
+          type: string
+        cloud:
+          type: string
+        displayName:
+          type: string
+        roleArn:
+          type: string
+        externalId:
+          type: string
+        status:
+          type: string
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdOn:
+          type: string
+        updatedOn:
+          type: string
+        departmentId:
+          type: integer
+          format: int64
+        departmentName:
+          type: string
+        organizationId:
+          type: integer
+          format: int64
+        organizationName:
           type: string
     CloudElementSummaryDTO:
       type: object
@@ -4799,6 +4865,15 @@ components:
           type: string
         endUsage:
           type: string
+    ProcessCentralAnalyticDTO:
+      type: object
+      properties:
+        devCentral:
+          type: object
+        secCentral:
+          type: object
+        opsCentral:
+          type: object
     InfraTopologySOAStatsDTO:
       type: object
       properties:

@@ -495,8 +495,15 @@ public class QueryController implements QueryApi {
 		List<SlaAnalyticQueryObj> slaWiseCostQueryObj = queryService.getSlaWiseCostNonAssociate(orgId);
 		List<SlaAnalyticDTO> slaAnalyticDTOList = SlaAnalyticMapper.INSTANCE.toDtoList(slaWiseCostQueryObj);
 		return ResponseEntity.ok(slaAnalyticDTOList);
-	} 
-	
+	}
+
+	@Override
+	public ResponseEntity<List<ProcessCentralAnalyticDTO>> getProcessCentralAnalytics(Long orgId) {
+		logger.debug("REST request to Get process central analytics of an organization: Org Id: {}", orgId);
+		List<ProcessCentralAnalyticQueryObj> processCentralAnalyticQueryObjList = queryService.getProcessCentralAnalyticData(orgId);
+		List<ProcessCentralAnalyticDTO> processCentralAnalyticDTOList = ProcessCentralAnalyticMapper.INSTANCE.toDtoList(processCentralAnalyticQueryObjList);
+		return ResponseEntity.ok(processCentralAnalyticDTOList);
+	}
 	@Override
 	public ResponseEntity<List<SlaAnalyticDTO>> getSlaWiseCostAssociate(Long orgId) {
 		logger.debug("REST request to Get sla  associate an organization: Org Id: {}", orgId);

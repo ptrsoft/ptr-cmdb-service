@@ -618,6 +618,11 @@ public class QueryService {
 		return queryRepository.getApplicationTopology(orgId, landingZoneId);
 	}
 
+	public List<ProcessCentralAnalyticQueryObj> getProcessCentralAnalyticData(Long orgId) {
+		logger.debug("Get process central data of organization id: {}", orgId);
+		return queryRepository.getProcessCentralAnalyticData(orgId);
+	}
+
 //	public EnvironmentCountQueryObj getResourceCountsByOrgAndCloudAndLandingZone(Long orgId, String cloud,Long landingZone) {
 //		  logger.debug("Getting cloud wise landing zone and their resource counts for an organization and given cloud. Org Id: {}, Cloud: {}", orgId,cloud);
 //	        return queryRepository.getResourceCountsByOrgAndCloudAndLandingZone(cloud, orgId,landingZone);

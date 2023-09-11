@@ -1,6 +1,7 @@
 package com.synectiks.asset.mapper;
 
 import com.synectiks.asset.api.model.LandingzoneDTO;
+import com.synectiks.asset.api.model.LandingzoneResponseDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.Department;
@@ -25,12 +26,29 @@ public interface LandingzoneMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
+    @Mapping(target = "createdOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
+    @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
+    @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "departmentName", source = "department.name")
+    @Mapping(target = "organizationId", source = "department.organization.id")
+    @Mapping(target = "organizationName", source = "department.organization.name")
+    LandingzoneResponseDTO toResponseDto(Landingzone landingzone);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target="id", ignore = true)
     @Mapping(target = "department.id", source = "departmentId")
     Landingzone toEntity(LandingzoneDTO landingzoneDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     default LandingzoneDTO entityToDto(Landingzone landingzone){
         LandingzoneDTO dto = toDto(landingzone);
+        dto.setId(landingzone.getId());
+        return dto;
+    }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    default LandingzoneResponseDTO entityToResponseDto(Landingzone landingzone){
+        LandingzoneResponseDTO dto = toResponseDto(landingzone);
         dto.setId(landingzone.getId());
         return dto;
     }
@@ -45,6 +63,12 @@ public interface LandingzoneMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     default List<LandingzoneDTO> entityToDtoList(List<Landingzone> landingzoneList) {
         List<LandingzoneDTO> landingzoneDTOList = landingzoneList.stream().map(entityObj -> entityToDto(entityObj)).collect(Collectors.toList());
+        return landingzoneDTOList;
+    }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    default List<LandingzoneResponseDTO> entityToResponseDtoList(List<Landingzone> landingzoneList) {
+        List<LandingzoneResponseDTO> landingzoneDTOList = landingzoneList.stream().map(entityObj -> entityToResponseDto(entityObj)).collect(Collectors.toList());
         return landingzoneDTOList;
     }
 

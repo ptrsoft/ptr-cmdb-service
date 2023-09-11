@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.model.LandingzoneDTO;
+import com.synectiks.asset.api.model.LandingzoneResponseDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Department;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class VaultService {
         headers.add(Constants.VAULT_HEADER, Constants.VAULT_ROOT_TOKEN);
         return headers;
     }
-    public String resolveLandingZonePath(String organization, String department, String cloud, String landingZone){
+    public String resolveVaultKey(String organization, String department, String cloud, String landingZone){
         String landingZonePath = Constants.VAULT_LANDING_ZONE_PATH
                 .replaceAll("_organization_", organization.toUpperCase())
                 .replaceAll("_department_",department.toUpperCase())
@@ -53,23 +54,23 @@ public class VaultService {
         return landingZonePath;
     }
 
-    public ObjectNode prepareObjectToSaveInVault(LandingzoneDTO landingzoneDTO) throws JsonProcessingException {
-        Optional<Department> oDept = departmentService.findOne(landingzoneDTO.getDepartmentId());
+    public ObjectNode prepareObjectToSaveInVault(LandingzoneResponseDTO landingzoneResponseDTO) throws JsonProcessingException {
+//        Optional<Department> oDept = departmentService.findOne(landingzoneDTO.getDepartmentId());
         ObjectMapper objectMapper = Constants.instantiateMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put(Constants.ORGANIZATION_NAME,oDept.get().getOrganization().getName());
-        objectNode.put(Constants.DEPARTMENT_NAME,oDept.get().getName());
-        objectNode.put(Constants.CLOUD, landingzoneDTO.getCloud());
-        objectNode.put(Constants.LANDING_ZONE, landingzoneDTO.getLandingZone());
+        objectNode.put(Constants.ORGANIZATION_NAME,landingzoneResponseDTO.getOrganizationName());
+        objectNode.put(Constants.DEPARTMENT_NAME,landingzoneResponseDTO.getDepartmentName());
+        objectNode.put(Constants.CLOUD, landingzoneResponseDTO.getCloud());
+        objectNode.put(Constants.LANDING_ZONE, landingzoneResponseDTO.getLandingZone());
 
 
 //        objectNode.put(Constants.DISPLAY_NAME, landingzoneDTO.getDisplayName());
 
-        if(Constants.AWS.equalsIgnoreCase(landingzoneDTO.getCloud())){
+        if(Constants.AWS.equalsIgnoreCase(landingzoneResponseDTO.getCloud())){
             JsonNode jsonNode = getServiceProviderAwsCreds();
             objectNode.put(Constants.REGION, Constants.DEFAULT_AWS_REGION);
-            objectNode.put(Constants.EXTERNAL_ID, landingzoneDTO.getExternalId());
-            objectNode.put(Constants.CROSS_ACCOUNT_ROLE_ARN, landingzoneDTO.getRoleArn());
+            objectNode.put(Constants.EXTERNAL_ID, landingzoneResponseDTO.getExternalId());
+            objectNode.put(Constants.CROSS_ACCOUNT_ROLE_ARN, landingzoneResponseDTO.getRoleArn());
             objectNode.put(Constants.ACCESS_KEY, jsonNode.get(Constants.ACCESS_KEY));
             objectNode.put(Constants.SECRET_KEY, jsonNode.get(Constants.SECRET_KEY));
         }
@@ -77,7 +78,7 @@ public class VaultService {
     }
 
     public HttpStatus saveLandingZone(ObjectNode obj) throws JsonProcessingException {
-        String landingZonePath =  resolveLandingZonePath(obj.get(Constants.ORGANIZATION_NAME).asText(), obj.get(Constants.DEPARTMENT_NAME).asText(), obj.get(Constants.CLOUD).asText(), obj.get(Constants.LANDING_ZONE).asText());
+        String landingZonePath =  resolveVaultKey(obj.get(Constants.ORGANIZATION_NAME).asText(), obj.get(Constants.DEPARTMENT_NAME).asText(), obj.get(Constants.CLOUD).asText(), obj.get(Constants.LANDING_ZONE).asText());
         String postUrl = Constants.VAULT_URL + landingZonePath;
         logger.info("Saving landing-zone to vault. Vault url : {}",postUrl);
 
