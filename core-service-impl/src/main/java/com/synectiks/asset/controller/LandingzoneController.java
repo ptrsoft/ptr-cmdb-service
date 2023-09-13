@@ -11,6 +11,7 @@ import com.synectiks.asset.service.LandingzoneService;
 import com.synectiks.asset.service.VaultService;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,9 @@ public class LandingzoneController implements LandingzoneApi {
         logger.debug("REST request to add a landing-zone : {}", landingzoneDTO);
         validator.validateNotNull(landingzoneDTO.getId(), ENTITY_NAME);
         Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntity(landingzoneDTO);
+        if(StringUtils.isBlank(landingzoneDTO.getLandingZone())){
+            landingzone.setLandingZone(landingzoneDTO.getRoleArn().split(":")[4]);
+        }
         landingzone = landingzoneService.save(landingzone);
         Optional<Landingzone> optionalLandingzone = landingzoneService.findOne(landingzone.getId());
         LandingzoneResponseDTO result = LandingzoneMapper.INSTANCE.entityToResponseDto(optionalLandingzone.orElse(null));
