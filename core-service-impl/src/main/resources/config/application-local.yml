@@ -154,6 +154,7 @@ awsx-api:
   appconfig-api: /appconfig
   lambda-api: /lambda
   eks-api: /eks
+  ecs-api: /ecs
 
 # ===================================================================
 # Application specific properties

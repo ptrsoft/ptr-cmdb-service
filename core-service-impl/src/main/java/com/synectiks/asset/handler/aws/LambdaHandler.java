@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +24,12 @@ import java.util.Map;
 public class LambdaHandler implements CloudHandler {
 
     private final Logger logger = LoggerFactory.getLogger(LambdaHandler.class);
+
+    private final Environment env;
+
+    public LambdaHandler(Environment env){
+        this.env = env;
+    }
 
     @Autowired
     private CloudElementService cloudElementService;
@@ -43,9 +50,9 @@ public class LambdaHandler implements CloudHandler {
         if(StringUtils.isBlank(awsRegion)){
             params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
         }
-        String appConfigUrl = Constants.AWSX_API_LAMBDA_URL+params;
 
-        Object lambdaResponse = this.restTemplate.getForObject(appConfigUrl, Object.class);
+        String awsxUrl = getUrl()+params;
+        Object lambdaResponse = this.restTemplate.getForObject(awsxUrl, Object.class);
         if(lambdaResponse != null && lambdaResponse.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
             List lambdaList = (ArrayList)lambdaResponse;
             for(Object lambdaObj: lambdaList){
@@ -90,6 +97,9 @@ public class LambdaHandler implements CloudHandler {
         }
     }
 
-
+    @Override
+    public String getUrl(){
+        return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.lambda-api");
+    }
 
 }

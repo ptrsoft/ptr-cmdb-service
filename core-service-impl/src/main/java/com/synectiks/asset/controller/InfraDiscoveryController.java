@@ -2,7 +2,7 @@ package com.synectiks.asset.controller;
 
 import com.synectiks.asset.api.model.LandingzoneDTO;
 import com.synectiks.asset.domain.Landingzone;
-import com.synectiks.asset.handler.AwsHandlerFactory;
+import com.synectiks.asset.handler.aws.AwsHandlerFactory;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.service.LandingzoneService;

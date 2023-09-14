@@ -173,6 +173,7 @@ public final class Constants {
     public static final String APP_CONFIG_SUMMARY = "APP_CONFIG_SUMMARY";
     public static final String LAMBDA = "LAMBDA";
     public static final String EKS = "EKS";
+    public static final String ECS = "ECS";
     public static final String S3 = "S3";
     public static final String GLACIER = "GLACIER";
     public static final String CDN = "CDN";

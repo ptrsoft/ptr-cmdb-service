@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +22,11 @@ import java.util.Map;
 public class AppConfigHandler implements CloudHandler {
 
     private final Logger logger = LoggerFactory.getLogger(AppConfigHandler.class);
+    private final Environment env;
+
+    public AppConfigHandler(Environment env){
+        this.env = env;
+    }
     @Autowired
     private CloudElementSummaryService cloudElementSummaryService;
 
@@ -40,8 +46,8 @@ public class AppConfigHandler implements CloudHandler {
         if(StringUtils.isBlank(awsRegion)){
             params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
         }
-        String appConfigUrl = Constants.AWSX_API_APPCONFIG_URL+params;
-        Map appConfigSummaryResponse = this.restTemplate.getForObject(appConfigUrl, Map.class);
+        String awsxUrl = getUrl()+params;
+        Map appConfigSummaryResponse = this.restTemplate.getForObject(awsxUrl, Map.class);
 
         List<CloudElementSummary> cloudElementSummaryList =  cloudElementSummaryService.getCloudElementSummary(organization, department, Constants.AWS, landingZone);
         if(cloudElementSummaryList != null && cloudElementSummaryList.size() > 0){
@@ -61,5 +67,10 @@ public class AppConfigHandler implements CloudHandler {
                 cloudElementSummaryService.save(cloudElementSummary);
             }
         }
+    }
+
+    @Override
+    public String getUrl(){
+        return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.appconfig-api");
     }
 }

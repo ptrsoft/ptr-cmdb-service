@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +24,12 @@ import java.util.Map;
 public class EksHandler implements CloudHandler {
 
     private final Logger logger = LoggerFactory.getLogger(EksHandler.class);
+
+    private final Environment env;
+
+    public EksHandler(Environment env){
+        this.env = env;
+    }
 
     @Autowired
     private CloudElementService cloudElementService;
@@ -43,9 +50,9 @@ public class EksHandler implements CloudHandler {
         if(StringUtils.isBlank(awsRegion)){
             params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
         }
-        String appConfigUrl = Constants.AWSX_API_EKS_URL+params;
-
-        Object response = this.restTemplate.getForObject(appConfigUrl, Object.class);
+//        String appConfigUrl = Constants.AWSX_API_EKS_URL+params;
+        String awsxUrl = getUrl()+params;
+        Object response = this.restTemplate.getForObject(awsxUrl, Object.class);
         if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
             List responseList = (ArrayList)response;
             for(Object obj: responseList){
@@ -93,6 +100,9 @@ public class EksHandler implements CloudHandler {
         }
     }
 
-
+    @Override
+    public String getUrl(){
+        return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.eks-api");
+    }
 
 }

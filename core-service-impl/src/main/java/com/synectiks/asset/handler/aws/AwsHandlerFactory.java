@@ -1,8 +1,10 @@
-package com.synectiks.asset.handler;
+package com.synectiks.asset.handler.aws;
 
 import com.synectiks.asset.AssetserviceApp;
 import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.aws.AppConfigHandler;
+import com.synectiks.asset.handler.aws.EcsHandler;
 import com.synectiks.asset.handler.aws.EksHandler;
 import com.synectiks.asset.handler.aws.LambdaHandler;
 
@@ -16,6 +18,9 @@ public class AwsHandlerFactory {
         }
         if(Constants.EKS.equalsIgnoreCase(elementType)){
             return AssetserviceApp.getBean(EksHandler.class);
+        }
+        if(Constants.ECS.equalsIgnoreCase(elementType)){
+            return AssetserviceApp.getBean(EcsHandler.class);
         }
         return null;
     }
