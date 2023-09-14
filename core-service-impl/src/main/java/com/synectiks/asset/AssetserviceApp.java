@@ -137,6 +137,7 @@ public class AssetserviceApp {
         Constants.AWSX_API_BASE_URL = env.getProperty("awsx-api.base-url");
         Constants.AWSX_API_APPCONFIG_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.appconfig-api");
         Constants.AWSX_API_LAMBDA_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.lambda-api");
+        Constants.AWSX_API_EKS_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.eks-api");
 
         log.info("AWSX_API_APPCONFIG_URL: {}",Constants.AWSX_API_APPCONFIG_URL);
     }

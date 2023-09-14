@@ -164,11 +164,16 @@ public final class Constants {
     public static String AWSX_API_APPCONFIG_URL = "";
 
     public static String AWSX_API_LAMBDA_URL = "";
+
+    public static String AWSX_API_EKS_URL = "";
     public static final String AWS_LAMBDA_FUNCTION_KEY = "AWS::Lambda::Function";
 
-    public static final String LAMBDA = "LAMBDA";
-    public static final String S3 = "S3";
+    public static final String CLOUD_ELEMENTS = "CLOUD_ELEMENTS";
 
+    public static final String APP_CONFIG_SUMMARY = "APP_CONFIG_SUMMARY";
+    public static final String LAMBDA = "LAMBDA";
+    public static final String EKS = "EKS";
+    public static final String S3 = "S3";
     public static final String GLACIER = "GLACIER";
     public static final String CDN = "CDN";
     private Constants() {

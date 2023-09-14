@@ -170,9 +170,9 @@ public class CloudElementService {
     }
 
     @Transactional(readOnly = true)
-    public List<CloudElement> getCloudElement(String organization, String department, String cloud, String landingZone, String arn) {
+    public List<CloudElement> getCloudElement(String organization, String department, String cloud, String landingZone, String arn, String elementType) {
         logger.debug("Get all cloud-elements on given criteria");
-        return cloudElementRepository.getCloudElement(organization, department, cloud, landingZone, arn);
+        return cloudElementRepository.getCloudElement(organization, department, cloud, landingZone, arn, elementType);
     }
 
     @Transactional(readOnly = true)

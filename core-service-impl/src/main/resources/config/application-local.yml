@@ -153,6 +153,7 @@ awsx-api:
   base-url: http://localhost:7000/awsx
   appconfig-api: /appconfig
   lambda-api: /lambda
+  eks-api: /eks
 
 # ===================================================================
 # Application specific properties
