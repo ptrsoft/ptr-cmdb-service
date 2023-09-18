@@ -52,5 +52,9 @@ public class DbCategoryService {
 		return dbCategoryRepository.findAll(Example.of(DbCategory), Sort.by(Sort.Direction.DESC, "name"));
 	}
 
+	public DbCategory findByName(String name) {
+		logger.debug("Request to get a db category by database type: {}", name);
+		return dbCategoryRepository.findByName(name);
+	}
 
 }

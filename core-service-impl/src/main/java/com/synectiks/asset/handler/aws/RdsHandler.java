@@ -1,14 +1,9 @@
 package com.synectiks.asset.handler.aws;
 
 import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.CloudElement;
-import com.synectiks.asset.domain.Department;
-import com.synectiks.asset.domain.Landingzone;
-import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.domain.*;
 import com.synectiks.asset.handler.CloudHandler;
-import com.synectiks.asset.service.CloudElementService;
-import com.synectiks.asset.service.LandingzoneService;
-import com.synectiks.asset.service.VaultService;
+import com.synectiks.asset.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +32,12 @@ public class RdsHandler implements CloudHandler {
     private LandingzoneService landingzoneService;
 
     @Autowired
+    private DbCategoryService dbCategoryService;
+
+    @Autowired
+    private ProductEnclaveService productEnclaveService;
+
+    @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
@@ -51,13 +52,21 @@ public class RdsHandler implements CloudHandler {
                 Map responseMap = (Map)respObj;
                 List dbInstanceList = (List)responseMap.get("DBInstances");
                 for(Object obj: dbInstanceList) {
-                    addUpdate(landingZone, (Map) obj);
+                    addUpdate(department, landingZone, (Map) obj);
                 }
             }
         }
     }
 
-    private void addUpdate(Landingzone landingZone, Map configMap) {
+    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+        ProductEnclave productEnclave = null;
+        if(configMap.containsKey("DBSubnetGroup")){
+            if(((Map)configMap.get("DBSubnetGroup")).containsKey("VpcId")) {
+                String vpcId = (String)((Map)configMap.get("DBSubnetGroup")).get("VpcId");
+                productEnclave = productEnclaveService.findProductEnclave(vpcId, department.getId(), landingZone.getId());
+            }
+        }
+
         String instanceId = (String)configMap.get("DbiResourceId");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.RDS);
         if(cloudElement != null ){
@@ -65,9 +74,11 @@ public class RdsHandler implements CloudHandler {
             cloudElement.setConfigJson(configMap);
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName(instanceId);
+            cloudElement.setProductEnclave(productEnclave);
             cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding rds: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
+            DbCategory dbCategory = dbCategoryService.findByName(Constants.SQL_DB);
             CloudElement cloudElementObj = CloudElement.builder()
                 .elementType(Constants.RDS)
                 .arn((String)configMap.get("DBInstanceArn"))
@@ -76,6 +87,8 @@ public class RdsHandler implements CloudHandler {
                 .category(Constants.DATA_SERVICES)
                 .landingzone(landingZone)
                 .configJson(configMap)
+                .dbCategory(dbCategory)
+                .productEnclave(productEnclave)
                 .build();
             cloudElementService.save(cloudElementObj);
         }

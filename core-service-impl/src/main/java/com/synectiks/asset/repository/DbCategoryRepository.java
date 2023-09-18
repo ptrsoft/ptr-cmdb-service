@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface DbCategoryRepository extends JpaRepository<DbCategory, Long> {}
+public interface DbCategoryRepository extends JpaRepository<DbCategory, Long> {
+    DbCategory findByName(String name);
+}

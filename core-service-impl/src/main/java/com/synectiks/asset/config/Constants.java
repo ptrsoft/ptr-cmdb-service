@@ -180,6 +180,15 @@ public final class Constants {
     public static final String RDS = "RDS";
     public static final String GLACIER = "GLACIER";
     public static final String CDN = "CDN";
+
+    public static final String SQL_DB = "SQL DB";
+    public static final String NO_SQL_DB = "No SQL DB";
+    public static final String SEARCH_DB = "Search DB";
+    public static final String LEDGER_DB = "Ledger DB";
+    public static final String CACHE_DB = "Cache DB";
+    public static final String OBJECT_DB = "Object DB";
+    public static final String GIT_DB = "Git DB";
+    public static final String METRICS_DB = "Metrics DB";
     private Constants() {
     }
 }
