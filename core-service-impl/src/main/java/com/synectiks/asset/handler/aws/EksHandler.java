@@ -68,7 +68,7 @@ public class EksHandler implements CloudHandler {
     }
 
     private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
-        CloudElement cloudElement =  cloudElementService.getCloudElement(landingZone.getId(), (String)((Map)configMap.get("Cluster")).get("Arn"), Constants.EKS);
+        CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)((Map)configMap.get("Cluster")).get("Arn"), Constants.EKS);
         ProductEnclave productEnclave = null;
         if(((Map)configMap.get("Cluster")).containsKey("ResourcesVpcConfig")){
             if(((Map)((Map)configMap.get("Cluster")).get("ResourcesVpcConfig")).containsKey("VpcId")){

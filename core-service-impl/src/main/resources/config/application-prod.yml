@@ -150,6 +150,8 @@ awsx-api:
   eks-api: /eks
   ecs-api: /ecs
   vpc-api: /vpc
+  ec2-api: /ec2
+  rds-api: /rds
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

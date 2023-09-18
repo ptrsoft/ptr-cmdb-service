@@ -22,6 +22,12 @@ public class AwsHandlerFactory {
         if(Constants.VPC.equalsIgnoreCase(elementType)){
             return AssetserviceApp.getBean(VpcHandler.class);
         }
+        if(Constants.EC2.equalsIgnoreCase(elementType)){
+            return AssetserviceApp.getBean(Ec2Handler.class);
+        }
+        if(Constants.RDS.equalsIgnoreCase(elementType)){
+            return AssetserviceApp.getBean(RdsHandler.class);
+        }
         return null;
     }
 }

@@ -72,7 +72,7 @@ public class LambdaHandler implements CloudHandler {
     }
 
     private void addUpdate(Landingzone landingZone, Map lambdaMap) {
-        CloudElement cloudElement =  cloudElementService.getCloudElement(landingZone.getId(), (String)lambdaMap.get("FunctionArn"), Constants.LAMBDA);
+        CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)lambdaMap.get("FunctionArn"), Constants.LAMBDA);
         if(cloudElement != null){
                 logger.debug("Updating lambda {} cloud-element for existing landing-zone: {}", (String)lambdaMap.get("FunctionName"), landingZone.getLandingZone());
                 cloudElement.setConfigJson(lambdaMap);

@@ -131,7 +131,7 @@ public class CloudElementController implements CloudElementApi {
     @Override
     public ResponseEntity<Object> deleteCloudElementTag(Long landingZoneId, String instanceId, Long serviceId) {
         logger.debug("REST request to delete a tag. LandingZoneId: {}, instanceId: {}, serviceId: {}", landingZoneId,instanceId,serviceId);
-        CloudElement cloudElement = cloudElementService.getCloudElement(landingZoneId,serviceId,instanceId);
+        CloudElement cloudElement = cloudElementService.getCloudElementByArn(landingZoneId,serviceId,instanceId);
         if(cloudElement != null){
             ObjectMapper objectMapper = Constants.instantiateMapper();
             try{

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
@@ -170,13 +169,19 @@ public class CloudElementService {
     }
 
     @Transactional(readOnly = true)
-    public CloudElement getCloudElement(Long landingZoneId, String arn, String elementType) {
+    public CloudElement getCloudElementByArn(Long landingZoneId, String arn, String elementType) {
         logger.debug("Get all cloud-elements on given criteria");
-        return cloudElementRepository.getCloudElement(landingZoneId, arn, elementType);
+        return cloudElementRepository.getCloudElementByArn(landingZoneId, arn, elementType);
     }
 
     @Transactional(readOnly = true)
-    public CloudElement getCloudElement(Long landingZoneId,Long serviceId, String instanceId) {
+    public CloudElement getCloudElementByInstanceId(Long landingZoneId, String instanceId, String elementType) {
+        logger.debug("Get all cloud-elements on given criteria");
+        return cloudElementRepository.getCloudElementByInstanceId(landingZoneId, instanceId, elementType);
+    }
+
+    @Transactional(readOnly = true)
+    public CloudElement getCloudElementByArn(Long landingZoneId, Long serviceId, String instanceId) {
         logger.debug("Get all cloud-elements on given criteria");
         return cloudElementRepository.getCloudElementForTag(landingZoneId, serviceId, instanceId);
     }

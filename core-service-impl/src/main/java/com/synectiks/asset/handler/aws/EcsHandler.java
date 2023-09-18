@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +66,7 @@ public class EcsHandler implements CloudHandler {
         List configList = (List)clusterMap.get("Clusters");
         for(Object obj: configList){
             Map configMap = (Map)obj;
-            CloudElement cloudElement =  cloudElementService.getCloudElement(landingZone.getId(), (String)configMap.get("ClusterArn"), Constants.ECS);
+            CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)configMap.get("ClusterArn"), Constants.ECS);
             if(cloudElement != null ){
                 logger.debug("Updating ecs: {} for landing-zone: {}",(String)configMap.get("ClusterName"), landingZone.getLandingZone());
                 cloudElement.setConfigJson(configMap);

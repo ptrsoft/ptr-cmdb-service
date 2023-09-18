@@ -19,9 +19,15 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
 
     String CLOUD_ELEMENT_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
     @Query(value = CLOUD_ELEMENT_QUERY, nativeQuery = true)
-    CloudElement getCloudElement(@Param("landingZoneId") Long landingZoneId,
-                                       @Param("arn") String arn,
-                                       @Param("elementType") String elementType);
+    CloudElement getCloudElementByArn(@Param("landingZoneId") Long landingZoneId,
+                                      @Param("arn") String arn,
+                                      @Param("elementType") String elementType);
+
+    String CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.instance_id = :instanceId  ";
+    @Query(value = CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY, nativeQuery = true)
+    CloudElement getCloudElementByInstanceId(@Param("landingZoneId") Long landingZoneId,
+                                 @Param("instanceId") String instanceId,
+                                 @Param("elementType") String elementType);
 
 
     String CLOUD_ELEMENT_TAG_QUERY ="select ce.id, ce.landingzone_id,  ce.instance_id, c.obj -> 'tag' as tag  \n" +

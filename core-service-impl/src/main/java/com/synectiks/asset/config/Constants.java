@@ -175,6 +175,9 @@ public final class Constants {
     public static final String EKS = "EKS";
     public static final String ECS = "ECS";
     public static final String S3 = "S3";
+
+    public static final String EC2 = "EC2";
+    public static final String RDS = "RDS";
     public static final String GLACIER = "GLACIER";
     public static final String CDN = "CDN";
     private Constants() {
