@@ -2,7 +2,9 @@ package com.synectiks.asset.handler.aws;
 
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.Department;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.LandingzoneService;
@@ -43,8 +45,8 @@ public class EcsHandler implements CloudHandler {
     private VaultService vaultService;
 
     @Override
-    public void save(String organization, String department, String landingZone, String awsRegion) {
-        String vaultAccountKey =  vaultService.resolveVaultKey(organization, department, Constants.AWS, landingZone);
+    public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
+        String vaultAccountKey =  vaultService.resolveVaultKey(organization.getName(), department.getName(), Constants.AWS, landingZone.getLandingZone());
         String params = "?zone="+awsRegion+"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
         if(StringUtils.isBlank(awsRegion)){
             params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
@@ -56,44 +58,35 @@ public class EcsHandler implements CloudHandler {
             List responseList = (ArrayList)response;
             for(Object obj: responseList){
                 Map configMap = (Map)obj;
-                addUpdate(organization, department, landingZone, configMap);
+                addUpdate(landingZone, configMap);
             }
         }
     }
 
-    private void addUpdate(String organization, String department, String landingZone, Map clusterMap) {
+    private void addUpdate(Landingzone landingZone, Map clusterMap) {
         List configList = (List)clusterMap.get("Clusters");
         for(Object obj: configList){
             Map configMap = (Map)obj;
-            List<CloudElement> cloudElementList =  cloudElementService.getCloudElement(organization, department, Constants.AWS, landingZone, (String)configMap.get("ClusterArn"), Constants.ECS);
-            if(cloudElementList != null && cloudElementList.size() > 0){
-                logger.debug("Updating ecs: {} for landing-zone: {}",(String)configMap.get("ClusterName"), landingZone);
-                for(CloudElement cloudElement: cloudElementList){
-                    if(((String)configMap.get("ClusterArn")).equalsIgnoreCase(cloudElement.getArn())){
-                        cloudElement.setConfigJson(configMap);
-                        cloudElement.setInstanceId((String)configMap.get("ClusterName"));
-                        cloudElement.setInstanceName((String)configMap.get("ClusterName"));
-                        cloudElementService.save(cloudElement);
-                    }
-                }
+            CloudElement cloudElement =  cloudElementService.getCloudElement(landingZone.getId(), (String)configMap.get("ClusterArn"), Constants.ECS);
+            if(cloudElement != null ){
+                logger.debug("Updating ecs: {} for landing-zone: {}",(String)configMap.get("ClusterName"), landingZone.getLandingZone());
+                cloudElement.setConfigJson(configMap);
+                cloudElement.setInstanceId((String)configMap.get("ClusterName"));
+                cloudElement.setInstanceName((String)configMap.get("ClusterName"));
+                cloudElementService.save(cloudElement);
             }else{
-                logger.debug("Adding ecs {}",(String)configMap.get("ClusterName"));
-                List<Landingzone> landingzoneList =  landingzoneService.getLandingZone(organization, department, Constants.AWS, landingZone);
-                for(Landingzone landingzone: landingzoneList){
-                    logger.debug("Adding ecs cloud-element for landing-zone: {}", landingZone);
-                    String instanceId = (String)configMap.get("ClusterName");
-
-                    CloudElement cloudElementObj = CloudElement.builder()
-                            .elementType(Constants.ECS)
-                            .arn((String)configMap.get("ClusterArn"))
-                            .instanceId(instanceId)
-                            .instanceName((String)configMap.get("ClusterName"))
-                            .category(Constants.APP_SERVICES)
-                            .landingzone(landingzone)
-                            .configJson(configMap)
-                            .build();
-                    cloudElementService.save(cloudElementObj);
-                }
+                logger.debug("Adding ecs: {} for landing-zone: {}",(String)configMap.get("ClusterName"), landingZone.getLandingZone());
+                String instanceId = (String)configMap.get("ClusterName");
+                CloudElement cloudElementObj = CloudElement.builder()
+                    .elementType(Constants.ECS)
+                    .arn((String)configMap.get("ClusterArn"))
+                    .instanceId(instanceId)
+                    .instanceName((String)configMap.get("ClusterName"))
+                    .category(Constants.APP_SERVICES)
+                    .landingzone(landingZone)
+                    .configJson(configMap)
+                    .build();
+                cloudElementService.save(cloudElementObj);
             }
         }
 

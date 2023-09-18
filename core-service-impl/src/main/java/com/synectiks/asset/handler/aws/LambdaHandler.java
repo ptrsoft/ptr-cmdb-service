@@ -2,10 +2,13 @@ package com.synectiks.asset.handler.aws;
 
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.Department;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.LandingzoneService;
+import com.synectiks.asset.service.ProductEnclaveService;
 import com.synectiks.asset.service.VaultService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,14 +41,17 @@ public class LambdaHandler implements CloudHandler {
     private LandingzoneService landingzoneService;
 
     @Autowired
+    private ProductEnclaveService productEnclaveService;
+
+    @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
     private VaultService vaultService;
 
     @Override
-    public void save(String organization, String department, String landingZone, String awsRegion) {
-        String vaultAccountKey =  vaultService.resolveVaultKey(organization, department, Constants.AWS, landingZone);
+    public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
+        String vaultAccountKey =  vaultService.resolveVaultKey(organization.getName(), department.getName(), Constants.AWS, landingZone.getLandingZone());
         String params = "?zone="+awsRegion+"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
         if(StringUtils.isBlank(awsRegion)){
             params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
@@ -57,43 +63,34 @@ public class LambdaHandler implements CloudHandler {
             List lambdaList = (ArrayList)lambdaResponse;
             for(Object lambdaObj: lambdaList){
                 Map lambdaMap = (Map)lambdaObj;
-                addUpdate(organization, department, landingZone, lambdaMap);
+                addUpdate(landingZone, lambdaMap);
             }
         }else if(lambdaResponse != null && lambdaResponse.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
             Map lambdaMap = (LinkedHashMap)lambdaResponse;
-            addUpdate(organization, department, landingZone, lambdaMap);
+            addUpdate(landingZone, lambdaMap);
         }
     }
 
-    private void addUpdate(String organization, String department, String landingZone, Map lambdaMap) {
-        List<CloudElement> cloudElementList =  cloudElementService.getCloudElement(organization, department, Constants.AWS, landingZone, (String)lambdaMap.get("FunctionArn"), Constants.LAMBDA);
-        if(cloudElementList != null && cloudElementList.size() > 0){
-            logger.debug("Updating lambda {}",(String)lambdaMap.get("FunctionName"));
-            for(CloudElement cloudElement: cloudElementList){
-                if(((String)lambdaMap.get("FunctionArn")).equalsIgnoreCase(cloudElement.getArn())){
-                    logger.debug("Updating lambda cloud-element for existing landing-zone: {}", landingZone);
-                    cloudElement.setConfigJson(lambdaMap);
-                    cloudElement.setInstanceId((String)lambdaMap.get("FunctionName"));
-                    cloudElement.setInstanceName((String)lambdaMap.get("FunctionName"));
-                    cloudElementService.save(cloudElement);
-                }
-            }
+    private void addUpdate(Landingzone landingZone, Map lambdaMap) {
+        CloudElement cloudElement =  cloudElementService.getCloudElement(landingZone.getId(), (String)lambdaMap.get("FunctionArn"), Constants.LAMBDA);
+        if(cloudElement != null){
+                logger.debug("Updating lambda {} cloud-element for existing landing-zone: {}", (String)lambdaMap.get("FunctionName"), landingZone.getLandingZone());
+                cloudElement.setConfigJson(lambdaMap);
+                cloudElement.setInstanceId((String)lambdaMap.get("FunctionName"));
+                cloudElement.setInstanceName((String)lambdaMap.get("FunctionName"));
+                cloudElementService.save(cloudElement);
         }else{
-            logger.debug("Adding lambda {}",(String)lambdaMap.get("FunctionName"));
-            List<Landingzone> landingzoneList =  landingzoneService.getLandingZone(organization, department, Constants.AWS, landingZone);
-            for(Landingzone landingzone: landingzoneList){
-                logger.debug("Adding lambda cloud-element for landing-zone: {}", landingZone);
-                CloudElement cloudElementObj = CloudElement.builder()
-                        .elementType(Constants.LAMBDA)
-                        .arn((String) lambdaMap.get("FunctionArn"))
-                        .instanceId((String) lambdaMap.get("FunctionName"))
-                        .instanceName((String) lambdaMap.get("FunctionName"))
-                        .category(Constants.APP_SERVICES)
-                        .landingzone(landingzone)
-                        .configJson(lambdaMap)
-                        .build();
-                cloudElementService.save(cloudElementObj);
-            }
+            logger.debug("Adding lambda {} cloud-element for existing landing-zone: {}", (String)lambdaMap.get("FunctionName"), landingZone.getLandingZone());
+            CloudElement cloudElementObj = CloudElement.builder()
+                .elementType(Constants.LAMBDA)
+                .arn((String) lambdaMap.get("FunctionArn"))
+                .instanceId((String) lambdaMap.get("FunctionName"))
+                .instanceName((String) lambdaMap.get("FunctionName"))
+                .category(Constants.APP_SERVICES)
+                .landingzone(landingZone)
+                .configJson(lambdaMap)
+                .build();
+            cloudElementService.save(cloudElementObj);
         }
     }
 

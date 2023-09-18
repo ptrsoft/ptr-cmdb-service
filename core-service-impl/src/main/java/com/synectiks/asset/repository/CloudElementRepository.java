@@ -17,21 +17,11 @@ import java.util.List;
 public interface CloudElementRepository extends JpaRepository<CloudElement, Long> {
     CloudElement findByInstanceId(String instanceId);
 
-    String CLOUD_ELEMENT_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id in ( " +
-            " select l.id from landingzone l\n" +
-            " where l.landing_zone = :landingZone and upper(l.cloud) = upper(:cloud)\n" +
-            " and l.department_id = (select d.id from department d where upper(d.\"name\") = upper(:department)\n" +
-            " and d.organization_id = (select o.id from organization o where upper(o.\"name\") = upper(:organization) )))\n" +
-            " and upper(ce.element_type) = upper(:elementType)  " +
-            " and ce.arn = :arn " +
-            " order by ce.id asc ";
+    String CLOUD_ELEMENT_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
     @Query(value = CLOUD_ELEMENT_QUERY, nativeQuery = true)
-    List<CloudElement> getCloudElement(@Param("organization") String organization,
-                                                     @Param("department") String department,
-                                                     @Param("cloud") String cloud,
-                                                     @Param("landingZone") String landingZone,
-                                                     @Param("arn") String arn,
-                                                     @Param("elementType") String elementType);
+    CloudElement getCloudElement(@Param("landingZoneId") Long landingZoneId,
+                                       @Param("arn") String arn,
+                                       @Param("elementType") String elementType);
 
 
     String CLOUD_ELEMENT_TAG_QUERY ="select ce.id, ce.landingzone_id,  ce.instance_id, c.obj -> 'tag' as tag  \n" +

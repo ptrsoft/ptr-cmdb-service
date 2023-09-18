@@ -58,9 +58,9 @@ public class CloudElementSummaryService {
 
 
 	@Transactional(readOnly = true)
-	public List<CloudElementSummary> getCloudElementSummary(String organization, String department, String cloud, String landingZone) {
-		logger.debug("Get all cloud-element-summaries on given criteria");
-		return cloudElementSummaryRepository.getCloudElementSummary(organization, department, cloud, landingZone);
+	public List<CloudElementSummary> getCloudElementSummary(Long landingZoneId) {
+		logger.debug("Get all cloud-element-summaries of a landing-zone-id {}", landingZoneId);
+		return cloudElementSummaryRepository.getCloudElementSummary(landingZoneId);
 	}
 	
 }

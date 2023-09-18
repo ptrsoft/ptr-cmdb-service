@@ -1,8 +1,9 @@
 package com.synectiks.asset.controller;
 
 import com.synectiks.asset.api.model.LandingzoneDTO;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Landingzone;
-import com.synectiks.asset.handler.aws.AwsHandlerFactory;
+import com.synectiks.asset.handler.factory.AwsHandlerFactory;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.service.LandingzoneService;
@@ -34,13 +35,14 @@ public class InfraDiscoveryController {
         for(Landingzone obj: landingzoneList){
             logger.debug("Getting data for element: {} and landing-zone: {} ", elementType, landingZone);
             CloudHandler cloudHandler = AwsHandlerFactory.getHandler(elementType);
-            cloudHandler.save(obj.getDepartment().getOrganization().getName(), obj.getDepartment().getName(), landingZone, awsRegion);
+            cloudHandler.save(obj.getDepartment().getOrganization(), obj.getDepartment(), obj, awsRegion);
         }
     }
 
     private List<Landingzone> getLandingzones(String landingZone) {
         LandingzoneDTO landingzoneDTO = new LandingzoneDTO();
         landingzoneDTO.setLandingZone(landingZone);
+        landingzoneDTO.setCloud(Constants.AWS);
         Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntityForSearch(landingzoneDTO);
         logger.debug("Searching landing-zones by given landing-zone : {} ", landingZone);
         List<Landingzone> landingzoneList = landingzoneService.search(landingzone);
