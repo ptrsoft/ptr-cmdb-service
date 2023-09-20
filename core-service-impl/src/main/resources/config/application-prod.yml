@@ -152,6 +152,16 @@ awsx-api:
   vpc-api: /vpc
   ec2-api: /ec2
   rds-api: /rds
+  s3-api: /s3
+  cdn-api: /cdn
+  waf-api: /waf
+  dynamodb-api: /dynamodb
+  kinesis-api: /kinesis
+  iam-api: /iam
+  apigw-api: /apigw
+  glacier-api: /glacier
+  open-search-api: /open-search
+  elastic-search-api: /elastic-search
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

@@ -28,6 +28,9 @@ public class AwsHandlerFactory {
         if(Constants.RDS.equalsIgnoreCase(elementType)){
             return AssetserviceApp.getBean(RdsHandler.class);
         }
+        if(Constants.S3.equalsIgnoreCase(elementType)){
+            return AssetserviceApp.getBean(S3Handler.class);
+        }
         return null;
     }
 }

@@ -221,10 +221,17 @@ public class CloudElementService {
             configMap = cloudElement.getConfigJson();
         }else if(cloudElement.getConfigJson() != null && "null".equals(cloudElement.getConfigJson())){
             configMap = new HashMap<>();
+            setBlankMap(configMap);
         }else{
             configMap = new HashMap<>();
+            setBlankMap(configMap);
         }
 
+
+        cloudElement.setConfigJson(configMap);
+    }
+    //TODO: to be removed after getting actual values
+    private void setBlankMap(Map configMap){
         configMap.put("bucketName", "project-files");
         configMap.put("replication", "replicated-files");
         configMap.put("objects", "136k");
@@ -236,7 +243,6 @@ public class CloudElementService {
         configMap.put("requests", "230");
         configMap.put("product", "Procurement");
         configMap.put("environment", "PROD");
-        cloudElement.setConfigJson(configMap);
     }
     private void getGlacierConfigMap(CloudElement cloudElement){
         Map<String, Object> configMap = null;
