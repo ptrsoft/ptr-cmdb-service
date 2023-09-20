@@ -31,6 +31,9 @@ public class AwsHandlerFactory {
         if(Constants.S3.equalsIgnoreCase(elementType)){
             return AssetserviceApp.getBean(S3Handler.class);
         }
+        if(Constants.CDN.equalsIgnoreCase(elementType)){
+            return AssetserviceApp.getBean(CdnHandler.class);
+        }
         return null;
     }
 }
