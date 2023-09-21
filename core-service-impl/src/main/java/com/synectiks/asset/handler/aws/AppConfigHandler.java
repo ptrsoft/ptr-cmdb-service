@@ -43,13 +43,9 @@ public class AppConfigHandler implements CloudHandler {
 
     @Override
     public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
-        String vaultAccountKey =  vaultService.resolveVaultKey(organization.getName(), department.getName(), Constants.AWS, landingZone.getLandingZone());
-        String params = "?zone="+awsRegion+"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
-        if(StringUtils.isBlank(awsRegion)){
-            params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
-        }
-        String awsxUrl = getUrl()+params;
-        Map appConfigSummaryResponse = this.restTemplate.getForObject(awsxUrl, Map.class);
+        Object response = getResponse(vaultService, restTemplate, getUrl(), organization, department, landingZone, awsRegion);
+
+        Map appConfigSummaryResponse = (Map)response;
 
         List<CloudElementSummary> cloudElementSummaryList =  cloudElementSummaryService.getCloudElementSummary(landingZone.getId());
         if(cloudElementSummaryList != null && cloudElementSummaryList.size() > 0){

@@ -181,6 +181,11 @@ public final class Constants {
     public static final String GLACIER = "GLACIER";
     public static final String CDN = "CDN";
 
+    public static final String KINESYS = "KINESYS";
+    public static final String DYNAMODB = "DYNAMODB";
+    public static final String WAF = "WAF";
+
+
     public static final String SQL_DB = "SQL DB";
     public static final String NO_SQL_DB = "No SQL DB";
     public static final String SEARCH_DB = "Search DB";

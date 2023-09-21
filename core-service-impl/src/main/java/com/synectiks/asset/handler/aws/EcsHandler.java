@@ -45,14 +45,7 @@ public class EcsHandler implements CloudHandler {
 
     @Override
     public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
-        String vaultAccountKey =  vaultService.resolveVaultKey(organization.getName(), department.getName(), Constants.AWS, landingZone.getLandingZone());
-        String params = "?zone="+awsRegion+"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
-        if(StringUtils.isBlank(awsRegion)){
-            params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey;
-        }
-
-        String awsxUrl = getUrl()+params;
-        Object response = this.restTemplate.getForObject(awsxUrl, Object.class);
+        Object response = getResponse(vaultService, restTemplate, getUrl(), organization, department, landingZone, awsRegion);
         if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
             List responseList = (ArrayList)response;
             for(Object obj: responseList){

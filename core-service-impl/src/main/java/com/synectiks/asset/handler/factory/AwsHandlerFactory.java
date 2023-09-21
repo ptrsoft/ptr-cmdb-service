@@ -34,6 +34,12 @@ public class AwsHandlerFactory {
         if(Constants.CDN.equalsIgnoreCase(elementType)){
             return AssetserviceApp.getBean(CdnHandler.class);
         }
+        if(Constants.KINESYS.equalsIgnoreCase(elementType)){
+            return AssetserviceApp.getBean(KinesysHandler.class);
+        }
+        if(Constants.DYNAMODB.equalsIgnoreCase(elementType)){
+            return AssetserviceApp.getBean(DynamodbHandler.class);
+        }
         return null;
     }
 }

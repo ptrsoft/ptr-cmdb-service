@@ -160,7 +160,7 @@ awsx-api:
   cdn-api: /cdn
   waf-api: /waf
   dynamodb-api: /dynamodb
-  kinesis-api: /kinesis
+  kinesys-api: /kinesys
   iam-api: /iam
   apigw-api: /apigw
   glacier-api: /glacier
