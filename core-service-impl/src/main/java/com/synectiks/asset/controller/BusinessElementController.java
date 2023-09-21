@@ -147,9 +147,8 @@ public class BusinessElementController implements BusinessElementApi {
 
     @Override
     public ResponseEntity<List<BusinessElementDTO>> searchBusinessElement(BusinessElementDTO businessElementDTO) {
-        BusinessElement businessElement = BusinessElementMapper.INSTANCE.dtoToEntityForSearch(businessElementDTO);
-        logger.debug("REST request to get all BusinessElements on given filters : {} ", businessElement);
-        List<BusinessElement> businessElementList = businessElementService.search(businessElement);
+        logger.debug("REST request to get all BusinessElements on given filters : {} ", businessElementDTO);
+        List<BusinessElement> businessElementList = businessElementService.search(businessElementDTO);
         List<BusinessElementDTO> businessElementDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
         return ResponseEntity.ok(businessElementDTOList);
     }
