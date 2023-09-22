@@ -61,18 +61,6 @@ public class CloudElementController implements CloudElementApi {
     @Autowired
     private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
-//    @Autowired
-//    private LandingzoneService landingzoneService;
-
-//    @Autowired
-//    private ConfigService configService;
-
-//    @Autowired
-//    private RestTemplate restTemplate;
-//
-//    @Autowired
-//    private VaultService vaultService;
-
     @Override
     public ResponseEntity<CloudElementDTO> getCloudElement(Long id) {
         logger.debug("REST request to get CloudElement : ID: {}", id);
@@ -113,8 +101,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<List<CloudElementDTO>> searchCloudElement(CloudElementDTO cloudElementDTO) {
-//        CloudElement cloudElement = CloudElementMapper.INSTANCE.dtoToEntityForSearch(cloudElementDTO);
-//        logger.debug("REST request to get all CloudElements on given filters : {} ", cloudElement);
+        logger.debug("REST request to get all cloud-elements on given filters : {} ", cloudElementDTO);
         List<CloudElement> cloudElementList = cloudElementService.search(cloudElementDTO);
         List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
         return ResponseEntity.ok(cloudElementDTOList);

@@ -94,7 +94,8 @@ tags:
     description: billing  cost analytics
   - name: ApplicationTopologyQuery
     description: get application topology data
-
+  - name: InfraDiscovery
+    description: Cloud element discovery
 
 paths:
   /organization:
@@ -4134,6 +4135,88 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ApplicationTopologyDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /infra-discovery/organization/{orgId}/aws:
+    get:
+      tags:
+        - InfraDiscovery
+      summary: Getting AWS elements
+      operationId: discoverAwsCloudElements
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: landingZone
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: elementType
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: awsRegion
+          schema:
+            type: string
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /infra-discovery/organization/{orgId}/azure:
+    get:
+      tags:
+        - InfraDiscovery
+      summary: Getting Azure elements
+      operationId: discoverAzureCloudElements
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: landingZone
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: elementType
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: awsRegion
+          schema:
+            type: string
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementDTO'
         404:
           description: "Service Not found"
         500:
