@@ -26,5 +26,8 @@ public interface ModuleRepository extends JpaRepository<Module, Long> {
     @Query(value = SEARCH_BY_FILTER, nativeQuery = true)
     List<Module> searchByFilters(@Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("serviceNature") String serviceNature);
 
+    String GET_MODULE_QUERY ="select m.* from module m where upper(m.name) = upper(:moduleName) and m.product_id = :productId and m.product_env_id = :productEnvId ";
+    @Query(value = GET_MODULE_QUERY, nativeQuery = true)
+    Module getModule(@Param("moduleName") String moduleName, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId);
 
 }

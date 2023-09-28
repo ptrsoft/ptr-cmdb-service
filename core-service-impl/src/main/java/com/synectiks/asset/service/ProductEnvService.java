@@ -52,5 +52,10 @@ public class ProductEnvService {
 		return productEnvRepository.findAll(Example.of(productEnv), Sort.by(Sort.Direction.DESC, "name"));
 	}
 
+	@Transactional(readOnly = true)
+	public ProductEnv getProductEnv(String envName, Long productId){
+		logger.debug("Get environment by env name: {}, product id: {} ",envName, productId);
+		return productEnvRepository.getProductEnv(envName, productId);
+	}
 
 }

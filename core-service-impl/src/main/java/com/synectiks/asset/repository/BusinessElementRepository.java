@@ -35,4 +35,14 @@ public interface BusinessElementRepository extends JpaRepository<BusinessElement
     @Query(value = SEARCH_BY_FILTER_3TIER_ASSOCIATION, nativeQuery = true)
     List<BusinessElement> searchByFiltersFor3TierAssociation(@Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("serviceType") String serviceType);
 
+    String GET_SOA_SERVICE ="select be.* from business_element be where upper(be.service_name) = upper(:serviceName) \n " +
+            " and upper(be.service_nature) = upper(:serviceNature) and be.product_id = :productId and be.product_env_id = :productEnvId and be.module_id = :moduleId ";
+    @Query(value = GET_SOA_SERVICE, nativeQuery = true)
+    BusinessElement getSoaService(@Param("serviceName") String serviceName, @Param("serviceNature") String serviceNature,  @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("moduleId") Long moduleId);
+
+    String GET_THREE_TIER_SERVICE ="select be.* from business_element be where upper(be.service_name) = upper(:serviceName) \n " +
+            " and upper(be.service_type) = upper(:serviceType) and be.product_id = :productId and be.product_env_id = :productEnvId  ";
+    @Query(value = GET_THREE_TIER_SERVICE, nativeQuery = true)
+    BusinessElement getThreeTierService(@Param("serviceName") String serviceName, @Param("serviceType") String serviceType,  @Param("productId") Long productId, @Param("productEnvId") Long productEnvId);
+
 }

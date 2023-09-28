@@ -1,7 +1,10 @@
 package com.synectiks.asset.service;
 
+import com.synectiks.asset.api.model.LandingzoneDTO;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElementSummary;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.repository.LandingzoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,5 +60,21 @@ public class LandingzoneService {
     public List<Landingzone> getLandingZone(String organization, String department, String cloud, String landingZone) {
         logger.debug("Get all landingzones on given criteria");
         return landingzoneRepository.getLandingZone(organization, department, cloud, landingZone);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Landingzone> getLandingzones(String landingZone) {
+        LandingzoneDTO landingzoneDTO = new LandingzoneDTO();
+        landingzoneDTO.setLandingZone(landingZone);
+        landingzoneDTO.setCloud(Constants.AWS);
+        Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntityForSearch(landingzoneDTO);
+        logger.debug("Searching landing-zones by given landing-zone : {} ", landingZone);
+        List<Landingzone> landingzoneList = search(landingzone);
+        return landingzoneList;
+    }
+
+    public List<Landingzone> getLandingZoneByOrgId(Long orgId, String cloud){
+        logger.debug("Getting landing-zones by given org id : {} ", orgId);
+        return landingzoneRepository.getLandingZoneByOrgId(orgId, cloud);
     }
 }

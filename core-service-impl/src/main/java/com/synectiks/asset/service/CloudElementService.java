@@ -1,25 +1,36 @@
 package com.synectiks.asset.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
+import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
+import com.synectiks.asset.handler.CloudHandler;
+import com.synectiks.asset.handler.factory.AwsHandlerFactory;
+import com.synectiks.asset.mapper.CloudElementMapper;
 import com.synectiks.asset.repository.CloudElementRepository;
+import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link CloudElement}.
@@ -34,7 +45,16 @@ public class CloudElementService {
     private CloudElementRepository cloudElementRepository;
 
     @Autowired
+    private BusinessElementService businessElementService;
+
+    @Autowired
+    private LandingzoneService landingzoneService;
+
+    @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
     public CloudElement save(CloudElement cloudElement) {
         logger.debug("Request to save cloud element : {}", cloudElement);
@@ -288,4 +308,113 @@ public class CloudElementService {
 //        configMap.put("environment", "PROD");
 //        cloudElement.setConfigJson(configMap);
 //    }
+
+    @Transactional
+    public CloudElement associateCloudElement(Map reqObj){
+        logger.debug("Request to associate a service (business-element) with infrastructure (cloud-element) or tag a business element");
+        CloudElement cloudElement = findByInstanceId((String)reqObj.get("instanceId"));
+        if(cloudElement == null){
+            logger.warn("Cloud-element of given instance-id: {} not found. ",(String)reqObj.get("instanceId"));
+            return null;
+        }
+        ObjectMapper objectMapper = Constants.instantiateMapper();
+        return updateCloudElementAndBusinessElementAssociation(reqObj, cloudElement, objectMapper);
+    }
+
+    public CloudElement updateCloudElementAndBusinessElementAssociation(Map reqObj, CloudElement cloudElement, ObjectMapper objectMapper) {
+        Map map = addServiceIdInHostedServices(cloudElement, reqObj, objectMapper);
+        if(map == null){
+            logger.error("There is some issue in updating hosted-services of cloud-element. cloud-element-type:{}, cloud-element-id: {}, instance-id: {}", cloudElement.getElementType(), cloudElement.getId(), cloudElement.getInstanceId());
+            return null;
+        }
+        logger.info("Completing tagging in cloud-element");
+        cloudElement.setHostedServices(map);
+        cloudElement = save(cloudElement);
+        logger.info("Cloud-element updated with business-element service id. Now updating business-element with cloud-element id");
+
+        Long serviceId = null;
+        if(reqObj.get("serviceId").getClass().getName().equalsIgnoreCase("java.lang.Integer")){
+            serviceId = ((Integer) reqObj.get("serviceId")).longValue();
+        }else{
+            serviceId = (Long) reqObj.get("serviceId");
+        }
+
+        businessElementService.updateService(serviceId, cloudElement);
+        logger.info("Tagging/association completed");
+        return cloudElement;
+    }
+
+    public Map addServiceIdInHostedServices(CloudElement cloudElement, Map reqObj, ObjectMapper objectMapper){
+        if(objectMapper == null){
+            objectMapper = Constants.instantiateMapper();
+        }
+        Map updatedHostedServiceMap = null;
+        try{
+            String hostedServiceJson = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getHostedServices(), Map.class);
+            JsonNode rootNode = null;
+            ArrayNode arrayNode = null;
+            if(!StringUtils.isBlank(hostedServiceJson) && !"null".equalsIgnoreCase(hostedServiceJson)){
+                rootNode = objectMapper.readTree(hostedServiceJson);
+                arrayNode = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, rootNode.get("HOSTEDSERVICES"), ArrayNode.class);
+            }else{
+                arrayNode = objectMapper.createArrayNode();
+            }
+
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            if(reqObj.get("instanceId") != null){
+                objectNode.put("instanceId",(String) reqObj.get("instanceId"));
+            }
+            if(reqObj.get("serviceId").getClass().getName().equalsIgnoreCase("java.lang.Integer")){
+                objectNode.put("serviceId",(Integer) reqObj.get("serviceId"));
+            }else{
+                objectNode.put("serviceId",(Long) reqObj.get("serviceId"));
+            }
+
+            if(reqObj.get("tag").getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
+                objectNode.set("tag", jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, (Map)reqObj.get("tag"), JsonNode.class));
+            }else if(reqObj.get("tag").getClass().getName().equalsIgnoreCase("com.fasterxml.jackson.databind.node.ObjectNode")){
+                objectNode.set("tag", jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, (ObjectNode)reqObj.get("tag"), JsonNode.class));
+            }
+
+            boolean isTagFound = isTagExist(arrayNode, objectNode);
+            if(isTagFound){
+                logger.info("Tag already exists");
+                return cloudElement.getHostedServices();
+            }
+
+            arrayNode.add(objectNode);
+            ObjectNode finalNode =  objectMapper.createObjectNode();
+            finalNode.put("HOSTEDSERVICES", arrayNode);
+            updatedHostedServiceMap = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
+        }catch (Exception e){
+            logger.error("Exception in updating cloud-element's hosted-services map: ",e);
+            return null;
+        }
+        return updatedHostedServiceMap;
+    }
+
+    List<CloudElement> getCloudElementsByLandingZoneIds(List<Long> landingZoneIdList){
+        return cloudElementRepository.getCloudElementsByLandingZoneIds(landingZoneIdList);
+    }
+
+    public void autoAssociateCloudElement(Long orgId, String cloud){
+        List<Landingzone> landingzoneList = landingzoneService.getLandingZoneByOrgId(orgId, cloud);
+        List<Long> landingZoneIdList = landingzoneList.stream().map(Landingzone::getId).collect(Collectors.toList());
+        List<CloudElement> cloudElementList = getCloudElementsByLandingZoneIds(landingZoneIdList);
+        for(CloudElement cloudElement: cloudElementList){
+            CloudHandler cloudHandler = AwsHandlerFactory.getHandler(cloudElement.getElementType());
+            cloudHandler.processTag(cloudElement);
+        }
+    }
+
+    public boolean isTagExist(ArrayNode arrayNode, JsonNode jsonNode){
+        boolean isExists = false;
+        for (JsonNode element : arrayNode) {
+            isExists = (element.get("serviceId").asLong() == jsonNode.get("serviceId").longValue()) && element.get("instanceId").equals(jsonNode.get("instanceId")) ;
+            if(isExists){
+                break;
+            }
+        }
+        return isExists;
+    }
 }

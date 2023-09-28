@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,5 +53,10 @@ public class ProductService {
 		return productRepository.findAll(Example.of(productEnv), Sort.by(Sort.Direction.DESC, "name"));
 	}
 
+	@Transactional(readOnly = true)
+	public Product getProduct(String productName, Long departmentId, Long orgId){
+		logger.debug("Get product by product name: {}, department id: {}, organization id: {} ",productName, departmentId, orgId);
+		return productRepository.getProduct(productName, departmentId, orgId);
+	}
 
 }

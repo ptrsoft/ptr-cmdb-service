@@ -16,6 +16,9 @@ import java.util.List;
 @Repository
 public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 
+    String ORG_BY_ORGNAME_QUERY ="select o.* from organization o where upper(o.name) = upper(:name)";
+    @Query(value = ORG_BY_ORGNAME_QUERY, nativeQuery = true)
+    Organization findByName(@Param("name") String name);
 }
 
 

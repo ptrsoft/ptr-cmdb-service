@@ -35,7 +35,7 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
     @Override
     public ResponseEntity<List<CloudElementDTO>> discoverAwsCloudElements(Long orgId, String landingZone, String elementType, String awsRegion )  {
         logger.debug("REST request to pull aws element details. Org id: {}, landing-zone: {}, element type: {}", orgId, landingZone, elementType);
-        List<Landingzone> landingzoneList = getLandingzones(landingZone);
+        List<Landingzone> landingzoneList = landingzoneService.getLandingzones(landingZone);
         for(Landingzone obj: landingzoneList){
             CloudHandler cloudHandler = AwsHandlerFactory.getHandler(elementType);
             cloudHandler.save(obj.getDepartment().getOrganization(), obj.getDepartment(), obj, awsRegion);
@@ -48,13 +48,13 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
         return ResponseEntity.ok(cloudElementDTOList);
     }
 
-    private List<Landingzone> getLandingzones(String landingZone) {
-        LandingzoneDTO landingzoneDTO = new LandingzoneDTO();
-        landingzoneDTO.setLandingZone(landingZone);
-        landingzoneDTO.setCloud(Constants.AWS);
-        Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntityForSearch(landingzoneDTO);
-        logger.debug("Searching landing-zones by given landing-zone : {} ", landingZone);
-        List<Landingzone> landingzoneList = landingzoneService.search(landingzone);
-        return landingzoneList;
-    }
+//    private List<Landingzone> getLandingzones(String landingZone) {
+//        LandingzoneDTO landingzoneDTO = new LandingzoneDTO();
+//        landingzoneDTO.setLandingZone(landingZone);
+//        landingzoneDTO.setCloud(Constants.AWS);
+//        Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntityForSearch(landingzoneDTO);
+//        logger.debug("Searching landing-zones by given landing-zone : {} ", landingZone);
+//        List<Landingzone> landingzoneList = landingzoneService.search(landingzone);
+//        return landingzoneList;
+//    }
 }

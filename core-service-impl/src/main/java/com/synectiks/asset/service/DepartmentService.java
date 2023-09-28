@@ -56,4 +56,9 @@ public class DepartmentService {
 		return departmentRepository.findAll(Example.of(department), Sort.by(Sort.Direction.DESC, "name"));
 	}
 
+	@Transactional(readOnly = true)
+	public Department getDepartment(String departmentName, Long orgId){
+		logger.debug("Get department by department name: {}, organization id: {} ",departmentName, orgId);
+		return departmentRepository.getDepartment(departmentName, orgId);
+	}
 }

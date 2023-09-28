@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -154,5 +155,26 @@ public class BusinessElementService {
         }
         logger.debug("Get all business elements on the filters provided. Department Id: {}, Product Id: {}, Product Env Id: {}, Service Type: {}", departmentId, productId, productEnvId, serviceType);
         return businessElementRepository.searchByFiltersFor3TierAssociation(departmentId, productId, productEnvId, serviceType);
+    }
+
+    public BusinessElement getSoaService(String serviceName, String serviceNature, Long productId, Long productEnvId, Long moduleId){
+        logger.debug("Get business-element by service name: {}, service nature: {}, product id: {}, environment id: {}, module id: {} ",serviceName, serviceNature, productId, productEnvId, moduleId);
+        return businessElementRepository.getSoaService(serviceName, serviceNature, productId, productEnvId, moduleId);
+    }
+    public BusinessElement getThreeTierService(String serviceName, String serviceType,  Long productId, Long productEnvId){
+        logger.debug("Get business-element by service name: {}, service type: {}, product id: {}, environment id: {} ",serviceName, serviceType,  productId, productEnvId);
+        return businessElementRepository.getThreeTierService(serviceName, serviceType,  productId, productEnvId);
+    }
+
+    @Transactional
+    public BusinessElement updateService(Long serviceId, CloudElement cloudElement){
+        Optional<BusinessElement> optionalBusinessElement = findOne(serviceId);
+        BusinessElement businessElement = null;
+        if(optionalBusinessElement.isPresent()){
+            businessElement = optionalBusinessElement.get();
+            businessElement.setCloudElement(cloudElement);
+            businessElement = save(businessElement);
+        }
+        return businessElement;
     }
 }

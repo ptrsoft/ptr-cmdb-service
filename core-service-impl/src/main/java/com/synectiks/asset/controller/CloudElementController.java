@@ -8,11 +8,13 @@ import com.synectiks.asset.api.controller.CloudElementApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.api.model.CloudElementTagDTO;
 import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
 import com.synectiks.asset.mapper.CloudElementMapper;
 import com.synectiks.asset.mapper.query.CloudElementTagMapper;
 import com.synectiks.asset.repository.CloudElementRepository;
+import com.synectiks.asset.service.BusinessElementService;
 import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.CloudElementSummaryService;
 import com.synectiks.asset.util.JsonAndObjectConverterUtil;
@@ -25,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,6 +55,9 @@ public class CloudElementController implements CloudElementApi {
 
     @Autowired
     private CloudElementSummaryService cloudElementSummaryService;
+
+    @Autowired
+    private BusinessElementService businessElementService;
 
     @Autowired
     private CloudElementRepository cloudElementRepository;
@@ -155,43 +162,19 @@ public class CloudElementController implements CloudElementApi {
     @Override
     public ResponseEntity<CloudElementDTO> associateCloudElement(Object obj){
         logger.debug("REST request to associate a service with infrastructure or tag a business element");
-        ObjectMapper objectMapper = Constants.instantiateMapper();
         Map reqObj = (Map)obj;
-        CloudElement cloudElement = cloudElementService.findByInstanceId((String)reqObj.get("instanceId"));
-        if(cloudElement != null){
-            try{
-                String js = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getHostedServices(), Map.class);
-                JsonNode rootNode = null;
-                ArrayNode arrayNode = null;
-                if(!StringUtils.isBlank(js) && !"null".equalsIgnoreCase(js)){
-                    rootNode = objectMapper.readTree(js);
-                    arrayNode = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, rootNode.get("HOSTEDSERVICES"), ArrayNode.class);
-                }else{
-                    arrayNode = objectMapper.createArrayNode();
-                }
-
-                ObjectNode objectNode = objectMapper.createObjectNode();
-                if(reqObj.get("instanceId") != null){
-                    objectNode.put("instanceId",(String) reqObj.get("instanceId"));
-                }
-                objectNode.put("serviceId",(Integer) reqObj.get("serviceId"));
-                objectNode.set("tag", jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, (Map)reqObj.get("tag"), JsonNode.class));
-                arrayNode.add(objectNode);
-                ObjectNode finalNode =  objectMapper.createObjectNode();
-                finalNode.put("HOSTEDSERVICES", arrayNode);
-                Map map = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
-                cloudElement.setHostedServices(map);
-                cloudElementService.save(cloudElement);
-            }catch (Exception e){
-                logger.error("Exception: ",e);
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        CloudElement cloudElement = cloudElementService.associateCloudElement(reqObj);
+        if(cloudElement == null){
+            logger.warn("Cloud-element not found. Manual association/tagging cannot be done");
+            return ResponseEntity.status(HttpStatus.valueOf(418)).body(null);
         }
-        CloudElementDTO result = CloudElementMapper.INSTANCE.entityToDto(cloudElement);
-        return ResponseEntity.ok(result);
+        CloudElementDTO cloudElementDTO = CloudElementMapper.INSTANCE.entityToDto(cloudElement);
+        return ResponseUtil.wrapOrNotFound(Optional.of(cloudElementDTO));
     }
 
-
-
+    @GetMapping(value = "/cloud-element/auto-associate/org/{orgId}/cloud/{cloud}", produces = { "application/json" }    )
+    public void autoAssociateCloudElement(@PathVariable("orgId") Long orgId, @PathVariable("cloud") String cloud){
+        cloudElementService.autoAssociateCloudElement(orgId, cloud);
+    }
 
 }

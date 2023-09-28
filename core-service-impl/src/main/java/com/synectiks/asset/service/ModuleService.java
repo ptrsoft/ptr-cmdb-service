@@ -57,4 +57,9 @@ public class ModuleService {
         logger.debug("Get all modules on the filters provided. Department Id: {}, Product Id: {}, Product Env Id: {}, Service Nature: {}", departmentId, productId, productEnvId, serviceNature);
         return moduleRepository.searchByFilters(departmentId, productId, productEnvId, serviceNature);
     }
+
+    public Module getModule(String moduleName, Long productId, Long productEnvId){
+        logger.debug("Get module by module name: {}, product id: {}, environment id:{} ",moduleName, productId, productEnvId);
+        return moduleRepository.getModule(moduleName, productId, productEnvId);
+    }
 }

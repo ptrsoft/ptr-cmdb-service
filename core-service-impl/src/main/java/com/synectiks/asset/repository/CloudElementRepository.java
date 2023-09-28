@@ -44,4 +44,8 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
     CloudElement getCloudElementForTag(@Param("landingZoneId") Long landingZoneId,
                                        @Param("serviceId") Long serviceId,
                                        @Param("instanceId") String instanceId);
+
+    String CLOUD_ELEMENT_BY_LANDING_ZONE_ID_QUERY =" select ce.* from cloud_element ce where ce.landingzone_id in :landingZoneIdList ";
+    @Query(value = CLOUD_ELEMENT_BY_LANDING_ZONE_ID_QUERY, nativeQuery = true)
+    List<CloudElement> getCloudElementsByLandingZoneIds(@Param("landingZoneIdList") List<Long> landingZoneIdList);
 }

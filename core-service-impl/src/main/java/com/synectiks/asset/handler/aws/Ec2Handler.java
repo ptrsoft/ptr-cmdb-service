@@ -1,5 +1,7 @@
 package com.synectiks.asset.handler.aws;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.*;
 import com.synectiks.asset.handler.CloudHandler;
@@ -7,6 +9,7 @@ import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.LandingzoneService;
 import com.synectiks.asset.service.ProductEnclaveService;
 import com.synectiks.asset.service.VaultService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +47,9 @@ public class Ec2Handler implements CloudHandler {
 
     @Autowired
     private VaultService vaultService;
+
+    @Autowired
+    private TagProcessor tagProcessor;
 
     @Override
     public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
@@ -97,4 +104,22 @@ public class Ec2Handler implements CloudHandler {
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.ec2-api");
     }
 
+    @Override
+    public void processTag(CloudElement cloudElement){
+        Landingzone landingzone = cloudElement.getLandingzone();
+//        Department department = cloudElement.getLandingzone().getDepartment();
+//        Organization organization = cloudElement.getLandingzone().getDepartment().getOrganization();
+
+        if(cloudElement.getConfigJson() != null ){
+            List tagList = (List)((Map)cloudElement.getConfigJson()).get("Tags");
+            for(Object object: tagList){
+                Map tag = (Map)object;
+                if(tag.get("Key") != null &&  ((String)tag.get("Key")).toLowerCase().contains("appkube_tag")){
+                    String value = (String)tag.get("Value");
+                    String data[] = value.split("/");
+                    tagProcessor.process(data, cloudElement);
+                }
+            }
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.synectiks.asset.handler;
 
 import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.Department;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.Organization;
@@ -24,5 +25,9 @@ public interface CloudHandler {
         String awsxUrl = url+params;
         Object response = restTemplate.getForObject(awsxUrl, Object.class);
         return response;
+    }
+
+    default void processTag(CloudElement cloudElement){
+
     }
 }

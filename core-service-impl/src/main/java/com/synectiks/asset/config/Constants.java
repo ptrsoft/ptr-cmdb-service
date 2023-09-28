@@ -48,6 +48,8 @@ public final class Constants {
     public static final String APP_SERVICES = "APP";
     public static final String DATA_SERVICES = "DATA";
 
+    public static final String WEB_SERVICES = "WEB";
+
     public static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
     public static final String DATE_FORMAT_MM_DD_YYYY = "MM-dd-yyyy";
     public static final String DATE_FORMAT_DD_MM_YYYY = "dd-MM-yyyy";
@@ -194,6 +196,21 @@ public final class Constants {
     public static final String OBJECT_DB = "Object DB";
     public static final String GIT_DB = "Git DB";
     public static final String METRICS_DB = "Metrics DB";
+
+
+    public static final String APPKUBE_DEPARTMENT = "APPKUBE_DEPARTMENT";
+    public static final String APPKUBE_PRODUCT = "APPKUBE_PRODUCT";
+    public static final String APPKUBE_ENV = "APPKUBE_ENV";
+    public static final String APPKUBE_MODULE = "APPKUBE_MODULE";
+    public static final String APPKUBE_SERVICE = "APPKUBE_SERVICE";
+
+    public static final String SOA = "SOA";
+    public static final String THREE_TIER = "3 Tier";
+
+    public static final String TYPE_BUSINESS = "BUSINESS";
+    public static final String TYPE_COMMON = "COMMON";
+
+
     private Constants() {
     }
 }

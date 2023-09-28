@@ -55,5 +55,11 @@ public class OrganizationService {
     	logger.debug("Search organizations on given filters");
         return organizationRepository.findAll(Example.of(organization), Sort.by(Sort.Direction.DESC, "name"));
     }
+
+    @Transactional(readOnly = true)
+    public Organization findByName(String organizationName){
+        logger.debug("Find organization by name: {}", organizationName);
+        return organizationRepository.findByName(organizationName);
+    }
     
 }
