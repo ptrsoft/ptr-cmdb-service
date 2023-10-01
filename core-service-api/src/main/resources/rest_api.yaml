@@ -1441,6 +1441,41 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-element/auto-associate/org/{orgId}/cloud/{cloud}:
+    get:
+      tags:
+        - CloudElement
+      summary: Auto-associate cloud-element with business element
+      operationId: autoAssociateCloudElement
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: cloud
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /cloud-element/tag/landing-zone-id/{landingZoneId}/instance-id/{instanceId}:
     parameters:
       - in: path

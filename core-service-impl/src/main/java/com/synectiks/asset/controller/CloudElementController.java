@@ -163,18 +163,36 @@ public class CloudElementController implements CloudElementApi {
     public ResponseEntity<CloudElementDTO> associateCloudElement(Object obj){
         logger.debug("REST request to associate a service with infrastructure or tag a business element");
         Map reqObj = (Map)obj;
-        CloudElement cloudElement = cloudElementService.associateCloudElement(reqObj);
+
+        Map<String, Object> response = cloudElementService.associateCloudElement(reqObj);
+        Integer errorCode = (Integer) response.get("code");
+        if(errorCode == 5){
+            logger.error("Some exception occurred or validation failed. Manual association/tagging cannot be done");
+            HttpStatus s = HttpStatus.valueOf(418);
+            return ResponseEntity.status(HttpStatus.valueOf(418)).body(null);
+        }
+        if(errorCode == 4){
+            logger.error("Tag already exists. Manual association/tagging cannot be done");
+            return ResponseEntity.status(HttpStatus.valueOf(419)).body(null);
+        }
+        if(errorCode == 6){
+            logger.error("Manual association/tagging failed");
+            return ResponseEntity.status(HttpStatus.valueOf(420)).body(null);
+        }
+        CloudElement cloudElement = (CloudElement) response.get("CLOUD_ELEMENT");
         if(cloudElement == null){
             logger.warn("Cloud-element not found. Manual association/tagging cannot be done");
-            return ResponseEntity.status(HttpStatus.valueOf(418)).body(null);
+            return ResponseEntity.status(HttpStatus.valueOf(421)).body(null);
         }
         CloudElementDTO cloudElementDTO = CloudElementMapper.INSTANCE.entityToDto(cloudElement);
         return ResponseUtil.wrapOrNotFound(Optional.of(cloudElementDTO));
     }
 
-    @GetMapping(value = "/cloud-element/auto-associate/org/{orgId}/cloud/{cloud}", produces = { "application/json" }    )
-    public void autoAssociateCloudElement(@PathVariable("orgId") Long orgId, @PathVariable("cloud") String cloud){
-        cloudElementService.autoAssociateCloudElement(orgId, cloud);
+    @Override
+    public ResponseEntity<Object> autoAssociateCloudElement(@PathVariable("orgId") Long orgId, @PathVariable("cloud") String cloud){
+        logger.debug("REST request to auto discover services and associated them with infrastructure");
+        Map<Long, Object> response = cloudElementService.autoAssociateCloudElement(orgId, cloud);
+        return ResponseUtil.wrapOrNotFound(Optional.of(response));
     }
 
 }

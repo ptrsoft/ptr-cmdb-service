@@ -310,41 +310,57 @@ public class CloudElementService {
 //    }
 
     @Transactional
-    public CloudElement associateCloudElement(Map reqObj){
+    public Map<String, Object> associateCloudElement(Map reqObj){
         logger.debug("Request to associate a service (business-element) with infrastructure (cloud-element) or tag a business element");
         CloudElement cloudElement = findByInstanceId((String)reqObj.get("instanceId"));
+        Map<String, Object> response = new HashMap<>();
         if(cloudElement == null){
             logger.warn("Cloud-element of given instance-id: {} not found. ",(String)reqObj.get("instanceId"));
-            return null;
+            response.put("code", 5);
+            return response;
         }
         ObjectMapper objectMapper = Constants.instantiateMapper();
-        return updateCloudElementAndBusinessElementAssociation(reqObj, cloudElement, objectMapper);
+        int errorCode = updateCloudElementAndBusinessElementAssociation(reqObj, cloudElement, objectMapper);
+        if(errorCode != 0){
+            logger.error("Some error during tag processing. Error code: {}",errorCode);
+            response.put("code", errorCode);
+            return response;
+        }
+        response.put("code", errorCode);
+        response.put("CLOUD_ELEMENT", cloudElement);
+        return response;
     }
 
-    public CloudElement updateCloudElementAndBusinessElementAssociation(Map reqObj, CloudElement cloudElement, ObjectMapper objectMapper) {
-        Map map = addServiceIdInHostedServices(cloudElement, reqObj, objectMapper);
-        if(map == null){
+    public int updateCloudElementAndBusinessElementAssociation(Map hostedServiceTagObject, CloudElement cloudElement, ObjectMapper objectMapper) {
+        int errorCode = addServiceIdInHostedServices(cloudElement, hostedServiceTagObject, objectMapper);
+        if(errorCode == 5){
             logger.error("There is some issue in updating hosted-services of cloud-element. cloud-element-type:{}, cloud-element-id: {}, instance-id: {}", cloudElement.getElementType(), cloudElement.getId(), cloudElement.getInstanceId());
-            return null;
+            return errorCode;
+        }else if(errorCode == 4){
+            logger.error("Tag already exists");
+            return errorCode;
         }
-        logger.info("Completing tagging in cloud-element");
-        cloudElement.setHostedServices(map);
-        cloudElement = save(cloudElement);
-        logger.info("Cloud-element updated with business-element service id. Now updating business-element with cloud-element id");
+        if(errorCode == 0){
+            logger.info("Completing tagging in cloud-element");
+//        cloudElement.setHostedServices(map);
+            cloudElement = save(cloudElement);
+            logger.info("Cloud-element updated with business-element service id. Now updating business-element with cloud-element id");
 
-        Long serviceId = null;
-        if(reqObj.get("serviceId").getClass().getName().equalsIgnoreCase("java.lang.Integer")){
-            serviceId = ((Integer) reqObj.get("serviceId")).longValue();
-        }else{
-            serviceId = (Long) reqObj.get("serviceId");
+            Long serviceId = null;
+            if(hostedServiceTagObject.get("serviceId").getClass().getName().equalsIgnoreCase("java.lang.Integer")){
+                serviceId = ((Integer) hostedServiceTagObject.get("serviceId")).longValue();
+            }else{
+                serviceId = (Long) hostedServiceTagObject.get("serviceId");
+            }
+            businessElementService.updateService(serviceId, cloudElement);
+            logger.info("Tagging/association completed");
+            return 0;
+//            return cloudElement;
         }
-
-        businessElementService.updateService(serviceId, cloudElement);
-        logger.info("Tagging/association completed");
-        return cloudElement;
+        return 6;
     }
 
-    public Map addServiceIdInHostedServices(CloudElement cloudElement, Map reqObj, ObjectMapper objectMapper){
+    public int addServiceIdInHostedServices(CloudElement cloudElement, Map reqObj, ObjectMapper objectMapper){
         if(objectMapper == null){
             objectMapper = Constants.instantiateMapper();
         }
@@ -378,8 +394,9 @@ public class CloudElementService {
 
             boolean isTagFound = isTagExist(arrayNode, objectNode);
             if(isTagFound){
-                logger.info("Tag already exists");
-                return cloudElement.getHostedServices();
+                logger.info("Tag already exists. Error code: 4");
+                return 4;
+//                return cloudElement.getHostedServices();
             }
 
             arrayNode.add(objectNode);
@@ -387,24 +404,29 @@ public class CloudElementService {
             finalNode.put("HOSTEDSERVICES", arrayNode);
             updatedHostedServiceMap = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
         }catch (Exception e){
-            logger.error("Exception in updating cloud-element's hosted-services map: ",e);
-            return null;
+            logger.error("Exception in updating cloud-element's hosted-services map. Error coode: 5 ",e);
+            return 5;
         }
-        return updatedHostedServiceMap;
+        cloudElement.setHostedServices(updatedHostedServiceMap);
+        return 0;
+//        return updatedHostedServiceMap;
     }
 
     List<CloudElement> getCloudElementsByLandingZoneIds(List<Long> landingZoneIdList){
         return cloudElementRepository.getCloudElementsByLandingZoneIds(landingZoneIdList);
     }
 
-    public void autoAssociateCloudElement(Long orgId, String cloud){
+    public Map<Long, Object> autoAssociateCloudElement(Long orgId, String cloud){
         List<Landingzone> landingzoneList = landingzoneService.getLandingZoneByOrgId(orgId, cloud);
         List<Long> landingZoneIdList = landingzoneList.stream().map(Landingzone::getId).collect(Collectors.toList());
         List<CloudElement> cloudElementList = getCloudElementsByLandingZoneIds(landingZoneIdList);
+        Map<Long, Object> response = new HashMap<>();
         for(CloudElement cloudElement: cloudElementList){
             CloudHandler cloudHandler = AwsHandlerFactory.getHandler(cloudElement.getElementType());
-            cloudHandler.processTag(cloudElement);
+            Map processResult = cloudHandler.processTag(cloudElement);
+            response.put(cloudElement.getId(), processResult);
         }
+        return response;
     }
 
     public boolean isTagExist(ArrayNode arrayNode, JsonNode jsonNode){

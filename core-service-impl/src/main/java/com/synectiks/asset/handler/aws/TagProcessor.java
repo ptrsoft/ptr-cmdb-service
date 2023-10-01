@@ -67,18 +67,18 @@ public class TagProcessor {
         return businessElementService.getThreeTierService(serviceName, serviceType, productId, productEnvId);
     }
 
-    public void process(String data[], CloudElement cloudElement){
-        Organization organization = getOrganization(data[0]);
-        Department department = getDepartment(data[1], organization.getId());
-        Product product = getProduct(data[2], department.getId(), organization.getId());
-        ProductEnv productEnv = getProductEnv(data[3], product.getId());
-        String type = data[4];
+    public int process(String tagValue[], CloudElement cloudElement){
+        Organization organization = getOrganization(tagValue[0]);
+        Department department = getDepartment(tagValue[1], organization.getId());
+        Product product = getProduct(tagValue[2], department.getId(), organization.getId());
+        ProductEnv productEnv = getProductEnv(tagValue[3], product.getId());
+        String type = tagValue[4];
         Module module = null;
         BusinessElement businessElement = null;
 
         if(Constants.SOA.equalsIgnoreCase(product.getType())){
-            module = getModule(data[5], product.getId(), productEnv.getId());
-            businessElement = getSoaService(data[6], type, product.getId(), productEnv.getId(), module.getId());
+            module = getModule(tagValue[5], product.getId(), productEnv.getId());
+            businessElement = getSoaService(tagValue[6], type, product.getId(), productEnv.getId(), module.getId());
         }
 
         String dbType = null;
@@ -90,15 +90,16 @@ public class TagProcessor {
             }else if("Data Layer".equalsIgnoreCase(type)){
                 dbType = "Data";
             }
-            businessElement = getThreeTierService(data[5], dbType, product.getId(), productEnv.getId());
+            businessElement = getThreeTierService(tagValue[5], dbType, product.getId(), productEnv.getId());
         }
         ObjectMapper objectMapper = Constants.instantiateMapper();
         ObjectNode tag = createTag(organization, department, product, productEnv, type, module, businessElement, objectMapper);
-        Map<String, Object> map = new HashMap<>();
-        map.put("serviceId", businessElement.getId());
-        map.put("instanceId", cloudElement.getInstanceId());
-        map.put("tag", tag);
-        cloudElementService.updateCloudElementAndBusinessElementAssociation(map,cloudElement, objectMapper);
+        Map<String, Object> hostedServiceTag = new HashMap<>();
+        hostedServiceTag.put("serviceId", businessElement.getId());
+        hostedServiceTag.put("instanceId", cloudElement.getInstanceId());
+        hostedServiceTag.put("tag", tag);
+        int errorCode = cloudElementService.updateCloudElementAndBusinessElementAssociation(hostedServiceTag,cloudElement, objectMapper);
+        return errorCode;
     }
 
     private ObjectNode createTag(Organization organization, Department department, Product product,

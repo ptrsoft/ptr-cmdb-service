@@ -5,9 +5,13 @@ import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.Department;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.handler.aws.TagProcessor;
 import com.synectiks.asset.service.VaultService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
 
 public interface CloudHandler {
 
@@ -27,7 +31,22 @@ public interface CloudHandler {
         return response;
     }
 
-    default void processTag(CloudElement cloudElement){
+    default Map<String, List<Object>> processTag(CloudElement cloudElement){
+        return null;
+    }
 
+    default int validate(String data[], CloudElement cloudElement, TagProcessor tagProcessor){
+        int errorCode = 0;
+        Department department = cloudElement.getLandingzone().getDepartment();
+        Organization organization = cloudElement.getLandingzone().getDepartment().getOrganization();
+        Organization tagOrganization = tagProcessor.getOrganization(data[0]);
+        if(tagOrganization == null || (tagOrganization != null && tagOrganization.getId() != organization.getId())) {
+            return errorCode = 1;
+        }
+        Department tagDepartment = tagProcessor.getDepartment(data[1], tagOrganization.getId());
+        if(tagDepartment == null || (tagDepartment != null && tagDepartment.getId() != department.getId())){
+            return errorCode = 2;
+        }
+        return errorCode;
     }
 }
