@@ -10,6 +10,7 @@ import com.synectiks.asset.service.VaultService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,18 +36,22 @@ public interface CloudHandler {
         return null;
     }
 
-    default int validate(String data[], CloudElement cloudElement, TagProcessor tagProcessor){
-        int errorCode = 0;
+    default Map<String, Object> validate(String data[], CloudElement cloudElement, TagProcessor tagProcessor){
+        Map<String, Object> errorMap = new HashMap<>();
         Department department = cloudElement.getLandingzone().getDepartment();
         Organization organization = cloudElement.getLandingzone().getDepartment().getOrganization();
         Organization tagOrganization = tagProcessor.getOrganization(data[0]);
         if(tagOrganization == null || (tagOrganization != null && tagOrganization.getId() != organization.getId())) {
-            return errorCode = 1;
+            errorMap.put("errorCode", 1);
+            errorMap.put("errorMsg",String.format("Tagging failed. Tag's organization does not match with landing-zone's organization. Landing-zone org: %s, Tag org: %s", cloudElement.getLandingzone().getDepartment().getOrganization().getName(), data[0]));
+            return errorMap;
         }
         Department tagDepartment = tagProcessor.getDepartment(data[1], tagOrganization.getId());
         if(tagDepartment == null || (tagDepartment != null && tagDepartment.getId() != department.getId())){
-            return errorCode = 2;
+            errorMap.put("errorCode", 2);
+            errorMap.put("errorMsg",String.format("Tagging failed. Tag's department does not match with landing-zone's department. Landing-zone dep: %s, Tag dep: %s", cloudElement.getLandingzone().getDepartment().getName(), data[1]));
+            return errorMap;
         }
-        return errorCode;
+        return errorMap;
     }
 }

@@ -108,37 +108,26 @@ public class Ec2Handler implements CloudHandler {
 
         if(cloudElement.getConfigJson() != null ){
             List tagList = (List)((Map)cloudElement.getConfigJson()).get("Tags");
-            for(Object object: tagList){
-                Map tag = (Map)object;
-                if(tag.get("Key") != null &&  ((String)tag.get("Key")).toLowerCase().contains("appkube_tag")){
-                    String tagValue[] = ((String)tag.get("Value")).split("/");
-                    int errorCode = validate(tagValue, cloudElement, tagProcessor);
-                    if(errorCode == 1) {
-                        String msg = String.format("Tagging failed. Tag's organization does not match with landing-zone's organization. Landing-zone org: %s, Tag org: %s", cloudElement.getLandingzone().getDepartment().getOrganization().getName(), tagValue[0]);
-                        logger.error(msg);
-                        tag.put("failure_reason",msg);
-                        tag.put("error_code",1);
-                        failureTagging.add(tag);
-                        continue;
-                    }
-                    if(errorCode == 2){
-                        String msg = String.format("Tagging failed. Tag's department does not match with landing-zone's department. Landing-zone dep: %s, Tag dep: %s", cloudElement.getLandingzone().getDepartment().getName(), tagValue[1]);
-                        logger.error(msg);
-                        tag.put("failure_reason",msg);
-                        tag.put("error_code",2);
-                        failureTagging.add(tag);
-                        continue;
-                    }
-                    if(errorCode == 0){
-                        errorCode = tagProcessor.process(tagValue, cloudElement);
+            if(tagList != null){
+                for(Object object: tagList){
+                    Map tag = (Map)object;
+                    if(tag.get("Key") != null &&  ((String)tag.get("Key")).toLowerCase().contains("appkube_tag")){
+                        String tagValue[] = ((String)tag.get("Value")).split("/");
+                        Map<String, Object> erroMap = validate(tagValue, cloudElement, tagProcessor);
+                        if(erroMap.size() > 0){
+                            logger.error("Validation error: ",erroMap.get("errorMsg"));
+                            tag.put("failure_reason",erroMap.get("errorMsg"));
+                            tag.put("error_code",erroMap.get("errorCode"));
+                            failureTagging.add(tag);
+                            continue;
+                        }
+                        int errorCode = tagProcessor.process(tagValue, cloudElement);
                         if(errorCode == 0){
                             successTagging.add(tag);
                         }else{
                             failureTagging.add(tag);
                         }
-
                     }
-
                 }
             }
         }
