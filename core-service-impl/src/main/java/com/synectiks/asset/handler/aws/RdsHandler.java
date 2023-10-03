@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,9 @@ public class RdsHandler implements CloudHandler {
 
     @Autowired
     private VaultService vaultService;
+
+    @Autowired
+    private TagProcessor tagProcessor;
 
     @Override
     public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
@@ -99,4 +103,39 @@ public class RdsHandler implements CloudHandler {
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.rds-api");
     }
 
+    @Override
+    public Map<String, List<Object>> processTag(CloudElement cloudElement){
+        List<Object> successTagging = new ArrayList<>();
+        List<Object> failureTagging = new ArrayList<>();
+
+        if(cloudElement.getConfigJson() != null ){
+            List tagList = (List)((Map)cloudElement.getConfigJson()).get("TagList");
+            if(tagList != null){
+                for(Object object: tagList){
+                    Map tag = (Map)object;
+                    if(tag.get("Key") != null &&  ((String)tag.get("Key")).toLowerCase().contains("appkube_tag")){
+                        String tagValue[] = ((String)tag.get("Value")).split("/");
+                        Map<String, Object> erroMap = validate(tagValue, cloudElement, tagProcessor);
+                        if(erroMap.size() > 0){
+                            logger.error("Validation error: ",erroMap.get("errorMsg"));
+                            tag.put("failure_reason",erroMap.get("errorMsg"));
+                            tag.put("error_code",erroMap.get("errorCode"));
+                            failureTagging.add(tag);
+                            continue;
+                        }
+                        int errorCode = tagProcessor.process(tagValue, cloudElement);
+                        if(errorCode == 0){
+                            successTagging.add(tag);
+                        }else{
+                            failureTagging.add(tag);
+                        }
+                    }
+                }
+            }
+        }
+        Map<String, List<Object>> statusMap = new HashMap<>();
+        statusMap.put("success", successTagging);
+        statusMap.put("failure",failureTagging);
+        return statusMap;
+    }
 }
