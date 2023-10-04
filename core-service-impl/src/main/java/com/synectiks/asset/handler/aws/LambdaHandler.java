@@ -1,10 +1,7 @@
 package com.synectiks.asset.handler.aws;
 
 import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.CloudElement;
-import com.synectiks.asset.domain.Department;
-import com.synectiks.asset.domain.Landingzone;
-import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.domain.*;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.LandingzoneService;
@@ -56,21 +53,31 @@ public class LambdaHandler implements CloudHandler {
             List lambdaList = (ArrayList)response;
             for(Object lambdaObj: lambdaList){
                 Map lambdaMap = (Map)lambdaObj;
-                addUpdate(landingZone, lambdaMap);
+                addUpdate(department, landingZone, lambdaMap);
             }
         }else if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
             Map lambdaMap = (LinkedHashMap)response;
-            addUpdate(landingZone, lambdaMap);
+            addUpdate(department, landingZone, lambdaMap);
         }
     }
 
-    private void addUpdate(Landingzone landingZone, Map lambdaMap) {
+    private void addUpdate(Department department, Landingzone landingZone, Map lambdaMap) {
+        ProductEnclave productEnclave = null;
+        if(lambdaMap.containsKey("VpcConfig")){
+            if(lambdaMap.get("VpcConfig") != null && ((Map)lambdaMap.get("VpcConfig")).containsKey("VpcId")
+                    && ((Map)lambdaMap.get("VpcConfig")).get("VpcId") != null) {
+                String vpcId = (String)((Map)lambdaMap.get("VpcConfig")).get("VpcId");
+                productEnclave = productEnclaveService.findProductEnclave(vpcId, department.getId(), landingZone.getId());
+            }
+        }
+
         CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)lambdaMap.get("FunctionArn"), Constants.LAMBDA);
         if(cloudElement != null){
                 logger.debug("Updating lambda {} cloud-element for existing landing-zone: {}", (String)lambdaMap.get("FunctionName"), landingZone.getLandingZone());
                 cloudElement.setConfigJson(lambdaMap);
                 cloudElement.setInstanceId((String)lambdaMap.get("FunctionName"));
                 cloudElement.setInstanceName((String)lambdaMap.get("FunctionName"));
+                cloudElement.setProductEnclave(productEnclave);
                 cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding lambda {} cloud-element for existing landing-zone: {}", (String)lambdaMap.get("FunctionName"), landingZone.getLandingZone());
@@ -82,6 +89,7 @@ public class LambdaHandler implements CloudHandler {
                 .category(Constants.APP_SERVICES)
                 .landingzone(landingZone)
                 .configJson(lambdaMap)
+                .productEnclave(productEnclave)
                 .build();
             cloudElementService.save(cloudElementObj);
         }
