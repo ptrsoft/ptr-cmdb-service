@@ -6,14 +6,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.factory.AwsHandlerFactory;
-import com.synectiks.asset.mapper.CloudElementMapper;
 import com.synectiks.asset.repository.CloudElementRepository;
 import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -22,8 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +51,9 @@ public class CloudElementService {
 
     @Autowired
     private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
+
+    @Autowired
+    private OrganizationService organizationService;
 
     public CloudElement save(CloudElement cloudElement) {
         logger.debug("Request to save cloud element : {}", cloudElement);
@@ -422,11 +421,35 @@ public class CloudElementService {
         List<CloudElement> cloudElementList = getCloudElementsByLandingZoneIds(landingZoneIdList);
         Map<Long, Object> response = new HashMap<>();
         for(CloudElement cloudElement: cloudElementList){
-            CloudHandler cloudHandler = AwsHandlerFactory.getHandler(cloudElement.getElementType());
-            Map processResult = cloudHandler.processTag(cloudElement);
-            response.put(cloudElement.getId(), processResult);
+            if(!Constants.LAMBDA.equalsIgnoreCase(cloudElement.getElementType()) &&
+                !Constants.S3.equalsIgnoreCase(cloudElement.getElementType())){
+                CloudHandler cloudHandler = AwsHandlerFactory.getHandler(cloudElement.getElementType());
+                Map processResult = cloudHandler.processTag(cloudElement);
+                response.put(cloudElement.getId(), processResult);
+            }
         }
         return response;
+    }
+
+
+    public void autoAssociateAwsTagExclusiveCloudElement(String elementType){
+        List<Organization> organizationList = organizationService.findAll();
+        CloudHandler cloudHandler = AwsHandlerFactory.getHandler(elementType);
+        for(Organization org: organizationList){
+            List<Landingzone> landingzoneList = landingzoneService.getLandingZoneByOrgId(org.getId(), Constants.AWS);
+            List<Long> landingZoneIdList = landingzoneList.stream().map(Landingzone::getId).collect(Collectors.toList());
+            List<CloudElement> cloudElementList = getCloudElementsByLandingZoneIds(landingZoneIdList);
+
+            Map<Long, Object> response = new HashMap<>();
+            for(CloudElement cloudElement: cloudElementList){
+                try{
+                    Map processResult = cloudHandler.processTag(cloudElement);
+                    response.put(cloudElement.getId(), processResult);
+                }catch(Exception e){
+                    logger.error("Exception in getting S3 tag. Instance id: {}", cloudElement.getInstanceId());
+                }
+            }
+        }
     }
 
     public boolean isTagExist(ArrayNode arrayNode, JsonNode jsonNode){

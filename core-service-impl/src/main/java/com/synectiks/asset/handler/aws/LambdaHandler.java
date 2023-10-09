@@ -15,10 +15,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class LambdaHandler implements CloudHandler {
@@ -46,6 +43,9 @@ public class LambdaHandler implements CloudHandler {
     @Autowired
     private VaultService vaultService;
 
+    @Autowired
+    private TagProcessor tagProcessor;
+
     @Override
     public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
         Object response = getResponse(vaultService, restTemplate, getUrl(), organization, department, landingZone, awsRegion);
@@ -72,9 +72,11 @@ public class LambdaHandler implements CloudHandler {
         }
 
         CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)lambdaMap.get("FunctionArn"), Constants.LAMBDA);
+        Map<String, Object> functionMap = new HashMap();
+        functionMap.put("function", lambdaMap);
         if(cloudElement != null){
                 logger.debug("Updating lambda {} cloud-element for existing landing-zone: {}", (String)lambdaMap.get("FunctionName"), landingZone.getLandingZone());
-                cloudElement.setConfigJson(lambdaMap);
+                cloudElement.setConfigJson(functionMap);
                 cloudElement.setInstanceId((String)lambdaMap.get("FunctionName"));
                 cloudElement.setInstanceName((String)lambdaMap.get("FunctionName"));
                 cloudElement.setProductEnclave(productEnclave);
@@ -88,7 +90,7 @@ public class LambdaHandler implements CloudHandler {
                 .instanceName((String) lambdaMap.get("FunctionName"))
                 .category(Constants.APP_SERVICES)
                 .landingzone(landingZone)
-                .configJson(lambdaMap)
+                .configJson(functionMap)
                 .productEnclave(productEnclave)
                 .build();
             cloudElementService.save(cloudElementObj);
@@ -100,4 +102,55 @@ public class LambdaHandler implements CloudHandler {
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.lambda-api");
     }
 
+    @Override
+    public Map<String, List<Object>> processTag(CloudElement cloudElement){
+        // first get tags from aws
+
+        Object resp = getTags(cloudElement.getLandingzone(), null, (String)((Map)((Map)cloudElement.getConfigJson()).get("function")).get("FunctionName"));
+        List<Object> successTagging = new ArrayList<>();
+        List<Object> failureTagging = new ArrayList<>();
+
+        if(resp != null ){
+            Map tag = (Map)((Map)resp).get("tags");
+            if(tag != null){
+                for (Object key : tag.keySet()){
+                    String tagKey = (String)key;
+                    if(tagKey.toLowerCase().contains("appkube_tag")){
+                        String tagValue[] = ((String)tag.get(tagKey)).split("/");
+                        Map<String, Object> erroMap = validate(tagValue, cloudElement, tagProcessor);
+                        if(erroMap.size() > 0){
+                            logger.error("Validation error: ",erroMap.get("errorMsg"));
+                            failureTagging.add(tagKey+" - "+(String)tag.get(tagKey));
+                        }else{
+                            int errorCode = tagProcessor.process(tagValue, cloudElement);
+                            if(errorCode == 0){
+                                successTagging.add(tagKey+" - "+(String)tag.get(tagKey));
+                            }else{
+                                failureTagging.add(tagKey+" - "+(String)tag.get(tagKey));
+                            }
+                        }
+                    }
+                }
+                cloudElement.setConfigJson((Map)resp);
+                cloudElementService.save(cloudElement);
+            }
+        }
+        Map<String, List<Object>> statusMap = new HashMap<>();
+        statusMap.put("success", successTagging);
+        statusMap.put("failure",failureTagging);
+        return statusMap;
+    }
+
+    public Object getTags(Landingzone landingZone, String awsRegion, String functionName) {
+        logger.info("Getting tags for lambda function: {}",functionName);
+        String url = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.lambda-tag-api");
+        String vaultAccountKey =  vaultService.resolveVaultKey(landingZone.getDepartment().getOrganization().getName(), landingZone.getDepartment().getName(), Constants.AWS, landingZone.getLandingZone());
+        String params = "?zone="+ awsRegion +"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey+"&functionName="+functionName;
+        if(StringUtils.isBlank(awsRegion)){
+            params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey+"&functionName="+functionName;
+        }
+        String awsxUrl = url+params;
+        Object response = restTemplate.getForObject(awsxUrl, Object.class);
+        return response;
+    }
 }

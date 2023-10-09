@@ -1476,6 +1476,52 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-element/auto-associate-lambda:
+    get:
+      tags:
+        - CloudElement
+      summary: Auto-associate lambda cloud-element with business element
+      operationId: autoAssociateLambdaTags
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-element/auto-associate-s3:
+    get:
+      tags:
+        - CloudElement
+      summary: Auto-associate S3 cloud-element with business element
+      operationId: autoAssociateS3Tags
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /cloud-element/tag/landing-zone-id/{landingZoneId}/instance-id/{instanceId}:
     parameters:
       - in: path

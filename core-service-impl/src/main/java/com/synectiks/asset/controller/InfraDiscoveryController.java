@@ -2,14 +2,11 @@ package com.synectiks.asset.controller;
 
 import com.synectiks.asset.api.controller.InfraDiscoveryApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
-import com.synectiks.asset.api.model.LandingzoneDTO;
-import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.factory.AwsHandlerFactory;
 import com.synectiks.asset.mapper.CloudElementMapper;
-import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.LandingzoneService;
 import org.slf4j.Logger;

@@ -8,7 +8,6 @@ import com.synectiks.asset.api.controller.CloudElementApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.api.model.CloudElementTagDTO;
 import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
 import com.synectiks.asset.mapper.CloudElementMapper;
@@ -27,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -195,4 +194,66 @@ public class CloudElementController implements CloudElementApi {
         return ResponseUtil.wrapOrNotFound(Optional.of(response));
     }
 
+    private static boolean isLambdaSechdulerRunning = false;
+    private static boolean isS3SechdulerRunning = false;
+
+    /**
+     * It starts execution at 9:00:00 AM every day.
+     * It waits for previous execution to be completed
+     * @return
+     */
+//    @Scheduled(cron = "0 0 9 * * ?")
+    @Override
+    public ResponseEntity<Object> autoAssociateLambdaTags(){
+        logger.debug("Auto scheduled rest api to discover lambda services and associated them with infrastructure");
+        if(isLambdaSechdulerRunning){
+            logger.info("Lambda service discovery is already running. Previous execution is not yet completed");
+            return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.PROCESSING));
+        }
+        isLambdaSechdulerRunning = true;
+        try{
+            cloudElementService.autoAssociateAwsTagExclusiveCloudElement(Constants.LAMBDA);
+        }catch (Exception e){
+            logger.error("Exception: ",e);
+            isLambdaSechdulerRunning = false;
+        }
+        isLambdaSechdulerRunning = false;
+        logger.debug("Auto scheduled discovery of lambda services completed");
+        return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.OK));
+    }
+
+//    @Override
+//    public ResponseEntity<Object> autoAssociateS3Tags(){
+//        logger.debug("Auto scheduled rest api to discover S3 services and associated them with infrastructure");
+//        if(isS3SechdulerRunning){
+//            logger.info("S3 service discovery is already running. Previous execution is not yet completed");
+//            return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.PROCESSING));
+//        }
+//    }
+
+    /**
+     * It starts execution at 8:00:00 AM every day.
+     * It waits for previous execution to be completed
+     * @return
+     */
+//    @Scheduled(cron = "0 0 8 * * ?")
+    @Override
+    public ResponseEntity<Object> autoAssociateS3Tags(){
+        logger.debug("Auto scheduled rest api to discover s3 buckets and associated them with infrastructure");
+        if(isS3SechdulerRunning){
+            logger.info("S3 service discovery is already running. Previous execution is not yet completed");
+            return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.PROCESSING));
+        }
+        isS3SechdulerRunning = true;
+        try{
+            cloudElementService.autoAssociateAwsTagExclusiveCloudElement(Constants.S3);
+        }catch (Exception e){
+            logger.error("Exception: ",e);
+            isS3SechdulerRunning = false;
+            return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+        isS3SechdulerRunning = false;
+        logger.debug("Auto scheduled discovery of s3 buckets completed");
+        return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.OK));
+    }
 }

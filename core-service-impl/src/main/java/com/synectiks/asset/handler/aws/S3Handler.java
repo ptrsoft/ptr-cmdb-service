@@ -4,6 +4,7 @@ import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.*;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.service.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,22 +50,27 @@ public class S3Handler implements CloudHandler {
     @Override
     public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion) {
         Object response = getResponse(vaultService, restTemplate, getUrl(), organization, department, landingZone, awsRegion);
-        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
-            List list = (ArrayList)response;
-            for(Object cdnObj: list){
-                Map cdnMap = (Map)cdnObj;
-                addUpdate(department, landingZone, cdnMap);
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
+            Map map = (Map)response;
+            if(map != null && map.size() > 0){
+                List list = (ArrayList)map.get("Buckets");
+                for(Object s3Obj: list){
+                    Map configMap = (Map)s3Obj;
+                    addUpdate(department, landingZone, configMap);
+                }
             }
         }
     }
 
     private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
-        String instanceId = (String) ((Map)configMap.get("bucket")).get("Name");
+        String instanceId = (String) configMap.get("Name");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.S3);
         setAdditionalConfig(configMap);
+        Map<String, Object> bucketMap = new HashMap();
+        bucketMap.put("bucket", configMap);
         if(cloudElement != null ){
             logger.debug("Updating s3: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
-            cloudElement.setConfigJson(configMap);
+            cloudElement.setConfigJson(bucketMap);
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName(instanceId);
             cloudElementService.save(cloudElement);
@@ -77,7 +83,7 @@ public class S3Handler implements CloudHandler {
                     .instanceName(instanceId)
                     .category(Constants.DATA_SERVICES)
                     .landingzone(landingZone)
-                    .configJson(configMap)
+                    .configJson(bucketMap)
                     .dbCategory(dbCategory)
                     .build();
             cloudElementService.save(cloudElementObj);
@@ -106,38 +112,60 @@ public class S3Handler implements CloudHandler {
 
     @Override
     public Map<String, List<Object>> processTag(CloudElement cloudElement){
+        Object resp = getTags(cloudElement.getLandingzone(), null, (String)((Map)((Map)cloudElement.getConfigJson()).get("bucket")).get("Name"));
         List<Object> successTagging = new ArrayList<>();
         List<Object> failureTagging = new ArrayList<>();
 
-        if(cloudElement.getConfigJson() != null ){
-            List tagList = (List)((Map)((Map)cloudElement.getConfigJson()).get("tags")).get("TagSet");
-//            List tagList = (List)((Map)((Map)((Map)cloudElement.getConfigJson()).get("tags")).get("Tags")).get("Items");
-            if(tagList != null){
-                for(Object object: tagList){
-                    Map tag = (Map)object;
-                    if(tag.get("Key") != null &&  ((String)tag.get("Key")).toLowerCase().contains("appkube_tag")){
-                        String tagValue[] = ((String)tag.get("Value")).split("/");
-                        Map<String, Object> erroMap = validate(tagValue, cloudElement, tagProcessor);
-                        if(erroMap.size() > 0){
-                            logger.error("Validation error: ",erroMap.get("errorMsg"));
-                            tag.put("failure_reason",erroMap.get("errorMsg"));
-                            tag.put("error_code",erroMap.get("errorCode"));
-                            failureTagging.add(tag);
-                            continue;
-                        }
-                        int errorCode = tagProcessor.process(tagValue, cloudElement);
-                        if(errorCode == 0){
-                            successTagging.add(tag);
-                        }else{
-                            failureTagging.add(tag);
+        if(resp != null ){
+            Map tags = (Map)((Map)resp).get("tags");
+            if(tags != null){
+                List tagList = (List)tags.get("TagSet");
+                if(tagList != null){
+                    for(Object object: tagList){
+                        Map tag = (Map)object;
+                        if(tag.get("Key") != null &&  ((String)tag.get("Key")).toLowerCase().contains("appkube_tag")){
+                            String tagValue[] = ((String)tag.get("Value")).split("/");
+                            Map<String, Object> erroMap = validate(tagValue, cloudElement, tagProcessor);
+                            if(erroMap.size() > 0){
+                                logger.error("Validation error: ",erroMap.get("errorMsg"));
+                                tag.put("failure_reason",erroMap.get("errorMsg"));
+                                tag.put("error_code",erroMap.get("errorCode"));
+                                failureTagging.add(tag);
+                                continue;
+                            }
+                            int errorCode = tagProcessor.process(tagValue, cloudElement);
+                            if(errorCode == 0){
+                                successTagging.add(tag);
+                            }else{
+                                failureTagging.add(tag);
+                            }
                         }
                     }
                 }
+                Map configutation = (Map)((Map)resp).get("bucket");
+                setAdditionalConfig(configutation);
+                ((Map)resp).put("bucket", configutation);
+                cloudElement.setConfigJson((Map)resp);
+                cloudElementService.save(cloudElement);
             }
+
         }
         Map<String, List<Object>> statusMap = new HashMap<>();
         statusMap.put("success", successTagging);
         statusMap.put("failure",failureTagging);
         return statusMap;
+    }
+
+    public Object getTags(Landingzone landingZone, String awsRegion, String bucketName) {
+        logger.info("Getting tags for s3 bucket: {}",bucketName);
+        String url = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.s3-tag-api");
+        String vaultAccountKey =  vaultService.resolveVaultKey(landingZone.getDepartment().getOrganization().getName(), landingZone.getDepartment().getName(), Constants.AWS, landingZone.getLandingZone());
+        String params = "?zone="+ awsRegion +"&vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey+"&bucketName="+bucketName;
+        if(StringUtils.isBlank(awsRegion)){
+            params = "?vaultUrl="+Constants.VAULT_URL+"&vaultToken="+Constants.VAULT_ROOT_TOKEN+"&accountId="+vaultAccountKey+"&bucketName="+bucketName;
+        }
+        String awsxUrl = url+params;
+        Object response = restTemplate.getForObject(awsxUrl, Object.class);
+        return response;
     }
 }
