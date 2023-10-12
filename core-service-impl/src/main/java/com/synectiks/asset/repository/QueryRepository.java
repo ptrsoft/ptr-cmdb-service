@@ -1105,76 +1105,89 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	List<CostAnalyticQueryObj> getProductionVsOthersCostNonAssociate(@Param("orgId") Long orgId);
 
 	
-	String PRODUCTION_VS_OTHERS_ASSOCIATE_QUERY = "	\r\n"
-			+ "with product_sum as ( \r\n"
-			+ "			 select distinct pe.\"name\" as name, \r\n"
-			+ "			  SUM(cast(value as INT)) as total \r\n"
-			+ "			 from \r\n"
-			+ "			  cloud_element ce,\r\n"
-			+ "			  business_element be,\r\n"
-			+ "			  product p ,\r\n"
-			+ "			  product_env pe ,\r\n"
-			+ "			  department d, organization o ,\r\n"
-			+ "			  jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj),\r\n"
-			+ "			  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value)\r\n"
-			+ "			  where \r\n"
-			+ "			cast (c.obj ->> 'serviceId' as int) = be.id\r\n"
-			+ "			and p.id = be.product_id\r\n"
-			+ "			and p.department_id = d.id\r\n"
-			+ "			and d.organization_id = o.id\r\n"
-			+ "			and p.id = pe.product_id \r\n"
-			+ "			and ce.id =  be.cloud_element_id \r\n"
-			+ "			and o.id = :orgId\r\n"
-			+ "			and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE) and pe.name = 'PROD'\r\n"
-			+ "			 GROUP by pe.\"name\" \r\n"
-			+ "			), \r\n"
-			+ "			\r\n"
-			+ "			other_sum as ( \r\n"
-			+ "			 select distinct pe.\"name\" as name, \r\n"
-			+ "			  SUM(cast(value as INT)) as total \r\n"
-			+ "			 from \r\n"
-			+ "			  cloud_element ce,\r\n"
-			+ "			  business_element be,\r\n"
-			+ "			  product p ,\r\n"
-			+ "			  product_env pe ,\r\n"
-			+ "			  department d, organization o ,\r\n"
-			+ "			  jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj),\r\n"
-			+ "			  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value)\r\n"
-			+ "			  where \r\n"
-			+ "			cast (c.obj ->> 'serviceId' as int) = be.id\r\n"
-			+ "			and p.id = be.product_id\r\n"
-			+ "			and p.department_id = d.id\r\n"
-			+ "			and d.organization_id = o.id\r\n"
-			+ "			and p.id = pe.product_id \r\n"
-			+ "			and ce.id =  be.cloud_element_id \r\n"
-			+ "			and o.id = :orgId\r\n"
-			+ "			and extract('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract('year' from CURRENT_DATE) and pe.name != 'PROD'\r\n"
-			+ "			 GROUP by pe.\"name\" \r\n"
-			+ "			), \r\n"
-			+ "			total_sum as ( \r\n"
-			+ "			select SUM(total) as total_sum from  \r\n"
-			+ "			 (  select SUM(total) as total from product_sum \r\n"
-			+ "			   union all \r\n"
-			+ "			  select SUM(total) as total from other_sum \r\n"
-			+ "			 ) as totals \r\n"
-			+ "			) \r\n"
-			+ "			select name, total, ROUND((total / ( select total_sum from total_sum)) * 100, 7) as percentage \r\n"
-			+ "			from \r\n"
-			+ "			( \r\n"
-			+ "			 select 'PROD' as name, SUM(product_sum.total) as total \r\n"
-			+ "			 from product_sum \r\n"
-			+ "			  union all \r\n"
-			+ "			 select 'others' as name, SUM(other_sum.total) as total \r\n"
-			+ "			 from other_sum \r\n"
-			+ "			) as subquery \r\n"
-			+ "			union all \r\n"
-			+ "			 \r\n"
-			+ "			select 'Cumulative Total' as name, \r\n"
-			+ "			( select SUM(total) from product_sum )  \r\n"
-			+ "			 +  \r\n"
-			+ "			( select SUM(total) from other_sum ) as total_sum, \r\n"
-			+ "			null";
-	@Query(value = PRODUCTION_VS_OTHERS_NON_ASSOCIATE_QUERY, nativeQuery = true)
+	String PRODUCTION_VS_OTHERS_ASSOCIATE_QUERY = "with current_sum as (\n" +
+			"\tselect 'Cumulative Total' as name, SUM(cast(value as INT)) as total, null as percentage\n" +
+			"\tfrom\n" +
+			"\t\tcloud_element ce,\n" +
+			"\t\tbusiness_element be,\n" +
+			"\t\tproduct p,\n" +
+			"\t\tproduct_env pe ,\n" +
+			"\t\tdepartment d,\n" +
+			"\t\torganization o,  \n" +
+			"\t\tjsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj),\n" +
+			"\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key, value)\n" +
+			"\twhere\n" +
+			"\t\tcast (c.obj ->> 'serviceId' as int) = be.id\n" +
+			"\t\tand p.id = be.product_id\n" +
+			"\t\tand p.id = pe.product_id\n" +
+			"\t\tand p.department_id = d.id\n" +
+			"\t\tand d.organization_id = o.id\n" +
+			"\t\tand cast(substring(jb.key, 6) as int) = extract ('month' from current_date)\n" +
+			"\t\tand o.id = :orgId\n" +
+			"),\n" +
+			"product_sum as (\n" +
+			"\tselect distinct pe.\"name\" as name, SUM(cast(value as INT)) as total\n" +
+			"\tfrom\n" +
+			"\t\tcloud_element ce,\n" +
+			"\t\tbusiness_element be,\n" +
+			"\t\tproduct p ,\n" +
+			"\t\tproduct_env pe ,\n" +
+			"\t\tdepartment d,\n" +
+			"\t\torganization o ,\n" +
+			"\t\tjsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj),\n" +
+			"\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key, value)\n" +
+			"\twhere\n" +
+			"\t\tcast (c.obj ->> 'serviceId' as int) = be.id\n" +
+			"\t\tand p.id = be.product_id\n" +
+			"\t\tand p.department_id = d.id\n" +
+			"\t\tand d.organization_id = o.id\n" +
+			"\t\tand p.id = pe.product_id\n" +
+			"\t\tand o.id = :orgId\n" +
+			"\t\tand cast(substring(jb.key, 6) as int) = extract ('month' from current_date - interval '1 month')\n" +
+			"\t\tand upper(pe.name) = upper('PROD')\n" +
+			"\t\tgroup by pe.\"name\"\n" +
+			"),\n" +
+			"other_sum as (\n" +
+			"\tselect distinct pe.\"name\" as name,SUM(cast(value as INT)) as total\n" +
+			"\tfrom\n" +
+			"\t\tcloud_element ce,\n" +
+			"\t\tbusiness_element be,\n" +
+			"\t\tproduct p ,\n" +
+			"\t\tproduct_env pe ,\n" +
+			"\t\tdepartment d,\n" +
+			"\t\torganization o ,\n" +
+			"\t\tjsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj),\n" +
+			"\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key, value)\n" +
+			"\twhere\n" +
+			"\t\tcast (c.obj ->> 'serviceId' as int) = be.id\n" +
+			"\t\tand p.id = be.product_id\n" +
+			"\t\tand p.department_id = d.id\n" +
+			"\t\tand d.organization_id = o.id\n" +
+			"\t\tand p.id = pe.product_id\n" +
+			"\t\tand o.id = :orgId\n" +
+			"\t\tand cast(substring(jb.key,6) as int) = extract ('month' from current_date - interval '1 month')\n" +
+			"\t\tand upper(pe.name) != upper('PROD')\n" +
+			"\t\tgroup by pe.\"name\"\n" +
+			"),\n" +
+			"total_sum as (\n" +
+			"\tselect SUM(total) as total_sum\n" +
+			"\tfrom \n" +
+			"\t\t( \tselect SUM(total) as total from product_sum\n" +
+			"\t\t\t\tunion all\n" +
+			"\t\t\tselect SUM(total) as total from other_sum\n" +
+			"\t    ) as totals\n" +
+			")\n" +
+			"select name, total, ROUND((total / ( select total_sum from total_sum)) * 100, 2) as percentage\n" +
+			"from\n" +
+			"\t( \tselect 'PROD' as name, SUM(product_sum.total) as total from product_sum\n" +
+			"\t\t\tunion all\n" +
+			"\t\tselect 'others' as name, SUM(other_sum.total) as total from other_sum\n" +
+			"\n" +
+			"\t) as subquery\n" +
+			"union all\n" +
+			"select 'Cumulative Total', cs.total, round(((cs.total-(SELECT total_sum FROM total_sum))/cs.total)*100,2) as percentage\n" +
+			"from current_sum cs";
+	@Query(value = PRODUCTION_VS_OTHERS_ASSOCIATE_QUERY, nativeQuery = true)
 	List<CostAnalyticQueryObj> getProductionVsOthersCostAssociate(@Param("orgId") Long orgId);
 
 	
