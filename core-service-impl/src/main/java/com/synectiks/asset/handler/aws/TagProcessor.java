@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.*;
 import com.synectiks.asset.service.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,15 +70,39 @@ public class TagProcessor {
 
     public int process(String tagValue[], CloudElement cloudElement){
         Organization organization = getOrganization(tagValue[0]);
+        if(organization == null){
+            logger.error("Organization is null");
+            return 7;
+        }
         Department department = getDepartment(tagValue[1], organization.getId());
+        if(department == null){
+            logger.error("Department is null");
+            return 8;
+        }
         Product product = getProduct(tagValue[2], department.getId(), organization.getId());
+        if(product == null){
+            logger.error("Product is null");
+            return 9;
+        }
         ProductEnv productEnv = getProductEnv(tagValue[3], product.getId());
+        if(productEnv == null){
+            logger.error("ProductEnv is null");
+            return 10;
+        }
         String type = tagValue[4];
+        if(StringUtils.isBlank(type)){
+            logger.error("Type is null");
+            return 11;
+        }
         Module module = null;
         BusinessElement businessElement = null;
 
         if(Constants.SOA.equalsIgnoreCase(product.getType())){
             module = getModule(tagValue[5], product.getId(), productEnv.getId());
+            if(module == null){
+                logger.error("Module is null");
+                return 12;
+            }
             businessElement = getSoaService(tagValue[6], type, product.getId(), productEnv.getId(), module.getId());
         }
 
@@ -89,8 +114,17 @@ public class TagProcessor {
                 dbType = "App";
             }else if("Data Layer".equalsIgnoreCase(type)){
                 dbType = "Data";
+            }else{
+                if(StringUtils.isBlank(dbType)){
+                    logger.error("DbType is null");
+                    return 13;
+                }
             }
             businessElement = getThreeTierService(tagValue[5], dbType, product.getId(), productEnv.getId());
+        }
+        if(businessElement == null){
+            logger.error("BusinessElement is null");
+            return 14;
         }
         ObjectMapper objectMapper = Constants.instantiateMapper();
         ObjectNode tag = createTag(organization, department, product, productEnv, type, module, businessElement, objectMapper);

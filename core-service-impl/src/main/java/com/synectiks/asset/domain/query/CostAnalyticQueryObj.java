@@ -13,6 +13,6 @@ public interface CostAnalyticQueryObj extends Serializable{
     Long getTotal();
     
     @Value("#{target.percentage}")
-    Long getPercentage();
+    String getPercentage();
 
 }

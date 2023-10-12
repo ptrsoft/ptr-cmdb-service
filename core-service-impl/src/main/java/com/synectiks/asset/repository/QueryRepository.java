@@ -990,30 +990,45 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = PRODUCT_WISE_COST_NON_ASSOCIATE_QUERY, nativeQuery = true)
 	List<CostAnalyticQueryObj> getProductWiseCostNonAssociate(@Param("orgId") Long orgId);
 	
-	String PRODUCT_WISE_COST_ASSOCIATE_QUERY = "WITH product_sum AS (\r\n"
-			+ "			 select distinct p.\"name\" as name,\r\n"
-			+ "			  SUM(cast(value as INT)) as total\r\n"
-			+ "			 from cloud_element ce,\r\n"
-			+ "			business_element be,\r\n"
-			+ "			product p ,\r\n"
-			+ "			department d, organization o ,\r\n"
-			+ "			jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj),\r\n"
-			+ "			 jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value)\r\n"
-			+ "			where   cast (c.obj ->> 'serviceId' as int) = be.id\r\n"
-			+ "			and p.id = be.product_id\r\n"
-			+ "			and p.department_id = d.id\r\n"
-			+ "			and d.organization_id = o.id\r\n"
-			+ "			and ce.id =  be.cloud_element_id\r\n"
-			+ "			and o.id = :orgId\r\n"
-			+ "			GROUP by p.name\r\n"
-			+ "			  )\r\n"
-			+ "			  select name, total, (total * 100.0) / (select SUM(total) from product_sum) as percentage\r\n"
-			+ "			  from\r\n"
-			+ "			  product_sum\r\n"
-			+ "			UNION ALL\r\n"
-			+ "			  select 'Cumulative Total', SUM(total) as total_sum, null as percentage\r\n"
-			+ "			  from\r\n"
-			+ "			  product_sum ";
+	String PRODUCT_WISE_COST_ASSOCIATE_QUERY = "with product_sum as (\n" +
+			"\t\tselect 'Cumulative Total' as name, SUM(cast(value as INT)) as total, null as percentage\n" +
+			"\t\tfrom cloud_element ce, business_element be, product p, department d, organization o,  \n" +
+			"\t\t\t jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj),\n" +
+			"\t\t\t jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key, value)\n" +
+			"\t\twhere  cast (c.obj ->> 'serviceId' as int) = be.id\n" +
+			"\t\t\tand p.id = be.product_id\n" +
+			"\t\t\tand p.department_id = d.id\n" +
+			"\t\t\tand d.organization_id = o.id\n" +
+			"\t\t\tand cast(substring(jb.key, 6) as int) = extract ('month' from current_date) \n" +
+			"\t\t\tand o.id = :orgId\n" +
+			"\t),\n" +
+			"prev_sum as (\n" +
+			"\tselect p.\"name\" as name, sum(cast (jb.value as int)) as total\n" +
+			"\tfrom\n" +
+			"\t\tcloud_element ce,\n" +
+			"\t\tbusiness_element be,\n" +
+			"\t\tproduct p ,\n" +
+			"\t\tdepartment d,\n" +
+			"\t\torganization o ,\n" +
+			"\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key, value),\n" +
+			"\t\tjsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos)\n" +
+			"\twhere\n" +
+			"\t\tce.hosted_services is not null and ce.hosted_services != 'null'\n" +
+			"\t\tand be.id = cast(c.obj ->> 'serviceId' as int)\n" +
+			"\t\tand be.product_id = p.id\n" +
+			"\t\tand p.department_id = d.id\n" +
+			"\t\tand d.organization_id = o.id\n" +
+			"\t\tand o.id = :orgId\n" +
+			"\t\tand cast(substring(jb.key, 6) as int) = extract ('month' from current_date - interval '1 month')\n" +
+			"\t\tgroup by p.name\n" +
+			"\t)\t\n" +
+			"select prvs.name, prvs.total, round((prvs.total/(select sum(prvs2.total) from prev_sum prvs2)) * 100, 2) as percentage\n" +
+			"from prev_sum prvs group by prvs.name,prvs.total\t\n" +
+//			"union all\n" +
+//			"select 'Previous Sum' as name, (select sum(prvs2.total) from prev_sum prvs2) as total, null as percentage\n" +
+			"union all\n" +
+			"select ps.name, ps.total, round(((ps.total - sum(prev_sum.total))/ps.total) * 100,2) as percentage from product_sum ps, prev_sum\n" +
+			"group by ps.name, ps.total\n";
 	@Query(value = PRODUCT_WISE_COST_ASSOCIATE_QUERY, nativeQuery = true)
 	List<CostAnalyticQueryObj> getProductWiseCostAssociate(@Param("orgId") Long orgId);
 
