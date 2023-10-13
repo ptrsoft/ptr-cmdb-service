@@ -80,7 +80,8 @@ public class CloudElementService {
     @Transactional(readOnly = true)
 	public List<CloudElement> search(CloudElementDTO cloudElementDTO) {
         logger.info("Search cloud element");
-        StringBuilder primarySql = new StringBuilder("select ce.* from cloud_element ce\n" +
+        StringBuilder primarySql = new StringBuilder("select ce.id, ce.element_type,ce.hosted_services, ce.arn, ce.instance_id, ce.instance_name, ce.category, \n" +
+                "ce.landingzone_id, ce.db_category_id, ce.product_enclave_id from cloud_element ce\n" +
                 "left join landingzone l on ce.landingzone_id = l.id\n" +
                 "left join db_category dc on ce.db_category_id = dc.id\n" +
                 "left join product_enclave pe on ce.product_enclave_id = pe.id " +
@@ -185,6 +186,11 @@ public class CloudElementService {
     @Transactional(readOnly = true)
     public CloudElement findByInstanceId(String instanceId){
         return cloudElementRepository.findByInstanceId(instanceId);
+    }
+
+    @Transactional(readOnly = true)
+    public CloudElement getCloudElementByLandingZoneAndInstanceId(Long landingZoneId, String instanceId){
+        return cloudElementRepository.getCloudElementByLandingZoneAndInstanceId(landingZoneId, instanceId);
     }
 
     @Transactional(readOnly = true)
@@ -311,7 +317,7 @@ public class CloudElementService {
     @Transactional
     public Map<String, Object> associateCloudElement(Map reqObj){
         logger.debug("Request to associate a service (business-element) with infrastructure (cloud-element) or tag a business element");
-        CloudElement cloudElement = findByInstanceId((String)reqObj.get("instanceId"));
+        CloudElement cloudElement = getCloudElementByLandingZoneAndInstanceId( (Long)reqObj.get("landingZoneId"), (String)reqObj.get("instanceId"));
         Map<String, Object> response = new HashMap<>();
         if(cloudElement == null){
             logger.warn("Cloud-element of given instance-id: {} not found. ",(String)reqObj.get("instanceId"));

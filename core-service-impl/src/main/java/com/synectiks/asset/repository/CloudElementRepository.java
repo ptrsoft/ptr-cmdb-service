@@ -17,6 +17,11 @@ import java.util.List;
 public interface CloudElementRepository extends JpaRepository<CloudElement, Long> {
     CloudElement findByInstanceId(String instanceId);
 
+    String CLOUD_ELEMENT_BY_LANDINGZONE_ID_AND_INSTANCE_ID_QUERY ="select ce.* from cloud_element ce where ce.instance_id = :instanceId and ce.landingzone_id = :landingZoneId ";
+    @Query(value = CLOUD_ELEMENT_BY_LANDINGZONE_ID_AND_INSTANCE_ID_QUERY, nativeQuery = true)
+    CloudElement getCloudElementByLandingZoneAndInstanceId(@Param("landingZoneId") Long landingZoneId, @Param("instanceId") String instanceId);
+
+
     String CLOUD_ELEMENT_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
     @Query(value = CLOUD_ELEMENT_QUERY, nativeQuery = true)
     CloudElement getCloudElementByArn(@Param("landingZoneId") Long landingZoneId,
