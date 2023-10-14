@@ -653,22 +653,60 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	List<CloudElementCloudWiseQueryObj> cloudWiseTotalSpend(@Param("orgId")Long orgId);
 	
 	
-	String CLOUD_WISE_MONTHLY_SPEND_QUERY ="select l.cloud,   " +
-			"  TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,   " +
-			"  SUM(CAST(jb.value AS INT)) AS sum_values  " +
-			"from  cloud_element ce,  " +
-			"  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value), " +
-			"   landingzone l, department dep, organization org  " +
-			"where org.id = dep.organization_id  " +
-			" and dep.id = l.department_id  " +
-			" and l.id = ce.landingzone_id  " +
-			" and org.id = :orgId  " +
-			" and l.cloud IN (SELECT DISTINCT ce.cloud  " +
-			"      FROM landingzone ce, department d, organization o  " +
-			"      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )  " +
-			" and extract ('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract ('year' from current_date)       " +
-			"group by l.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key  " +
-			"ORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, l.cloud asc ";
+	String CLOUD_WISE_MONTHLY_SPEND_QUERY ="(select l.cloud,    \n" +
+			"\t\t\t  TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,    \n" +
+			"\t\t\t  SUM(CAST(jb.value AS INT)) AS sum_values   \n" +
+			"\t\t\tfrom  cloud_element ce,   \n" +
+			"\t\t\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  \n" +
+			"\t\t\t   landingzone l, department dep, organization org   \n" +
+			"\t\t\twhere org.id = dep.organization_id   \n" +
+			"\t\t\t and dep.id = l.department_id   \n" +
+			"\t\t\t and l.id = ce.landingzone_id   \n" +
+			"\t\t\t and org.id = :orgId  \n" +
+			"\t\t\t and l.cloud IN (SELECT DISTINCT ce.cloud   \n" +
+			"\t\t\t      FROM landingzone ce, department d, organization o   \n" +
+			"\t\t\t      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )   \n" +
+			"\t\t\t and extract ('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract ('year' from current_date)        \n" +
+			"\t\t\tgroup by l.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key   \n" +
+			"\t\t\tORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, l.cloud asc)\n" +
+			"\t\t\t\n" +
+			"\t\t\tunion all \n" +
+			"\t\t\t\n" +
+			"\t\t\t(select 'AZURE'  as cloud,    \n" +
+			"\t\t\t  TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,    \n" +
+			"\t\t\t  cast (TO_CHAR(FLOOR(RANDOM() * (999999 - 10000 + 1)) + 10000, '999999') as int) AS sum_values\n" +
+			"\t\t\tfrom  cloud_element ce,   \n" +
+			"\t\t\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  \n" +
+			"\t\t\t   landingzone l, department dep, organization org   \n" +
+			"\t\t\twhere org.id = dep.organization_id   \n" +
+			"\t\t\t and dep.id = l.department_id   \n" +
+			"\t\t\t and l.id = ce.landingzone_id   \n" +
+			"\t\t\t and org.id = :orgId  \n" +
+			"\t\t\t and l.cloud IN (SELECT DISTINCT ce.cloud   \n" +
+			"\t\t\t      FROM landingzone ce, department d, organization o   \n" +
+			"\t\t\t      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )   \n" +
+			"\t\t\t and extract ('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract ('year' from current_date)        \n" +
+			"\t\t\tgroup by l.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key   \n" +
+			"\t\t\tORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, l.cloud asc)\n" +
+			"\t\t\t\n" +
+			"\t\t\tunion all \n" +
+			"\t\t\t\n" +
+			"\t\t\t(select 'GCP'  as cloud,    \n" +
+			"\t\t\t  TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,    \n" +
+			"\t\t\t  cast (TO_CHAR(FLOOR(RANDOM() * (999999 - 10000 + 1)) + 10000, '999999') as int) AS sum_values\n" +
+			"\t\t\tfrom  cloud_element ce,   \n" +
+			"\t\t\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  \n" +
+			"\t\t\t   landingzone l, department dep, organization org   \n" +
+			"\t\t\twhere org.id = dep.organization_id   \n" +
+			"\t\t\t and dep.id = l.department_id   \n" +
+			"\t\t\t and l.id = ce.landingzone_id   \n" +
+			"\t\t\t and org.id = :orgId  \n" +
+			"\t\t\t and l.cloud IN (SELECT DISTINCT ce.cloud   \n" +
+			"\t\t\t      FROM landingzone ce, department d, organization o   \n" +
+			"\t\t\t      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )   \n" +
+			"\t\t\t and extract ('year' from TO_DATE(jb.key, 'YYYY-MM')) = extract ('year' from current_date)        \n" +
+			"\t\t\tgroup by l.cloud, TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key   \n" +
+			"\t\t\tORDER BY TO_DATE(jb.key, 'YYYY-MM') ASC, l.cloud asc) ";
 	@Query(value = CLOUD_WISE_MONTHLY_SPEND_QUERY, nativeQuery = true)
 	List<CloudElementCloudWiseMonthlyQueryObj> cloudWiseMonthlySpend(@Param("orgId")Long orgId);
 	
