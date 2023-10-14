@@ -618,37 +618,55 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = TOTAL_SPEND_ANALYTICS_QUERY, nativeQuery = true)
 	Long totalSpendAnalytics(@Param("orgId") Long orgId);
 
-	String CLOUD_WISE_TOTAL_SPEND_QUERY ="select distinct l.cloud,  " +
-			"    SUM(cast(value as INT)) AS sum_values,  " +
-			" (SUM(cast(value as INT)) * 100) / (  " +
-			"    SELECT SUM(cast(jb2.value as INT))  " +
-			"    FROM cloud_element ce2,  " +
-			"     landingzone l2,  " +
-			"     department dep2,  " +
-			"     organization org2, " +
-			"    jsonb_each_text(ce2.cost_json -> 'cost' -> 'YEARLYCOST') AS jb2(key, value) " +
-			"    where cast(jb2.key as int) = extract ('year' from current_date)  " +
-			"    AND   org2.id = dep2.organization_id  " +
-			"    AND dep2.id = l2.department_id  " +
-			"    AND l2.id = ce2.landingzone_id  " +
-			"    AND org2.id = :orgId   " +
-			"    and l2.cloud = l.cloud   " +
-			" ) AS percentage  " +
-			"    FROM cloud_element ce,  " +
-			"    landingzone l,  " +
-			"    department dep,  " +
-			"    organization org,  " +
-			"    jsonb_each_text(ce.cost_json -> 'cost' -> 'YEARLYCOST') AS jb(key, value) " +
-			"    WHERE org.id = dep.organization_id  " +
-			"    AND dep.id = l.department_id  " +
-			"    AND l.id = ce.landingzone_id  " +
-			"    AND org.id = :orgId  " +
-			"    AND l.cloud IN (SELECT DISTINCT ce.cloud  " +
-			"      FROM landingzone ce, department d, organization o  " +
-			"      WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )  " +
-			"    and cast(jb.key as int) = extract ('year' from current_date)     " +
-			"    GROUP BY l.cloud ORDER BY l.cloud ASC " +
-			"  ";
+	String CLOUD_WISE_TOTAL_SPEND_QUERY ="\t\t\t\t\n" +
+			"\twith aws as (select distinct l.cloud,  \n" +
+			"\t\t\t     SUM(cast(value as INT)) AS sum_values,  \n" +
+			"\t\t\t  (SUM(cast(value as INT)) * 100) / (  \n" +
+			"\t\t\t     SELECT SUM(cast(jb2.value as INT))  \n" +
+			"\t\t\t     FROM cloud_element ce2,  \n" +
+			"\t\t\t      landingzone l2,  \n" +
+			"\t\t\t      department dep2,  \n" +
+			"\t\t\t      organization org2, \n" +
+			"\t\t\t     jsonb_each_text(ce2.cost_json -> 'cost' -> 'YEARLYCOST') AS jb2(key, value) \n" +
+			"\t\t\t     where cast(jb2.key as int) = extract ('year' from current_date)  \n" +
+			"\t\t\t     AND   org2.id = dep2.organization_id  \n" +
+			"\t\t\t     AND dep2.id = l2.department_id  \n" +
+			"\t\t\t     AND l2.id = ce2.landingzone_id  \n" +
+			"\t\t\t     AND org2.id = :orgId   \n" +
+			"\t\t\t     and l2.cloud = l.cloud   \n" +
+			"\t\t\t  ) AS percentage  \n" +
+			"\t\t\t     FROM cloud_element ce,  \n" +
+			"\t\t\t     landingzone l,  \n" +
+			"\t\t\t     department dep,  \n" +
+			"\t\t\t     organization org,  \n" +
+			"\t\t\t     jsonb_each_text(ce.cost_json -> 'cost' -> 'YEARLYCOST') AS jb(key, value) \n" +
+			"\t\t\t     WHERE org.id = dep.organization_id  \n" +
+			"\t\t\t     AND dep.id = l.department_id  \n" +
+			"\t\t\t     AND l.id = ce.landingzone_id  \n" +
+			"\t\t\t     AND org.id = :orgId  \n" +
+			"\t\t\t     AND l.cloud IN (SELECT DISTINCT ce.cloud  \n" +
+			"\t\t\t       FROM landingzone ce, department d, organization o  \n" +
+			"\t\t\t       WHERE o.id = d.organization_id AND d.id = ce.department_id AND o.id = :orgId )  \n" +
+			"\t\t\t     and cast(jb.key as int) = extract ('year' from current_date)     \n" +
+			"\t\t\t     GROUP BY l.cloud ORDER BY l.cloud asc),\n" +
+			"\t\t\t     \n" +
+			"\t\t\t\tazure as (\n" +
+			"\t\t\t\t\tselect 'AZURE' as cloud, cast (TO_CHAR(FLOOR(RANDOM() * (99999999 - 1000000 + 1)) + 1000000, '99999999') as int) AS sum_values,\n" +
+			"\t\t\t\t\t0 as percentage\n" +
+			"\t\t\t\t),\n" +
+			"\t\t\t\tgcp as (\n" +
+			"\t\t\t\tselect 'GCP' as cloud, cast (TO_CHAR(FLOOR(RANDOM() * (99999999 - 1000000 + 1)) + 1000000, '99999999') as int) AS sum_values,\n" +
+			"\t\t\t\t0 as percentage\n" +
+			"\t\t\t\t),\n" +
+			"\t\t\t\ttotal_sum as (\n" +
+			"\t\t\t\t\tselect a.sum_values + b.sum_values + c.sum_values as total from aws a, azure b, gcp c\n" +
+			"\t\t\t\t) \n" +
+			"\t\t\t\t\n" +
+			"\t\t\t\tselect a.cloud, a.sum_values, round(cast((a.sum_values/cast(t.total as float)) * 100 as numeric),2) AS percentage from aws a, total_sum t\n" +
+			"\t\t\t\tunion all\n" +
+			"\t\t\t\tselect b.cloud, b.sum_values, round(cast((b.sum_values/cast(t.total as float)) * 100 as numeric),2) AS percentage from azure b, total_sum t\n" +
+			"\t\t\t\tunion all\n" +
+			"\t\t\t\tselect c.cloud, c.sum_values, round(cast((c.sum_values/cast(t.total as float)) * 100 as numeric),2) AS percentage from gcp c, total_sum t " ;
 	@Query(value = CLOUD_WISE_TOTAL_SPEND_QUERY, nativeQuery = true)
 	List<CloudElementCloudWiseQueryObj> cloudWiseTotalSpend(@Param("orgId")Long orgId);
 	
