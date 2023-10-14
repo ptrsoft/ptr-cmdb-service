@@ -674,7 +674,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"\t\t\t\n" +
 			"\t\t\t(select 'AZURE'  as cloud,    \n" +
 			"\t\t\t  TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,    \n" +
-			"\t\t\t  cast (TO_CHAR(FLOOR(RANDOM() * (999999 - 10000 + 1)) + 10000, '999999') as int) AS sum_values\n" +
+			"\t\t\t  cast (TO_CHAR(FLOOR(RANDOM() * (99999999 - 1000000 + 1)) + 1000000, '99999999') as int) AS sum_values \n" +
 			"\t\t\tfrom  cloud_element ce,   \n" +
 			"\t\t\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  \n" +
 			"\t\t\t   landingzone l, department dep, organization org   \n" +
@@ -693,7 +693,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"\t\t\t\n" +
 			"\t\t\t(select 'GCP'  as cloud,    \n" +
 			"\t\t\t  TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,    \n" +
-			"\t\t\t  cast (TO_CHAR(FLOOR(RANDOM() * (999999 - 10000 + 1)) + 10000, '999999') as int) AS sum_values\n" +
+			"\t\t\t  cast (TO_CHAR(FLOOR(RANDOM() * (99999999 - 1000000 + 1)) + 1000000, '99999999') as int) AS sum_values \n" +
 			"\t\t\tfrom  cloud_element ce,   \n" +
 			"\t\t\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  \n" +
 			"\t\t\t   landingzone l, department dep, organization org   \n" +
