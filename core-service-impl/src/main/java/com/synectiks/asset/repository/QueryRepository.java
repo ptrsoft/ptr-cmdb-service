@@ -883,55 +883,43 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	InfraTopologySOAStatsQueryObj getInfraTopologySOAStats(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId, @Param("cloudElementInstanceId") String cloudElementInstanceId);
 
 
-	String MONTHLY_STATISTICS_QUERY = " SELECT * FROM (  " +
-			" WITH monthly_costs AS (  " +
-			"  SELECT  " +
-			" TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,  " +
-			" SUM(CAST(jb.value AS INT)) AS sum_values  " +
-			"  FROM  " +
-			" cloud_element ce,  " +
-			" jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  " +
-			" landingzone l, department dep, organization org  " +
-			"  WHERE  " +
-			" org.id = dep.organization_id  " +
-			" AND dep.id = l.department_id  " +
-			" AND l.id = ce.landingzone_id  " +
-			" AND org.id  = :orgId " +
-			" AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE)  " +
-			"  GROUP BY TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key  " +
-			"  ORDER BY TO_DATE(jb.key, 'YYYY-MM') DESC  " +
-			"  LIMIT 3  " +
-			" )  " +
-			" SELECT  " +
-			"  'Total Sum of Value' AS month,  " +
-			"  SUM(sum_values) AS sum_all_values  " +
-			" FROM  " +
-			"  monthly_costs  " +
-			"    " +
-			" UNION ALL  " +
-			"    " +
-			" SELECT  " +
-			"  month,  " +
-			"  sum_values  " +
-			" FROM (  " +
-			"  SELECT  " +
-			" TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') AS month,  " +
-			" SUM(CAST(jb.value AS INT)) AS sum_values  " +
-			"  FROM  " +
-			" cloud_element ce,  " +
-			" jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') AS jb(key, value),  " +
-			" landingzone l, department dep, organization org  " +
-			"  WHERE  " +
-			" org.id = dep.organization_id  " +
-			" AND dep.id = l.department_id  " +
-			" AND l.id = ce.landingzone_id  " +
-			" AND org.id  = :orgId " +
-			" AND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE)  " +
-			"  GROUP BY TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key  " +
-			"  ORDER BY TO_DATE(jb.key, 'YYYY-MM') DESC  " +
-			"  LIMIT 3  " +
-			" ) subquery  " +
-			" ) final_query ";
+	String MONTHLY_STATISTICS_QUERY = " select * from\n" +
+			"\t(  \n" +
+			"\t\twith monthly_costs as (\n" +
+			"\t\t\tselect TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') as month, SUM(cast(jb.value as INT)) as sum_values\n" +
+			"\t\t\tfrom\n" +
+			"\t\t\t\tcloud_element ce,  \n" +
+			"\t\t\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key, value),  \n" +
+			"\t\t\t\tlandingzone l, department dep, organization org\n" +
+			"\t\t\twhere  \n" +
+			"\t\t\t\torg.id = dep.organization_id\n" +
+			"\t\t\t\tand dep.id = l.department_id\n" +
+			"\t\t\t\tand l.id = ce.landingzone_id\n" +
+			"\t\t\t\tand org.id = :orgId \n" +
+			"\t\t\t\tand cast(substring(jb.key, 6) as int) = extract ('month' from current_date)\n" +
+			"\t\t\t\tgroup by TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key\n" +
+			"\t\t\t)\n" +
+			"\t\t\tselect 'Total Sum of Value' as month, SUM(sum_values) as sum_all_values\n" +
+			"\t\t\tfrom monthly_costs\n" +
+			"\t\tunion all\n" +
+			"\t\t\tselect month, sum_values \n" +
+			"\t\t\tfrom\n" +
+			"\t\t(\n" +
+			"\t\t\tselect TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month') as month, SUM(cast(jb.value as INT)) as sum_values\n" +
+			"\t\t\tfrom cloud_element ce, landingzone l, department dep, organization org,\n" +
+			"\t\t\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key, value)\n" +
+			"\t\t\twhere  \n" +
+			"\t\t\t \torg.id = dep.organization_id\n" +
+			"\t\t\t\tand dep.id = l.department_id\n" +
+			"\t\t\t\tand l.id = ce.landingzone_id\n" +
+			"\t\t\t\tand org.id = :orgId \n" +
+			"\t\t\t\tAND EXTRACT('year' FROM TO_DATE(jb.key, 'YYYY-MM')) = EXTRACT('year' FROM CURRENT_DATE )  \n" +
+			"\t\t\t\tand cast(substring(jb.key, 6) as int) != extract ('month' from current_date)\n" +
+			"\t\t\t\tgroup by TO_CHAR(TO_DATE(jb.key, 'YYYY-MM'), 'Month'), jb.key\n" +
+			"\t\t\t\torder by TO_DATE(jb.key, 'YYYY-MM') desc\n" +
+			"\t\t\t\tlimit 3  \n" +
+			"\t\t) subquery  \n" +
+			"\t) final_query";
 	@Query(value = MONTHLY_STATISTICS_QUERY, nativeQuery = true)
 	List<MonthlyStatisticsQueryObj> monthlyStatisticsQueryObj(@Param("orgId")Long orgId);
 
