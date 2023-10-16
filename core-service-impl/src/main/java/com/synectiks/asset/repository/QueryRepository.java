@@ -1381,12 +1381,12 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = SLA_COST_NON_ASSOCIATE_QUERY, nativeQuery = true)
 	List<SlaAnalyticQueryObj> getSlaWiseCostNonAssociate(@Param("orgId") Long orgId);
 	
-	String SLA_COST_ASSOCIATE_QUERY="select p.\"name\", cast (floor(random() * 100 + 1) as int) as performance,\r\n"
-			+ "cast (floor(random() * 100 + 1) as int) as availability,\r\n"
-			+ "cast (floor(random() * 100 + 1) as int) as reliability,\r\n"
-			+ "cast (floor(random() * 100 + 1) as int) as security,\r\n"
-			+ "cast (floor(random() * 100 + 1) as int) as end_usage\r\n"
-			+ "from product p where p.organization_id = :orgId ";
+	String SLA_COST_ASSOCIATE_QUERY="select p.name, cast (floor(random() * (100-97+1) + 97) as int) as performance, \n" +
+			"\t\t\t cast (floor(random() * (100-97+1) + 97) as int) as availability, \n" +
+			"\t\t\t cast (floor(random() * (100-97+1) + 97) as int) as reliability, \n" +
+			"\t\t\t cast (floor(random() * (100-97+1) + 97) as int) as security, \n" +
+			"\t\t\t cast (floor(random() * (100-97+1) + 97) as int) as end_usage \n" +
+			"\t\t\t from product p where p.organization_id = :orgId ";
 	@Query(value = SLA_COST_ASSOCIATE_QUERY, nativeQuery = true)
 	List<SlaAnalyticQueryObj> getSlaWiseCostAssociate(@Param("orgId") Long orgId);
 
