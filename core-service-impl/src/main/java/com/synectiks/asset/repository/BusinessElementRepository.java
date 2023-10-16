@@ -45,4 +45,32 @@ public interface BusinessElementRepository extends JpaRepository<BusinessElement
     @Query(value = GET_THREE_TIER_SERVICE, nativeQuery = true)
     BusinessElement getThreeTierService(@Param("serviceName") String serviceName, @Param("serviceType") String serviceType,  @Param("productId") Long productId, @Param("productEnvId") Long productEnvId);
 
+    String SERVICE_VIEW_TOPOLOGY_QUERY="select be.* from business_element be \n" +
+            "where be.product_id in (select p.id \n" +
+            " \t\t\t\t\t\t\tfrom product p \n" +
+            " \t\t\t\t\t\t\twhere p.department_id in (select d.id from department d \n" +
+            " \t\t\t\t\t\t\t\t\t\t\t\t\t\twhere d.id in (select l.department_id  \n" +
+            " \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tfrom landingzone l \n" +
+            " \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\twhere l.id = :landingZoneId )\n" +
+            " \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tand upper(d.name) = upper(:deptName))\n" +
+            "\t\t\t\t\t\t\tand upper(p.name) = upper(:productName)\n" +
+            "\t\t\t\t\t\t\tand upper(p.type) = upper(:productType))\n" +
+            "and be.product_env_id in (select pe.id from product_env pe where pe.product_id in (select p.id \n" +
+            "\t\t\t\t\t\t\tfrom product p \n" +
+            "\t\t\t\t\t\t\twhere p.department_id in (select d.id from department d \n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\twhere d.id in (select l.department_id  \n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tfrom landingzone l \n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\twhere l.id = :landingZoneId )\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tand upper(d.name) = upper(:deptName))\n" +
+            "\t\t\t\t\t\t\tand upper(p.name) = upper(:productName)\n" +
+            "\t\t\t\t\t\t\tand upper(p.type) = upper(:productType)\n" +
+            "\t\t\t\t\t\t\t)\n" +
+            "\t\t\t\t\t\t\tand upper(pe.name) = upper(:env))\t\t\n" +
+            "and upper(be.service_nature) = upper(:serviceNature)";
+    @Query(value = SERVICE_VIEW_TOPOLOGY_QUERY, nativeQuery = true)
+    List<BusinessElement> getServiceViewTopology(@Param("landingZoneId") Long landingZoneId,
+                                                 @Param("productName") String productName, @Param("deptName") String deptName,
+                                                 @Param("env") String env, @Param("productType") String productType,
+                                                 @Param("serviceNature") String serviceNature);
+
 }

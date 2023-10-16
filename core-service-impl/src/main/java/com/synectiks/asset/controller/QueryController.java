@@ -2,16 +2,22 @@
 
  import com.synectiks.asset.api.controller.QueryApi;
  import com.synectiks.asset.api.model.*;
+ import com.synectiks.asset.config.Constants;
+ import com.synectiks.asset.domain.BusinessElement;
  import com.synectiks.asset.domain.query.*;
+ import com.synectiks.asset.mapper.BusinessElementMapper;
  import com.synectiks.asset.mapper.query.*;
  import com.synectiks.asset.service.QueryService;
+ import org.apache.commons.lang3.StringUtils;
  import org.slf4j.Logger;
  import org.slf4j.LoggerFactory;
  import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.http.HttpStatus;
  import org.springframework.http.ResponseEntity;
  import org.springframework.web.bind.annotation.RequestMapping;
  import org.springframework.web.bind.annotation.RestController;
 
+ import java.util.ArrayList;
  import java.util.List;
 
 
@@ -549,6 +555,40 @@ public class QueryController implements QueryApi {
 		List<ApplicationTopologyQueryObj> applicationTopologyQueryObjList = queryService.getApplicationTopology(orgId,landingZoneId);
 		List<ApplicationTopologyDTO> applicationTopologyDTOList = ApplicationTopologyMapper.INSTANCE.toDtoList(applicationTopologyQueryObjList);
 		return ResponseEntity.ok(applicationTopologyDTOList);
+	}
+
+	@Override
+	public ResponseEntity<Object> getApplicationTopologyServiceView(Long orgId, Long landingZoneId, String productName, String deptName, String env, String productType, String serviceNature){
+		logger.debug("REST request to get application topology - service view data for org id: {}, landing-zone-id: {} ", orgId, landingZoneId);
+		ServiceViewTopologyDTO serviceViewTopologyDTO = new ServiceViewTopologyDTO();
+		if(!StringUtils.isBlank(serviceNature)){
+			logger.info("Getting application topology - service view data for requested service nature: {}", serviceNature);
+			List<BusinessElement> businessElementList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, serviceNature);
+			if(serviceNature.equalsIgnoreCase(Constants.TYPE_BUSINESS)){
+				List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
+				serviceViewTopologyDTO.setBusinessServices(businessServiceDTOList);
+			}else if(serviceNature.equalsIgnoreCase(Constants.TYPE_COMMON)){
+				List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
+				serviceViewTopologyDTO.setCommonServices(businessServiceDTOList);
+			}else{
+				logger.info("Service nature not found. Requested service-nature: {}",serviceNature);
+				return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Service nature not found. Requested service-nature: "+serviceNature);
+			}
+		}else{
+			logger.info("Getting application topology - service view data for service nature, business and common both ");
+			List<BusinessElement> businessServiceList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, Constants.TYPE_BUSINESS);
+			List<BusinessElement> commonServiceList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, Constants.TYPE_COMMON);
+			List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessServiceList);
+			List<BusinessElementDTO> commonServiceDTOList =  BusinessElementMapper.INSTANCE.entityToDtoList(commonServiceList);
+			serviceViewTopologyDTO.setBusinessServices(businessServiceDTOList);
+			serviceViewTopologyDTO.setCommonServices(commonServiceDTOList);
+		}
+		serviceViewTopologyDTO.setApplication(productName);
+		serviceViewTopologyDTO.setLob(deptName);
+		serviceViewTopologyDTO.setEnvironment(env);
+		serviceViewTopologyDTO.setAppType(productType);
+		serviceViewTopologyDTO.setLandingZoneId(landingZoneId);
+		return ResponseEntity.ok(serviceViewTopologyDTO);
 	}
 }
 

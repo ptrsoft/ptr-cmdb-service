@@ -4220,6 +4220,61 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organization/{orgId}/application-topology/service-view:
+    get:
+      tags:
+        - ApplicationTopologyQuery
+      summary: Application-topology service view
+      operationId: getApplicationTopologyServiceView
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productName
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: departmentName
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: env
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: productType
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: serviceNature
+          schema:
+            type: string
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /infra-discovery/organization/{orgId}/aws:
     get:
       tags:
@@ -5080,3 +5135,27 @@ components:
           type: object
         cost:
           type: object
+    ServiceViewTopologyDTO:
+      type: object
+      properties:
+        application:
+          type: string
+        lob:
+          type: string
+        environment:
+          type: string
+        appType:
+          type: string
+        landingZoneId:
+          type: integer
+          format: int64
+        cloud:
+          type: string
+        businessServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessElementDTO'
+        commonServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessElementDTO'

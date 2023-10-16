@@ -1,57 +1,26 @@
 package com.synectiks.asset.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.model.BillingDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
-import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.query.*;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
+import com.synectiks.asset.repository.QueryRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.synectiks.asset.api.model.BillingDTO;
-import com.synectiks.asset.api.model.EnvironmentQueryDTO;
-import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
-import com.synectiks.asset.api.model.SlaAnalyticDTO;
-import com.synectiks.asset.domain.Landingzone;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.CostBillingQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
-import com.synectiks.asset.domain.query.InfraTopology3TierQueryObj;
-import com.synectiks.asset.domain.query.InfraTopology3TierStatsQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyCategoryWiseViewQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyCloudElementQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyObj;
-import com.synectiks.asset.domain.query.InfraTopologyProductEnclaveObj;
-import com.synectiks.asset.domain.query.InfraTopologySOAQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologySOAStatsQueryObj;
-import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
-import com.synectiks.asset.domain.query.SOAQueryObj;
-import com.synectiks.asset.domain.query.SlaAnalyticQueryObj;
-import com.synectiks.asset.domain.query.ThreeTierQueryObj;
-import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
-import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
-import com.synectiks.asset.repository.QueryRepository;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class QueryService {
@@ -66,6 +35,9 @@ public class QueryService {
 
 	@Autowired
 	private LandingzoneService landingzoneService;
+
+	@Autowired
+	private BusinessElementService businessElementService;
 
 
 	public List<EnvironmentCountQueryObj> getEnvStats(Long orgId){
@@ -623,6 +595,10 @@ public class QueryService {
 		return queryRepository.getProcessCentralAnalyticData(orgId);
 	}
 
+	public List<BusinessElement> getServiceViewTopology(Long landingZoneId, String productName, String deptName, String env, String productType, String serviceNature) {
+		logger.debug("Get service view topology: ");
+		return businessElementService.getServiceViewTopology(landingZoneId, productName,deptName, env, productType, serviceNature);
+	}
 //	public EnvironmentCountQueryObj getResourceCountsByOrgAndCloudAndLandingZone(Long orgId, String cloud,Long landingZone) {
 //		  logger.debug("Getting cloud wise landing zone and their resource counts for an organization and given cloud. Org Id: {}, Cloud: {}", orgId,cloud);
 //	        return queryRepository.getResourceCountsByOrgAndCloudAndLandingZone(cloud, orgId,landingZone);
