@@ -318,8 +318,14 @@ public class CloudElementService {
 
     @Transactional
     public Map<String, Object> associateCloudElement(Map reqObj){
-        logger.debug("Request to associate a service (business-element) with infrastructure (cloud-element) or tag a business element");
-        CloudElement cloudElement = getCloudElementByLandingZoneAndInstanceId( (Long)reqObj.get("landingZoneId"), (String)reqObj.get("instanceId"));
+        logger.debug("Request to associate/tag a service (business-element) with infrastructure (cloud-element)");
+        Long landingZoneId = null;
+        if(reqObj.get("landingZoneId").getClass().getName().equalsIgnoreCase("java.lang.Integer")){
+            landingZoneId =  ((Integer)reqObj.get("landingZoneId")).longValue();
+        }else{
+            landingZoneId = (Long)reqObj.get("landingZoneId");
+        }
+        CloudElement cloudElement = getCloudElementByLandingZoneAndInstanceId( landingZoneId, (String)reqObj.get("instanceId"));
         Map<String, Object> response = new HashMap<>();
         if(cloudElement == null){
             logger.warn("Cloud-element of given instance-id: {} not found. ",(String)reqObj.get("instanceId"));
