@@ -37,9 +37,9 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/cmdb
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${db.server.host}:${db.server.port}/${db.schema}
+    username: ${db.user}
+    password: ${db.password}
     hikari:
       poolName: Hikari
       auto-commit: false
