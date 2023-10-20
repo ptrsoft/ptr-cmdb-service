@@ -11,23 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import com.synectiks.asset.api.model.SlaAnalyticDTO;
 import com.synectiks.asset.domain.Organization;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.CostBillingQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentSummaryQueryObj;
-import com.synectiks.asset.domain.query.InfraTopology3TierQueryObj;
-import com.synectiks.asset.domain.query.InfraTopology3TierStatsQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyCategoryWiseViewQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyCloudElementQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologySOAQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologySOAStatsQueryObj;
-import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
-import com.synectiks.asset.domain.query.SlaAnalyticQueryObj;
-import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
 
 /**
  * Spring Data SQL repository for the query database.
@@ -1234,7 +1217,61 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = PRODUCTION_VS_OTHERS_ASSOCIATE_QUERY, nativeQuery = true)
 	List<CostAnalyticQueryObj> getProductionVsOthersCostAssociate(@Param("orgId") Long orgId);
 
-	
+	String DEPARTMENT_WISE_COST_ASSOCIATE_QUERY = "with prev_sum as (\r\n"
+			+ "		select\r\n"
+			+ "			p.name as product,\r\n"
+			+ "			pe.name as product_env,\r\n"
+			+ "			sum(cast (jb.value as int)) as total\r\n"
+			+ "		from\r\n"
+			+ "			product_env pe,\r\n"
+			+ "			product p ,\r\n"
+			+ "			cloud_element ce,\r\n"
+			+ "			business_element be,\r\n"
+			+ "			department d,\r\n"
+			+ "			organization o ,\r\n"
+			+ "			jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key,	value),\r\n"
+			+ "			jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj,	pos)\r\n"
+			+ "		where\r\n"
+			+ "			pe.product_id = p.id \r\n"
+			+ "			and cast (c.obj ->> 'serviceId' as int) = be.id\r\n"
+			+ "			and be.product_id = p.id \r\n"
+			+ "			and be.product_env_id = pe.id \r\n"
+			+ "			and p.department_id = d.id\r\n"
+			+ "			and d.organization_id = o.id\r\n"
+			+ "			and o.id = :orgId\r\n"
+			+ "			and cast(substring(jb.key,	6) as int) = extract ('month' from	current_date)\r\n"
+			+ "		group by	pe.name,	p.name\r\n"
+			+ "	),\r\n"
+			+ "	product_total as (\r\n"
+			+ "		select ps.product, SUM(total) as product_total_sum from prev_sum ps group by ps.product\r\n"
+			+ "	),\r\n"
+			+ "	grand_total as (\r\n"
+			+ "		select sum(pt.product_total_sum) as whole_sum from product_total pt\r\n"
+			+ "	)\r\n"
+			+ "	select\r\n"
+			+ "		p.product,\r\n"
+			+ "		p.product_env,\r\n"
+			+ "		p.total,\r\n"
+			+ "--		g.product_total_sum, \r\n"
+			+ "		round((p.total / g.product_total_sum) * 100, 2) as percentage\r\n"
+			+ "	from\r\n"
+			+ "		prev_sum p,\r\n"
+			+ "		product_total g\r\n"
+			+ "	where p.product = g.product\r\n"
+			+ "union all\r\n"
+			+ "	select\r\n"
+			+ "		pt.product || ' Grand Total' as product,\r\n"
+			+ "		null as product_env,\r\n"
+			+ "		gt.whole_sum as total,\r\n"
+			+ "--		null as product_total_sum,\r\n"
+			+ "		round((pt.product_total_sum /gt.whole_sum) * 100, 2) as percentage\r\n"
+			+ "	from\r\n"
+			+ "		product_total pt, grand_total gt\r\n"
+			+ "	group by pt.product,pt.product_total_sum, gt.whole_sum\r\n"
+			+ "	order by product asc";
+	@Query(value = DEPARTMENT_WISE_COST_ASSOCIATE_QUERY, nativeQuery = true)
+	List<DepartmentCostAnalyticQueryObj> getDepartmentCost(@Param("orgId") Long orgId);
+
 	String SERVICE_TYPE_WISE_COST_NON_ASSOCIATE_QUERY = " WITH labels AS (   \r\n"
 			+ "			  select   \r\n"
 			+ "			   ce.category as name,   \r\n"
