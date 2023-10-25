@@ -527,8 +527,8 @@ public class QueryController implements QueryApi {
 		return ResponseEntity.ok(costAnalyticDTOList);
 	} 
 	@Override
-	public ResponseEntity<List<CostAnalyticDepartmentDTO>> getDepartmentCost(Long orgId) {
-		logger.debug("REST request to Get department cost associate for an organization: Org Id: {}", orgId);
+	public ResponseEntity<List<CostAnalyticDepartmentDTO>> getDepartmentWiseCostDetail(Long orgId) {
+		logger.debug("REST request to Get department wise cost detail for an organization: Org Id: {}", orgId);
 		List<DepartmentCostAnalyticQueryObj> deaprtmentCostAnalyticQueryObj = queryService.getDepartmentCost(orgId);
 		List<CostAnalyticDepartmentDTO> departmentcostAnalyticDTOList = DepartmentCostAnalyticMapper.INSTANCE.toDtoList(deaprtmentCostAnalyticQueryObj);
 		return ResponseEntity.ok(departmentcostAnalyticDTOList);

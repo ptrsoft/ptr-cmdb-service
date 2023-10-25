@@ -540,7 +540,7 @@ public class QueryService {
 	}
 	
 	public List<DepartmentCostAnalyticQueryObj> getDepartmentCost(Long orgId) {
-		logger.debug("Get deaprtment associate cost ");
+		logger.debug("Get department wise cost detail ");
 		return queryRepository.getDepartmentCost(orgId);
 	}
 	public List<CostAnalyticQueryObj> getProductionVsOthersCostNonAssociate(Long orgId) {

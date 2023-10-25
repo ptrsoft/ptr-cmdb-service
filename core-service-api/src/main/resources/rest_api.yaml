@@ -3885,13 +3885,13 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-          
-  /query/organization/{orgId}/analytics/cost-analytics/deparment/associated:
+
+  /query/organization/{orgId}/analytics/cost-analytics/deparment-wise-cost-detai:
     get:
       tags:
         - CostAnalyticsQuery
-      summary: get department wise cost  with cloud-element
-      operationId: getDepartmentCost
+      summary: get department wise cost detail
+      operationId: getDepartmentWiseCostDetail
       parameters:
         - in: path
           name: orgId
