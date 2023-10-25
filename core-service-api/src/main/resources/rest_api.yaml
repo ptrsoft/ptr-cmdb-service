@@ -3885,6 +3885,33 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+
+  /query/organization/{orgId}/analytics/cost-analytics/deparment-wise-cost-detai:
+    get:
+      tags:
+        - CostAnalyticsQuery
+      summary: get department wise cost detail
+      operationId: getDepartmentWiseCostDetail
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostAnalyticDepartmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/organization/{orgId}/analytics/cost-analytics/production-vs-others/associated:
     get:
       tags:
@@ -4971,6 +4998,18 @@ components:
       type: object
       properties:
         name:
+          type: string
+        total:
+          type: integer
+          format: int64
+        percentage:
+          type: string
+    CostAnalyticDepartmentDTO:
+      type: object
+      properties:
+        product:
+          type: string
+        product_env:
           type: string
         total:
           type: integer

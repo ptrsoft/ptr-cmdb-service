@@ -539,6 +539,10 @@ public class QueryService {
 		return queryRepository.getProductionVsOthersCostAssociate(orgId);
 	}
 	
+	public List<DepartmentCostAnalyticQueryObj> getDepartmentCost(Long orgId) {
+		logger.debug("Get department wise cost detail ");
+		return queryRepository.getDepartmentCost(orgId);
+	}
 	public List<CostAnalyticQueryObj> getProductionVsOthersCostNonAssociate(Long orgId) {
 		logger.debug("Get production vs others non associate cost ");
 		return queryRepository.getProductionVsOthersCostNonAssociate(orgId);
@@ -603,6 +607,8 @@ public class QueryService {
 //		  logger.debug("Getting cloud wise landing zone and their resource counts for an organization and given cloud. Org Id: {}, Cloud: {}", orgId,cloud);
 //	        return queryRepository.getResourceCountsByOrgAndCloudAndLandingZone(cloud, orgId,landingZone);
 //	}
+
+	
 
 }
 
