@@ -2,6 +2,7 @@ package com.synectiks.asset;
 
 import com.synectiks.asset.config.ApplicationProperties;
 import com.synectiks.asset.config.Constants;
+import com.synectiks.asset.util.CryptoUtil;
 import io.github.jhipster.config.DefaultProfileUtil;
 import io.github.jhipster.config.JHipsterConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -130,7 +131,7 @@ public class AssetserviceApp {
         Constants.VAULT_SECRET_VERSION = env.getProperty("hashicorp-vault.secret-version");
         Constants.VAULT_SECRET_ENGINE = env.getProperty("hashicorp-vault.secret-engine");
         Constants.VAULT_URL = env.getProperty("hashicorp-vault.url").replaceAll("_secret-version_",Constants.VAULT_SECRET_VERSION).replaceAll("_secret-engine_",Constants.VAULT_SECRET_ENGINE);
-        Constants.VAULT_ROOT_TOKEN = env.getProperty("hashicorp-vault.root-token");
+        Constants.VAULT_ROOT_TOKEN = CryptoUtil.decrypt(env.getProperty("hashicorp-vault.root-token"));
         Constants.VAULT_LANDING_ZONE_PATH = env.getProperty("hashicorp-vault.landing-zone-path");
         Constants.VAULT_PROVIDER_AWS_CREDS_KEY = env.getProperty("hashicorp-vault.provider-aws-creds-key");
 

@@ -38,7 +38,7 @@ SERVICE_JAR=${SERVICE_JAR:=core-service-impl/target/core-service-impl-0.0.1-SNAP
 SERVICE_PID=${SERVICE_PID:=service-pid.pid}
 LOG_FILE=${LOG_FILE:=console.log}
 #LOG4J=${LOG4J:=}
-DEFAULT_JAVA_OPTS="-Djdk.io.File.enableADS=true -Djdk.tls.acknowledgeCloseNotify=true -Xms1g -Xmx1g -XX:NewRatio=1 -XX:+ResizeTLAB -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSClassUnloadingEnabled -XX:-OmitStackTraceInFastThrow"
+DEFAULT_JAVA_OPTS="-Djdk.io.File.enableADS=true -Dserver.profile=dev -Ddb.server.host=postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com -Ddb.server.port=5431 -Ddb.schema=cmdb -Ddb.user=postgres -Ddb.password="Synect!ks2023" -Djdk.tls.acknowledgeCloseNotify=true -Xms1g -Xmx1g -XX:NewRatio=1 -XX:+ResizeTLAB -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSClassUnloadingEnabled -XX:-OmitStackTraceInFastThrow"
 
 if $JAVA_CMD -XX:+PrintFlagsFinal 2>&1 |grep -q UseParNewGC; then
 	DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+UseParNewGC"
