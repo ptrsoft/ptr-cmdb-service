@@ -139,7 +139,7 @@ hashicorp-vault:
   secret-version: v1
   secret-engine: kv-v1
   url: http://34.199.12.114:8200/_secret-version_/_secret-engine_
-  root-token: s.X22v2Ma60lzujd1OlKVhMy0Q
+  root-token: a29LEjdI1LYKAKr7OpVlXx54y30kBem2QNdqn2FqUJ4=
   landing-zone-path: /_organization_/_department_/_cloud_/_landing-zone_
   provider-aws-creds-key: /PROVIDER/AWS/CREDS
 
