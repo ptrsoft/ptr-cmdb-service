@@ -1523,5 +1523,24 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" from organization o where o.id = :orgId";
 	@Query(value = PROCESS_CENTRAL_ANALYTIC_QUERY, nativeQuery = true)
 	List<ProcessCentralAnalyticQueryObj> getProcessCentralAnalyticData(@Param("orgId") Long orgId);
+	
+	String CLOUD_ELMENT_WISE_COST_DETAIL="select ce.element_type, sum(cast (jb.value  as int))\r\n"
+			+ "	from cloud_element ce, jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key,	value)\r\n"
+			+ "	where cast(substring(jb.key, 6) as int) = extract ('month' from current_date )\r\n"
+			+ "	group by ce.element_type ";
+	@Query(value = CLOUD_ELMENT_WISE_COST_DETAIL,nativeQuery = true)
+	List<CloudElementCostAnalyticQueryObj> getCloudElementWiseCostDetail();
+	
+	String CLOUD_WISE_COST_DETAIL="select l.cloud, sum(cast (jb.value  as int))  from cloud_element ce, landingzone l, jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key,	value) \r\n"
+			+ "	where ce.landingzone_id = l.id and cast(substring(jb.key, 6) as int) = extract ('month' from current_date )\r\n"
+			+ "	group by l.cloud ";
+	@Query(value = CLOUD_WISE_COST_DETAIL,nativeQuery = true)
+	List<CloudCostAnalyticQueryObj> getCloudWiseCostDetail();
+	
+	String CLOUD_AWS_ACCOUNT_WISE_COST_DETAIL="select l.cloud, ce.landingzone_id, sum(cast (jb.value  as int))  from cloud_element ce, landingzone l, jsonb_each_text(ce.cost_json -> 'cost' -> 'MONTHLYCOST') as jb(key,	value) \r\n"
+			+ "	where ce.landingzone_id = l.id and cast(substring(jb.key, 6) as int) = extract ('month' from current_date )\r\n"
+			+ "	group by l.cloud, ce.landingzone_id ";
+	@Query(value = CLOUD_AWS_ACCOUNT_WISE_COST_DETAIL,nativeQuery = true)
+	List<AwsAccountCostAnalyticQueryObj> getAwsAccountWiseCostDetail();
 
 }

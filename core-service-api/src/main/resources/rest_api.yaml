@@ -3912,6 +3912,63 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organization/analytics/cost-analytics/cloud-element-wise-cost-detail:
+    get:
+      tags:
+        - CostAnalyticsQuery
+      summary: get cloud element wise cost detail
+      operationId: getCloudElementWiseCostDetail
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostAnalyticCloudElementDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organization/analytics/cost-analytics/cloud-wise-cost-detail:
+    get:
+      tags:
+        - CostAnalyticsQuery
+      summary: get cloud  wise cost detail
+      operationId: getCloudWiseCostDetail
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostAnalyticCloudDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organization/analytics/cost-analytics/aws-account-wise-cost-detail:
+    get:
+      tags:
+        - CostAnalyticsQuery
+      summary: get aws   account wise cost detail
+      operationId: getAwsAccountWiseCostDetail
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostAnalyticAwsAccountDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/organization/{orgId}/analytics/cost-analytics/production-vs-others/associated:
     get:
       tags:
@@ -5016,6 +5073,33 @@ components:
           format: int64
         percentage:
           type: string
+    CostAnalyticCloudElementDTO:
+      type: object
+      properties:
+        element_type:
+          type: string
+        sum:
+          type: integer
+          format: int64
+    CostAnalyticCloudDTO:
+      type: object
+      properties:
+        cloud:
+          type: string
+        sum:
+          type: integer
+          format: int64
+    CostAnalyticAwsAccountDTO:
+      type: object
+      properties:
+        cloud:
+          type: string
+        landingzone_id:
+          type: integer
+          format: int64
+        sum:
+          type: integer
+          format: int64
     CostBillingDTO:
       type: object
       properties:

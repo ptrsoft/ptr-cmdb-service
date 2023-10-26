@@ -15,6 +15,9 @@ import com.synectiks.asset.api.model.CloudElementCloudWiseAnalyticsDTO;
 import com.synectiks.asset.api.model.CloudElementCloudWiseMonthlyAnalyticsDTO;
 import com.synectiks.asset.api.model.CloudElementSpendAnalyticsDTO;
 import com.synectiks.asset.api.model.CloudElementVpcDTO;
+import com.synectiks.asset.api.model.CostAnalyticAwsAccountDTO;
+import com.synectiks.asset.api.model.CostAnalyticCloudDTO;
+import com.synectiks.asset.api.model.CostAnalyticCloudElementDTO;
 import com.synectiks.asset.api.model.CostAnalyticDTO;
 import com.synectiks.asset.api.model.CostAnalyticDepartmentDTO;
 import com.synectiks.asset.api.model.CostBillingDTO;
@@ -29,8 +32,11 @@ import com.synectiks.asset.api.model.ProcessCentralAnalyticDTO;
 import com.synectiks.asset.api.model.SlaAnalyticDTO;
 import com.synectiks.asset.api.model.TotalBudgetDTO;
 import com.synectiks.asset.domain.query.ApplicationTopologyQueryObj;
+import com.synectiks.asset.domain.query.AwsAccountCostAnalyticQueryObj;
+import com.synectiks.asset.domain.query.CloudCostAnalyticQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
+import com.synectiks.asset.domain.query.CloudElementCostAnalyticQueryObj;
 import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
 import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
 import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
@@ -48,8 +54,11 @@ import com.synectiks.asset.domain.query.ProcessCentralAnalyticQueryObj;
 import com.synectiks.asset.domain.query.SlaAnalyticQueryObj;
 import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
 import com.synectiks.asset.mapper.query.ApplicationTopologyMapper;
+import com.synectiks.asset.mapper.query.AwsAccountCostAnalyticMapper;
+import com.synectiks.asset.mapper.query.CloudCostAnalyticMapper;
 import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
 import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
+import com.synectiks.asset.mapper.query.CloudElementCostAnalyticMapper;
 import com.synectiks.asset.mapper.query.CloudElementSpendAnalyticQueryMapper;
 import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
 import com.synectiks.asset.mapper.query.CostAnalyticMapper;
@@ -533,6 +542,30 @@ public class QueryController implements QueryApi {
 		List<CostAnalyticDepartmentDTO> departmentcostAnalyticDTOList = DepartmentCostAnalyticMapper.INSTANCE.toDtoList(deaprtmentCostAnalyticQueryObj);
 		return ResponseEntity.ok(departmentcostAnalyticDTOList);
 	} 	
+	@Override
+	public ResponseEntity<List<CostAnalyticCloudElementDTO>> getCloudElementWiseCostDetail() {
+		logger.debug("REST request to Get cloud element wise cost detail");
+		List<CloudElementCostAnalyticQueryObj> cloudElementCostAnalyticQueryObj = queryService.getCloudElementWiseCostDetail();
+		List<CostAnalyticCloudElementDTO> cloudElementCostAnalyticDTOList = CloudElementCostAnalyticMapper.INSTANCE.toDtoList(cloudElementCostAnalyticQueryObj);
+		return ResponseEntity.ok(cloudElementCostAnalyticDTOList);
+	} 
+	
+	@Override
+	public ResponseEntity<List<CostAnalyticCloudDTO>> getCloudWiseCostDetail() {
+		logger.debug("REST request to Get cloud  wise cost detail");
+		List<CloudCostAnalyticQueryObj> cloudCostAnalyticQueryObj = queryService.getCloudWiseCostDetail();
+		List<CostAnalyticCloudDTO> cloudCostAnalyticDTOList = CloudCostAnalyticMapper.INSTANCE.toDtoList(cloudCostAnalyticQueryObj);
+		return ResponseEntity.ok(cloudCostAnalyticDTOList);
+	} 
+	@Override
+	public ResponseEntity<List<CostAnalyticAwsAccountDTO>> getAwsAccountWiseCostDetail() {
+		logger.debug("REST request to Get aws account cloud  wise cost detail");
+		List<AwsAccountCostAnalyticQueryObj> awsAccountCostAnalyticQueryObj = queryService.getAwsAccountWiseCostDetail();
+		List<CostAnalyticAwsAccountDTO>awsAccountCostAnalyticDTOList = AwsAccountCostAnalyticMapper.INSTANCE.toDtoList(awsAccountCostAnalyticQueryObj);
+		return ResponseEntity.ok(awsAccountCostAnalyticDTOList);
+	}
+	
+	
 	@Override
 	public ResponseEntity<List<CostAnalyticDTO>> getServiceTypeWiseCostNonAssociate(Long orgId) {
 		logger.debug("REST request to Get service type wise cost non associate for an organization: Org Id: {}", orgId);
