@@ -37,7 +37,14 @@ public class VaultService {
         return jsonNode.get("data");
     }
 
-
+    public JsonNode getCloudCreds(String key) throws JsonProcessingException {
+        String url = Constants.VAULT_URL + "/"+key;
+        HttpHeaders headers = createHttpHeaders();
+        HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        JsonNode jsonNode = Constants.instantiateMapper().readTree(response.getBody());
+        return jsonNode.get("data");
+    }
 
     private HttpHeaders createHttpHeaders()	{
         HttpHeaders headers = new HttpHeaders();

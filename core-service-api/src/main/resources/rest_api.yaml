@@ -869,6 +869,54 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /landingzone/vault-key:
+    get:
+      tags:
+        - Landingzone
+      summary: Get vault key of given landingzone-id
+      operationId: getVaultKeyByLandingzoneId
+      parameters:
+        - in: query
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /landingzone/cloud-creds:
+    get:
+      tags:
+        - Landingzone
+      summary: Get cloud credentials of given landingzone-id
+      operationId: getCloudCredsByLandingzoneId
+      parameters:
+        - in: query
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /product-enclave:
     get:
       tags:

@@ -1,9 +1,12 @@
 package com.synectiks.asset.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.controller.LandingzoneApi;
 import com.synectiks.asset.api.model.LandingzoneDTO;
 import com.synectiks.asset.api.model.LandingzoneResponseDTO;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.repository.LandingzoneRepository;
@@ -16,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -127,5 +129,27 @@ public class LandingzoneController implements LandingzoneApi {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
+
+    @Override
+    public ResponseEntity<String> getVaultKeyByLandingzoneId(Long landingZoneId){
+        logger.debug("REST request to get vault key for landing-zone id: {} ", landingZoneId);
+        Landingzone landingzone = landingzoneRepository.findById(landingZoneId).get();
+        String vaultKey =  vaultService.resolveVaultKey(landingzone.getDepartment().getOrganization().getName(), landingzone.getDepartment().getName(), landingzone.getCloud(), landingzone.getLandingZone());
+        return ResponseEntity.ok(vaultKey);
+    }
+
+    @Override
+    public ResponseEntity<Object> getCloudCredsByLandingzoneId(Long landingZoneId){
+        logger.debug("REST request to get cloud credentials for landing-zone id: {} ", landingZoneId);
+        Landingzone landingzone = landingzoneRepository.findById(landingZoneId).get();
+        String vaultKey =  vaultService.resolveVaultKey(landingzone.getDepartment().getOrganization().getName(), landingzone.getDepartment().getName(), landingzone.getCloud(), landingzone.getLandingZone());
+        JsonNode response = null;
+        try {
+            response = vaultService.getCloudCreds(vaultKey);
+        } catch (JsonProcessingException e) {
+            logger.error("Error in getting user creds from vault: ",e);
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(response);
+    }
 }
