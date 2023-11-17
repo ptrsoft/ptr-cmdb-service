@@ -3934,7 +3934,7 @@ paths:
         500:
           description: "Internal Server Error"
 
-  /query/organization/{orgId}/analytics/cost-analytics/deparment-wise-cost-detai:
+  /query/organization/{orgId}/analytics/cost-analytics/department-wise-cost-detail:
     get:
       tags:
         - CostAnalyticsQuery

@@ -2,36 +2,21 @@
 
  import java.util.List;
 
-import org.slf4j.Logger;
+ import com.synectiks.asset.api.model.*;
+ import com.synectiks.asset.config.Constants;
+ import com.synectiks.asset.domain.BusinessElement;
+ import com.synectiks.asset.mapper.BusinessElementMapper;
+ import org.apache.commons.lang3.StringUtils;
+ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.asset.api.controller.QueryApi;
-import com.synectiks.asset.api.model.ApplicationTopologyDTO;
-import com.synectiks.asset.api.model.CloudElementCloudWiseAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementCloudWiseMonthlyAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementSpendAnalyticsDTO;
-import com.synectiks.asset.api.model.CloudElementVpcDTO;
-import com.synectiks.asset.api.model.CostAnalyticAwsAccountDTO;
-import com.synectiks.asset.api.model.CostAnalyticCloudDTO;
-import com.synectiks.asset.api.model.CostAnalyticCloudElementDTO;
-import com.synectiks.asset.api.model.CostAnalyticDTO;
-import com.synectiks.asset.api.model.CostAnalyticDepartmentDTO;
-import com.synectiks.asset.api.model.CostBillingDTO;
-import com.synectiks.asset.api.model.EnvironmentCountQueryDTO;
-import com.synectiks.asset.api.model.EnvironmentQueryDTO;
-import com.synectiks.asset.api.model.InfraTopologyCategoryWiseViewDTO;
-import com.synectiks.asset.api.model.InfraTopologyCloudElementDTO;
-import com.synectiks.asset.api.model.InfraTopologyDTO;
-import com.synectiks.asset.api.model.InfraTopologyGlobalServiceCategoryWiseViewDTO;
-import com.synectiks.asset.api.model.MonthlyStatisticsDTO;
-import com.synectiks.asset.api.model.ProcessCentralAnalyticDTO;
-import com.synectiks.asset.api.model.SlaAnalyticDTO;
-import com.synectiks.asset.api.model.TotalBudgetDTO;
-import com.synectiks.asset.domain.query.ApplicationTopologyQueryObj;
+ import com.synectiks.asset.domain.query.ApplicationTopologyQueryObj;
 import com.synectiks.asset.domain.query.AwsAccountCostAnalyticQueryObj;
 import com.synectiks.asset.domain.query.CloudCostAnalyticQueryObj;
 import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
@@ -644,38 +629,38 @@ public class QueryController implements QueryApi {
 		return ResponseEntity.ok(applicationTopologyDTOList);
 	}
 
-//	@Override
-//	public ResponseEntity<Object> getApplicationTopologyServiceView(Long orgId, Long landingZoneId, String productName, String deptName, String env, String productType, String serviceNature){
-//		logger.debug("REST request to get application topology - service view data for org id: {}, landing-zone-id: {} ", orgId, landingZoneId);
-//		ServiceViewTopologyDTO serviceViewTopologyDTO = new ServiceViewTopologyDTO();
-//		if(!StringUtils.isBlank(serviceNature)){
-//			logger.info("Getting application topology - service view data for requested service nature: {}", serviceNature);
-//			List<BusinessElement> businessElementList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, serviceNature);
-//			if(serviceNature.equalsIgnoreCase(Constants.TYPE_BUSINESS)){
-//				List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
-//				serviceViewTopologyDTO.setBusinessServices(businessServiceDTOList);
-//			}else if(serviceNature.equalsIgnoreCase(Constants.TYPE_COMMON)){
-//				List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
-//				serviceViewTopologyDTO.setCommonServices(businessServiceDTOList);
-//			}else{
-//				logger.info("Service nature not found. Requested service-nature: {}",serviceNature);
-//				return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Service nature not found. Requested service-nature: "+serviceNature);
-//			}
-//		}else{
-//			logger.info("Getting application topology - service view data for service nature, business and common both ");
-//			List<BusinessElement> businessServiceList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, Constants.TYPE_BUSINESS);
-//			List<BusinessElement> commonServiceList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, Constants.TYPE_COMMON);
-//			List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessServiceList);
-//			List<BusinessElementDTO> commonServiceDTOList =  BusinessElementMapper.INSTANCE.entityToDtoList(commonServiceList);
-//			serviceViewTopologyDTO.setBusinessServices(businessServiceDTOList);
-//			serviceViewTopologyDTO.setCommonServices(commonServiceDTOList);
-//		}
-//		serviceViewTopologyDTO.setApplication(productName);
-//		serviceViewTopologyDTO.setLob(deptName);
-//		serviceViewTopologyDTO.setEnvironment(env);
-//		serviceViewTopologyDTO.setAppType(productType);
-//		serviceViewTopologyDTO.setLandingZoneId(landingZoneId);
-//		return ResponseEntity.ok(serviceViewTopologyDTO);
-//	}
+	@Override
+	public ResponseEntity<Object> getApplicationTopologyServiceView(Long orgId, Long landingZoneId, String productName, String deptName, String env, String productType, String serviceNature){
+		logger.debug("REST request to get application topology - service view data for org id: {}, landing-zone-id: {} ", orgId, landingZoneId);
+		ServiceViewTopologyDTO serviceViewTopologyDTO = new ServiceViewTopologyDTO();
+		if(!StringUtils.isBlank(serviceNature)){
+			logger.info("Getting application topology - service view data for requested service nature: {}", serviceNature);
+			List<BusinessElement> businessElementList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, serviceNature);
+			if(serviceNature.equalsIgnoreCase(Constants.TYPE_BUSINESS)){
+				List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
+				serviceViewTopologyDTO.setBusinessServices(businessServiceDTOList);
+			}else if(serviceNature.equalsIgnoreCase(Constants.TYPE_COMMON)){
+				List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessElementList);
+				serviceViewTopologyDTO.setCommonServices(businessServiceDTOList);
+			}else{
+				logger.info("Service nature not found. Requested service-nature: {}",serviceNature);
+				return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Service nature not found. Requested service-nature: "+serviceNature);
+			}
+		}else{
+			logger.info("Getting application topology - service view data for service nature, business and common both ");
+			List<BusinessElement> businessServiceList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, Constants.TYPE_BUSINESS);
+			List<BusinessElement> commonServiceList = queryService.getServiceViewTopology(landingZoneId, productName, deptName, env, productType, Constants.TYPE_COMMON);
+			List<BusinessElementDTO> businessServiceDTOList = BusinessElementMapper.INSTANCE.entityToDtoList(businessServiceList);
+			List<BusinessElementDTO> commonServiceDTOList =  BusinessElementMapper.INSTANCE.entityToDtoList(commonServiceList);
+			serviceViewTopologyDTO.setBusinessServices(businessServiceDTOList);
+			serviceViewTopologyDTO.setCommonServices(commonServiceDTOList);
+		}
+		serviceViewTopologyDTO.setApplication(productName);
+		serviceViewTopologyDTO.setLob(deptName);
+		serviceViewTopologyDTO.setEnvironment(env);
+		serviceViewTopologyDTO.setAppType(productType);
+		serviceViewTopologyDTO.setLandingZoneId(landingZoneId);
+		return ResponseEntity.ok(serviceViewTopologyDTO);
+	}
 }
 
