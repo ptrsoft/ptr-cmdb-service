@@ -1,5 +1,6 @@
 package com.synectiks.asset.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -54,6 +55,9 @@ public class CloudElementService {
 
     @Autowired
     private OrganizationService organizationService;
+
+    @Autowired
+    private VaultService vaultService;
 
     public CloudElement save(CloudElement cloudElement) {
         logger.debug("Request to save cloud element : {}", cloudElement);
@@ -475,5 +479,22 @@ public class CloudElementService {
             }
         }
         return isExists;
+    }
+
+    public ObjectNode getCloudCredsByCloudElementId(Long cloudElementId) throws JsonProcessingException {
+        logger.info("Getting user's cloud credentials from vault");
+        CloudElementDTO cloudElementDTO = new CloudElementDTO();
+        cloudElementDTO.setId(cloudElementId);
+        List<CloudElement> cloudElementList = search(cloudElementDTO);
+        if(cloudElementList.size() == 0){
+            logger.error("Cloud element not found. Given cloud element id : "+cloudElementId);
+            return null;
+        }
+        logger.debug("Cloud element found. Given cloud element id : "+cloudElementId);
+        CloudElement cloudElement = cloudElementList.get(0);
+        String vaultKey =  vaultService.resolveVaultKey(cloudElement.getLandingzone().getDepartment().getOrganization().getName(), cloudElement.getLandingzone().getDepartment().getName(), cloudElement.getLandingzone().getCloud(), cloudElement.getLandingzone().getLandingZone());
+        ObjectNode response = (ObjectNode)vaultService.getCloudCreds(vaultKey);
+        logger.info("Returning user's cloud credentials");
+        return response;
     }
 }

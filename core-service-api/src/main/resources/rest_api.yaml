@@ -1636,6 +1636,32 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-element/cloud-creds:
+    get:
+      tags:
+        - CloudElement
+      summary: Get cloud credentials of given clou-element-id
+      operationId: getCloudCredsByCloudElementId
+      parameters:
+        - in: query
+          name: cloudElementId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        481:
+          description: "Cloud-element-id not found"
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /module:
     get:
       tags:

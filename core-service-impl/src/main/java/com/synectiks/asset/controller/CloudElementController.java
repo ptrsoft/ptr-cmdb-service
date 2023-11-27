@@ -1,5 +1,6 @@
 package com.synectiks.asset.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -26,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,7 +69,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<CloudElementDTO> getCloudElement(Long id) {
-        logger.debug("REST request to get CloudElement : ID: {}", id);
+        logger.info("REST request to get CloudElement : ID: {}", id);
         Optional<CloudElement> oObj = cloudElementService.findOne(id);
         CloudElementDTO cloudElementDTO = CloudElementMapper.INSTANCE.entityToDto(oObj.orElse(null));
         return ResponseUtil.wrapOrNotFound(Optional.of(cloudElementDTO));
@@ -77,7 +77,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<List<CloudElementDTO>> getCloudElementList(){
-        logger.debug("REST request to get all CloudElements");
+        logger.info("REST request to get all CloudElements");
         List<CloudElement> cloudElementList = cloudElementService.findAll();
         List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
         return ResponseEntity.ok(cloudElementDTOList);
@@ -85,7 +85,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<CloudElementDTO> addCloudElement(CloudElementDTO cloudElementDTO){
-        logger.debug("REST request to add CloudElement : {}", cloudElementDTO);
+        logger.info("REST request to add CloudElement : {}", cloudElementDTO);
         validator.validateNotNull(cloudElementDTO.getId(), ENTITY_NAME);
         CloudElement cloudElement = CloudElementMapper.INSTANCE.dtoToEntity(cloudElementDTO);
         cloudElement = cloudElementService.save(cloudElement);
@@ -95,7 +95,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<CloudElementDTO> updateCloudElement(CloudElementDTO cloudElementDTO) {
-        logger.debug("REST request to update CloudElement : {}", cloudElementDTO);
+        logger.info("REST request to update CloudElement : {}", cloudElementDTO);
         validator.validateNull(cloudElementDTO.getId(), ENTITY_NAME);
         validator.validateEntityExistsInDb(cloudElementDTO.getId(), ENTITY_NAME, cloudElementRepository);
         CloudElement existingCloudElement = cloudElementRepository.findById(cloudElementDTO.getId()).get();
@@ -107,7 +107,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<List<CloudElementDTO>> searchCloudElement(CloudElementDTO cloudElementDTO) {
-        logger.debug("REST request to get all cloud-elements on given filters : {} ", cloudElementDTO);
+        logger.info("REST request to get all cloud-elements on given filters : {} ", cloudElementDTO);
         List<CloudElement> cloudElementList = cloudElementService.search(cloudElementDTO);
         List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
         return ResponseEntity.ok(cloudElementDTOList);
@@ -115,7 +115,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<List<CloudElementTagDTO>> getCloudElementTag(Long landingZoneId, String instanceId) {
-        logger.debug("REST request to get all the tags of a landing-zone : LandingZoneId: {}", landingZoneId);
+        logger.info("REST request to get all the tags of a landing-zone : LandingZoneId: {}", landingZoneId);
         List<CloudElementTagQueryObj> cloudElementTagQueryObjList = cloudElementService.getCloudElementTag(landingZoneId, instanceId);
         List<CloudElementTagDTO>  cloudElementTagDTOList = CloudElementTagMapper.INSTANCE.toDtoList(cloudElementTagQueryObjList);
         return ResponseUtil.wrapOrNotFound(Optional.of(cloudElementTagDTOList));
@@ -123,7 +123,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<Object> deleteCloudElementTag(Long landingZoneId, String instanceId, Long serviceId) {
-        logger.debug("REST request to delete a tag. LandingZoneId: {}, instanceId: {}, serviceId: {}", landingZoneId,instanceId,serviceId);
+        logger.info("REST request to delete a tag. LandingZoneId: {}, instanceId: {}, serviceId: {}", landingZoneId,instanceId,serviceId);
         CloudElement cloudElement = cloudElementService.getCloudElementByArn(landingZoneId,serviceId,instanceId);
         if(cloudElement != null){
             ObjectMapper objectMapper = Constants.instantiateMapper();
@@ -160,7 +160,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<CloudElementDTO> associateCloudElement(Object obj){
-        logger.debug("REST request to associate a service with infrastructure or tag a business element");
+        logger.info("REST request to associate a service with infrastructure or tag a business element");
         Map reqObj = (Map)obj;
 
         Map<String, Object> response = cloudElementService.associateCloudElement(reqObj);
@@ -189,7 +189,7 @@ public class CloudElementController implements CloudElementApi {
 
     @Override
     public ResponseEntity<Object> autoAssociateCloudElement(@PathVariable("orgId") Long orgId, @PathVariable("cloud") String cloud){
-        logger.debug("REST request to auto discover services and associated them with infrastructure");
+        logger.info("REST request to auto discover services and associated them with infrastructure");
         Map<Long, Object> response = cloudElementService.autoAssociateCloudElement(orgId, cloud);
         return ResponseUtil.wrapOrNotFound(Optional.of(response));
     }
@@ -255,5 +255,36 @@ public class CloudElementController implements CloudElementApi {
         isS3SechdulerRunning = false;
         logger.debug("Auto scheduled discovery of s3 buckets completed");
         return ResponseUtil.wrapOrNotFound(Optional.of(HttpStatus.OK));
+    }
+
+    @Override
+    public ResponseEntity<Object> getCloudCredsByCloudElementId(Long cloudElementId){
+        logger.info("Rest api to get user's cloud access credentials for cloud-element-id {}",cloudElementId);
+        ObjectNode response = null;
+        try{
+            response = cloudElementService.getCloudCredsByCloudElementId(cloudElementId);
+            if(response == null){
+                logger.error("Cloud-element id not found: {}",cloudElementId);
+                response = setStatus("error", "Cloud-element id not found. Cloud-element-id: "+cloudElementId, 418, null);
+                return ResponseEntity.status(HttpStatus.valueOf(418)).body(response);
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Exception while getting user's credentials from vault: ",e);
+            response = setStatus("error", "Exception while getting user's credentials from vault: "+e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), null);
+            return ResponseEntity.status(HttpStatus.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value())).body(response);
+        }
+        logger.info("Returning user's cloud access credentials for cloud-element-id {}",cloudElementId);
+        response = setStatus("success", "api successful", HttpStatus.OK.value(), response);
+        return ResponseEntity.status(HttpStatus.valueOf(HttpStatus.OK.value())).body(response);
+    }
+
+
+    private ObjectNode setStatus(String status, String message, int statusCode, JsonNode obj){
+        ObjectNode response = new ObjectMapper().createObjectNode();
+        response.put("status",status);
+        response.put("message",message);
+        response.put("statusCode",statusCode);
+        response.put("data",obj);
+        return response;
     }
 }
