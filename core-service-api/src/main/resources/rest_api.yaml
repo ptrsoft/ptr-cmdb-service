@@ -96,6 +96,8 @@ tags:
     description: get application topology data
   - name: InfraDiscovery
     description: Cloud element discovery
+  - name: Config
+    description: Appkube configurations
 
 paths:
   /organization:
@@ -220,6 +222,235 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/OrganizationDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /config:
+    get:
+      tags:
+        - Config
+      summary: Fetch list of configurations
+      operationId: getConfigList
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    post:
+      tags:
+        - Config
+      summary: Add config
+      operationId: addConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    patch:
+      tags:
+        - Config
+      summary: Update config
+      operationId: updateConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        201:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /config/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          format: int64
+        required: true
+    get:
+      tags:
+        - Config
+      summary: Fetch a configuration of given id
+      operationId: getConfig
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /config/get-by-key/{key}:
+    parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+        required: true
+    get:
+      tags:
+        - Config
+      summary: Fetch a configuration of a given key
+      operationId: getConfigByKey
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /config/search:
+    get:
+      tags:
+        - Config
+      summary: Search configurations
+      operationId: searchConfig
+      parameters:
+        - name: configDTO
+          in: query
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /config/encrypt:
+    post:
+      tags:
+        - Config
+      summary: Add config with encrypted value
+      operationId: addConfigWithEncryption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    patch:
+      tags:
+        - Config
+      summary: Update config with encrypted value
+      operationId: updateConfigWithEncryption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        201:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /config/decrypt/get-by-key/{key}:
+    parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+        required: true
+    get:
+      tags:
+        - Config
+      summary: Fetch a configuration of given key with decrypted value
+      operationId: getDecryptedConfig
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDTO'
         404:
           description: "Service Not found"
         500:
@@ -5356,3 +5587,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BusinessElementDTO'
+    ConfigDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        key:
+          type: string
+        value:
+          type: string
+        status:
+          type: string
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdOn:
+          type: string
+        updatedOn:
+          type: string
+        organizationId:
+          type: integer
+          format: int64
+        organizationName:
+          type: string
