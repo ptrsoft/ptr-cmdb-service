@@ -38,7 +38,7 @@ hystrix:
 management:
   endpoints:
     web:
-      base-path: /management
+      base-path: /api/management
       exposure:
         include: ['configprops', 'env', 'health', 'info', 'jhimetrics', 'logfile', 'loggers', 'prometheus', 'threaddump']
   endpoint:
@@ -120,13 +120,13 @@ spring:
     allow-bean-definition-overriding: true
   task:
     execution:
-      thread-name-prefix: assetservice-task-
+      thread-name-prefix: cmdb-task-
       pool:
         core-size: 2
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: assetservice-scheduling-
+      thread-name-prefix: cmdb-scheduling-
       pool:
         size: 2
   thymeleaf:
