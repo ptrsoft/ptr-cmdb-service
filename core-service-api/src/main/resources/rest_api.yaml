@@ -5159,6 +5159,14 @@ components:
           format: int64
         productEnclaveInstanceId:
           type: string
+        cloud:
+          type: string
+        logLocation:
+          type: string
+        traceLocation:
+          type: string
+        metricLocation:
+          type: string
     ModuleDTO:
       type: object
       properties:

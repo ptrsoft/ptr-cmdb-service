@@ -87,7 +87,9 @@ public class CloudElementService {
         StringBuilder primarySql = new StringBuilder("select ce.id, ce.element_type,ce.hosted_services, ce.arn, ce.instance_id, ce.instance_name, ce.category, \n" +
                 "ce.landingzone_id, ce.db_category_id, ce.product_enclave_id, " +
                 " ce.status, ce.created_by, ce.created_on, ce.updated_by, ce.updated_on, " +
-                " null as sla_json, null as cost_json, null as view_json, null as config_json, null as compliance_json from cloud_element ce \n" +
+                " null as sla_json, null as cost_json, null as view_json, null as config_json, null as compliance_json, " +
+                " l.cloud, ce.log_location, ce.trace_location, ce.metric_location \n" +
+                " from cloud_element ce \n" +
                 "left join landingzone l on ce.landingzone_id = l.id\n" +
                 "left join db_category dc on ce.db_category_id = dc.id\n" +
                 "left join product_enclave pe on ce.product_enclave_id = pe.id " +

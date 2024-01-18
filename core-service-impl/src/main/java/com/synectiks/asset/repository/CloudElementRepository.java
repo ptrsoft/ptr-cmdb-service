@@ -16,6 +16,7 @@ import java.util.List;
 @Repository
 public interface CloudElementRepository extends JpaRepository<CloudElement, Long> {
     CloudElement findByInstanceId(String instanceId);
+    List<CloudElement> findByCloud(String cloud);
 
     String CLOUD_ELEMENT_BY_LANDINGZONE_ID_AND_INSTANCE_ID_QUERY ="select ce.* from cloud_element ce where ce.instance_id = :instanceId and ce.landingzone_id = :landingZoneId ";
     @Query(value = CLOUD_ELEMENT_BY_LANDINGZONE_ID_AND_INSTANCE_ID_QUERY, nativeQuery = true)

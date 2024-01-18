@@ -80,4 +80,17 @@ public class CloudElement extends AbstractAuditingEntity implements Serializable
 	@ManyToOne
 	private ProductEnclave productEnclave;
 
+	@Column(name = "cloud")
+	private String cloud;
+
+	@Column(name = "log_location")
+	private String logLocation;
+
+	@Column(name = "trace_location")
+	private String traceLocation;
+
+	@Column(name = "metric_location")
+	private String metricLocation;
+
+
 }
