@@ -618,7 +618,10 @@ public class QueryService {
 //	        return queryRepository.getResourceCountsByOrgAndCloudAndLandingZone(cloud, orgId,landingZone);
 //	}
 
-	
+	public List<CloudWiseLandingzoneCountQueryObj> getCloudWiseLandingzoneCount(Long orgId){
+		logger.debug("Get cloud wise landing-zone counts of an organization. organization id: {}", orgId);
+		return queryRepository.getCloudWiseLandingzoneCount(orgId);
+	}
 
 
 

@@ -5,62 +5,20 @@
  import com.synectiks.asset.api.model.*;
  import com.synectiks.asset.config.Constants;
  import com.synectiks.asset.domain.BusinessElement;
+ import com.synectiks.asset.domain.query.*;
  import com.synectiks.asset.mapper.BusinessElementMapper;
+ import com.synectiks.asset.mapper.query.*;
  import org.apache.commons.lang3.StringUtils;
  import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
  import org.springframework.http.HttpStatus;
  import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.asset.api.controller.QueryApi;
- import com.synectiks.asset.domain.query.ApplicationTopologyQueryObj;
-import com.synectiks.asset.domain.query.AwsAccountCostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.CloudCostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseMonthlyQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCloudWiseQueryObj;
-import com.synectiks.asset.domain.query.CloudElementCostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.CloudElementSpendAnalyticsQueryObj;
-import com.synectiks.asset.domain.query.CloudEnvironmentVpcQueryObj;
-import com.synectiks.asset.domain.query.CostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.CostBillingQueryObj;
-import com.synectiks.asset.domain.query.DepartmentCostAnalyticQueryObj;
-import com.synectiks.asset.domain.query.EnvironmentCountQueryObj;
-import com.synectiks.asset.domain.query.InfraTopology3TierStatsQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyCategoryWiseViewQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyCloudElementQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyGlobalServiceCategoryWiseViewQueryObj;
-import com.synectiks.asset.domain.query.InfraTopologyObj;
-import com.synectiks.asset.domain.query.InfraTopologySOAStatsQueryObj;
-import com.synectiks.asset.domain.query.MonthlyStatisticsQueryObj;
-import com.synectiks.asset.domain.query.ProcessCentralAnalyticQueryObj;
-import com.synectiks.asset.domain.query.SlaAnalyticQueryObj;
-import com.synectiks.asset.domain.query.TotalBudgetQueryObj;
-import com.synectiks.asset.mapper.query.ApplicationTopologyMapper;
-import com.synectiks.asset.mapper.query.AwsAccountCostAnalyticMapper;
-import com.synectiks.asset.mapper.query.CloudCostAnalyticMapper;
-import com.synectiks.asset.mapper.query.CloudElementCloudWiseMonthlyQueryMapper;
-import com.synectiks.asset.mapper.query.CloudElementCloudWiseQueryMapper;
-import com.synectiks.asset.mapper.query.CloudElementCostAnalyticMapper;
-import com.synectiks.asset.mapper.query.CloudElementSpendAnalyticQueryMapper;
-import com.synectiks.asset.mapper.query.CloudEnvironmentVpcQueryMapper;
-import com.synectiks.asset.mapper.query.CostAnalyticMapper;
-import com.synectiks.asset.mapper.query.CostBillingMapper;
-import com.synectiks.asset.mapper.query.DepartmentCostAnalyticMapper;
-import com.synectiks.asset.mapper.query.EnvironmentCountQueryMapper;
-import com.synectiks.asset.mapper.query.InfraTopology3TierStatsMapper;
-import com.synectiks.asset.mapper.query.InfraTopologyCategoryWiseViewMapper;
-import com.synectiks.asset.mapper.query.InfraTopologyCloudElementMapper;
-import com.synectiks.asset.mapper.query.InfraTopologyGlobalServiceCategoryWiseViewMapper;
-import com.synectiks.asset.mapper.query.InfraTopologyMapper;
-import com.synectiks.asset.mapper.query.InfraTopologySOAStatsMapper;
-import com.synectiks.asset.mapper.query.MonthlyStatisticyMapper;
-import com.synectiks.asset.mapper.query.ProcessCentralAnalyticMapper;
-import com.synectiks.asset.mapper.query.SlaAnalyticMapper;
-import com.synectiks.asset.mapper.query.TotalBudgetMapper;
-import com.synectiks.asset.service.QueryService;
+ import com.synectiks.asset.service.QueryService;
 
 
 @RestController
@@ -661,6 +619,14 @@ public class QueryController implements QueryApi {
 		serviceViewTopologyDTO.setAppType(productType);
 		serviceViewTopologyDTO.setLandingZoneId(landingZoneId);
 		return ResponseEntity.ok(serviceViewTopologyDTO);
+	}
+
+	@Override
+	public ResponseEntity<List<CloudWiseLandingzoneCountQueryDTO>> getCloudWiseLandingzoneCountByOrg(Long orgId){
+		logger.debug("REST request to Get cloud wise landing-zone counts of an organization. org id: {}", orgId);
+		List<CloudWiseLandingzoneCountQueryObj> cloudWiseLandingzoneCountQueryObjList = queryService.getCloudWiseLandingzoneCount(orgId);
+		List<CloudWiseLandingzoneCountQueryDTO> cloudWiseLandingzoneCountQueryDTOList = CloudWiseLandingzoneCountMapper.INSTANCE.toDtoList(cloudWiseLandingzoneCountQueryObjList);
+		return ResponseEntity.ok(cloudWiseLandingzoneCountQueryDTOList);
 	}
 }
 

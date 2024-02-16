@@ -1543,4 +1543,10 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = CLOUD_AWS_ACCOUNT_WISE_COST_DETAIL,nativeQuery = true)
 	List<AwsAccountCostAnalyticQueryObj> getAwsAccountWiseCostDetail();
 
+	String CLOUD_WISE_LANDINGZONE_COUNTS="select  ROW_NUMBER() OVER () AS id, o.id as organization_id, o.\"name\" as organization_name,  l.cloud ,  count(distinct l.landing_zone) as total_accounts  from landingzone l, department d, organization o  \n" +
+			" where l.department_id = d.id and d.organization_id = o.id \n" +
+			" and o.id = :orgId \n" +
+			" group by o.id, o.\"name\", l.cloud  ";
+	@Query(value = CLOUD_WISE_LANDINGZONE_COUNTS,nativeQuery = true)
+	List<CloudWiseLandingzoneCountQueryObj> getCloudWiseLandingzoneCount(@Param("orgId") Long orgId);
 }
