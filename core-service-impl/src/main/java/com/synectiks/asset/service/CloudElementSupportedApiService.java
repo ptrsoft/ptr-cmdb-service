@@ -65,13 +65,13 @@ public class CloudElementSupportedApiService {
 			primarySql.append(" and c.name = ? ");
 		}
 		if(!StringUtils.isBlank(cloudElementSupportedApiDTO.getStatus())){
-			primarySql.append(" and upper(b.status) = upper(?) ");
+			primarySql.append(" and upper(c.status) = upper(?) ");
 		}
 		if(!StringUtils.isBlank(cloudElementSupportedApiDTO.getCreatedBy())){
-			primarySql.append(" and upper(b.created_by) = upper(?) ");
+			primarySql.append(" and upper(c.created_by) = upper(?) ");
 		}
 		if(!StringUtils.isBlank(cloudElementSupportedApiDTO.getUpdatedBy())){
-			primarySql.append(" and upper(b.updated_by) = upper(?) ");
+			primarySql.append(" and upper(c.updated_by) = upper(?) ");
 		}
 		Query query = entityManager.createNativeQuery(primarySql.toString(), CloudElementSupportedApi.class);
 		int index = 0;
