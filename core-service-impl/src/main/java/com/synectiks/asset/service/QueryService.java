@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -623,6 +620,14 @@ public class QueryService {
 		return queryRepository.getCloudWiseLandingzoneCount(orgId);
 	}
 
+	public List<String> getBiMappingCloudElements(Long orgId, Long departmentId, Long productId, Long productEnvId){
+		logger.debug("Get list of cloud-elements for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}", orgId, departmentId, productId, productEnvId);
+		return queryRepository.getBiMappingCloudElements(orgId, departmentId, productId, productEnvId);
+	}
 
+	public List<Map<String, Object>> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
+		logger.debug("Get list of cloud-element instances for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}, element-type: {}", orgId, departmentId, productId, productEnvId,elementType);
+		return queryRepository.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
+	}
 
 }

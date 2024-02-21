@@ -38,7 +38,7 @@ hystrix:
 management:
   endpoints:
     web:
-      base-path: /api/management
+      base-path: /management
       exposure:
         include: ['configprops', 'env', 'health', 'info', 'jhimetrics', 'logfile', 'loggers', 'prometheus', 'threaddump']
   endpoint:

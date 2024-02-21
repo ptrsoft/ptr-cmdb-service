@@ -94,6 +94,8 @@ tags:
     description: billing  cost analytics
   - name: ApplicationTopologyQuery
     description: get application topology data
+  - name: BIMappingQuery
+    description: get business to infra mappings
   - name: InfraDiscovery
     description: Cloud element discovery
   - name: Config
@@ -4807,6 +4809,95 @@ paths:
           schema:
             type: string
           required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organization/{orgId}/bi-mapping/cloud-element:
+    get:
+      tags:
+        - BIMappingQuery
+      summary: List of cloud-elements mapped with org,dept,produt and env
+      operationId: getBiMappingCloudElements
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: departmentId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productEnvId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /query/organization/{orgId}/bi-mapping/cloud-element-instance:
+    get:
+      tags:
+        - BIMappingQuery
+      summary: List of cloud-element instances mapped with org,dept,produt and env
+      operationId: getBiMappingCloudElementInstances
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: departmentId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: productEnvId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: elementType
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: OK

@@ -1,16 +1,14 @@
 package com.synectiks.asset.repository;
 
-import java.util.List;
-
-import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.Organization;
 import com.synectiks.asset.domain.query.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.synectiks.asset.api.model.SlaAnalyticDTO;
-import com.synectiks.asset.domain.Organization;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Spring Data SQL repository for the query database.
@@ -1549,4 +1547,33 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			" group by o.id, o.\"name\", l.cloud  ";
 	@Query(value = CLOUD_WISE_LANDINGZONE_COUNTS,nativeQuery = true)
 	List<CloudWiseLandingzoneCountQueryObj> getCloudWiseLandingzoneCount(@Param("orgId") Long orgId);
+
+
+	String BI_MAPPING_CLOUD_ELEMENTS="select distinct ce.element_type \n" +
+			"from cloud_element ce, jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj) \n" +
+			"where ce.hosted_services is not null and ce.hosted_services != 'null'\n" +
+			"and cast(c.obj -> 'tag' -> 'org' ->> 'id' as int) = :orgId \n" +
+			"and cast(c.obj -> 'tag' -> 'org' -> 'dep' ->> 'id' as int) = :departmentId \n" +
+			"and cast(c.obj -> 'tag' -> 'org' -> 'dep' -> 'product' ->> 'id' as int) = :productId \n" +
+			"and cast(c.obj -> 'tag' -> 'org' -> 'dep' -> 'product' -> 'productEnv' ->> 'id' as int) = :productEnvId \n" +
+			"order by ce.element_type asc";
+	@Query(value = BI_MAPPING_CLOUD_ELEMENTS,nativeQuery = true)
+	List<String> getBiMappingCloudElements(@Param("orgId") Long orgId, @Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId);
+
+	String BI_MAPPING_CLOUD_ELEMENT_INSTANCES="select ce.id, ce.element_type, ce.arn, ce.instance_id, ce.instance_name, ce.category,ce.landingzone_id, ce.db_category_id, ce.product_enclave_id, pe.instance_id as product_enclave_instance_id, \n" +
+			"ce.status, ce.created_by, ce.created_on, ce.updated_by, ce.updated_on, \n" +
+			"ce.log_location, ce.trace_location, ce.metric_location, l.landing_zone, l.cloud, dc.name as db_category_name, \n" +
+			"null as sla_json, null as cost_json, null as view_json, null as config_json, null as compliance_json, null as hosted_services \n" +
+			"from cloud_element ce, jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj), \n" +
+			"product_enclave pe, landingzone l, db_category dc \n" +
+			"where ce.hosted_services is not null and ce.hosted_services != 'null' \n" +
+			"and ce.product_enclave_id = pe.id and ce.landingzone_id = l.id and ce.db_category_id = dc.id \n" +
+			"and cast(c.obj -> 'tag' -> 'org' ->> 'id' as int) = :orgId \n" +
+			"and cast(c.obj -> 'tag' -> 'org' -> 'dep' ->> 'id' as int) = :departmentId \n" +
+			"and cast(c.obj -> 'tag' -> 'org' -> 'dep' -> 'product' ->> 'id' as int) = :productId \n" +
+			"and cast(c.obj -> 'tag' -> 'org' -> 'dep' -> 'product' -> 'productEnv' ->> 'id' as int) = :productEnvId \n" +
+			"and upper(ce.element_type) = upper(:elementType) " +
+			"order by ce.element_type asc";
+	@Query(value = BI_MAPPING_CLOUD_ELEMENT_INSTANCES,nativeQuery = true)
+	List<Map<String, Object>> getBiMappingCloudElementInstances(@Param("orgId") Long orgId, @Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("elementType") String elementType);
 }

@@ -1,24 +1,25 @@
  package com.synectiks.asset.controller;
 
- import java.util.List;
-
+ import com.synectiks.asset.api.controller.QueryApi;
  import com.synectiks.asset.api.model.*;
  import com.synectiks.asset.config.Constants;
  import com.synectiks.asset.domain.BusinessElement;
  import com.synectiks.asset.domain.query.*;
  import com.synectiks.asset.mapper.BusinessElementMapper;
+ import com.synectiks.asset.mapper.CloudElementMapper;
  import com.synectiks.asset.mapper.query.*;
+ import com.synectiks.asset.service.QueryService;
  import org.apache.commons.lang3.StringUtils;
  import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
  import org.springframework.http.HttpStatus;
  import org.springframework.http.ResponseEntity;
  import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+ import org.springframework.web.bind.annotation.RestController;
 
-import com.synectiks.asset.api.controller.QueryApi;
- import com.synectiks.asset.service.QueryService;
+ import java.util.List;
+ import java.util.Map;
 
 
 @RestController
@@ -627,6 +628,21 @@ public class QueryController implements QueryApi {
 		List<CloudWiseLandingzoneCountQueryObj> cloudWiseLandingzoneCountQueryObjList = queryService.getCloudWiseLandingzoneCount(orgId);
 		List<CloudWiseLandingzoneCountQueryDTO> cloudWiseLandingzoneCountQueryDTOList = CloudWiseLandingzoneCountMapper.INSTANCE.toDtoList(cloudWiseLandingzoneCountQueryObjList);
 		return ResponseEntity.ok(cloudWiseLandingzoneCountQueryDTOList);
+	}
+
+	@Override
+	public ResponseEntity<Object> getBiMappingCloudElements(Long orgId, Long departmentId, Long productId, Long productEnvId){
+		logger.debug("REST request to get list of cloud-elements for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}", orgId, departmentId, productId, productEnvId);
+		List<String> list = queryService.getBiMappingCloudElements(orgId, departmentId, productId, productEnvId);
+		return ResponseEntity.ok(list);
+	}
+
+	@Override
+	public ResponseEntity<Object> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
+		logger.debug("REST request to get list of cloud-element instances for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}, element-type: {}", orgId, departmentId, productId, productEnvId,elementType);
+		List<Map<String, Object>> cloudElementList = queryService.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
+		List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.copyListOfMapToDtoList(cloudElementList);
+		return ResponseEntity.ok(cloudElementDTOList);
 	}
 }
 

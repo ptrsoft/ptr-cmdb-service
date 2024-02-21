@@ -51,10 +51,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers("/api/authenticate").permitAll()
             .antMatchers("/api/**").authenticated()
-            .antMatchers("/api/management/health").permitAll()
-            .antMatchers("/api/management/info").permitAll()
-            .antMatchers("/api/management/prometheus").permitAll()
-            .antMatchers("/api/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
+            .antMatchers("/management/health").permitAll()
+            .antMatchers("/management/info").permitAll()
+            .antMatchers("/management/prometheus").permitAll()
+            .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
         .and()
             .apply(securityConfigurerAdapter());
         // @formatter:on
