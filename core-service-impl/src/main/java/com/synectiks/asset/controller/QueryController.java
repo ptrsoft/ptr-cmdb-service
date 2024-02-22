@@ -4,10 +4,12 @@
  import com.synectiks.asset.api.model.*;
  import com.synectiks.asset.config.Constants;
  import com.synectiks.asset.domain.BusinessElement;
+ import com.synectiks.asset.domain.CloudElement;
  import com.synectiks.asset.domain.query.*;
  import com.synectiks.asset.mapper.BusinessElementMapper;
  import com.synectiks.asset.mapper.CloudElementMapper;
  import com.synectiks.asset.mapper.query.*;
+ import com.synectiks.asset.service.CloudElementService;
  import com.synectiks.asset.service.QueryService;
  import org.apache.commons.lang3.StringUtils;
  import org.slf4j.Logger;
@@ -19,7 +21,6 @@
  import org.springframework.web.bind.annotation.RestController;
 
  import java.util.List;
- import java.util.Map;
 
 
 @RestController
@@ -30,6 +31,9 @@ public class QueryController implements QueryApi {
 
 	@Autowired
 	private QueryService queryService;
+
+	@Autowired
+	private CloudElementService cloudElementService;
 
 	@Override
 	public ResponseEntity<List<EnvironmentCountQueryDTO>> getEnvStatsByOrg(Long orgId) {
@@ -640,8 +644,8 @@ public class QueryController implements QueryApi {
 	@Override
 	public ResponseEntity<Object> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
 		logger.debug("REST request to get list of cloud-element instances for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}, element-type: {}", orgId, departmentId, productId, productEnvId,elementType);
-		List<Map<String, Object>> cloudElementList = queryService.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
-		List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.copyListOfMapToDtoList(cloudElementList);
+		List<CloudElement> cloudElementList = cloudElementService.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
+		List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
 		return ResponseEntity.ok(cloudElementDTOList);
 	}
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public interface BiServiceRepository extends JpaRepository<BiService, Long> {
     List<BiService> findByProductCategory(String productCategory);
     List<BiService> findByServiceCategory(String serviceCategory);
-    List<BiService> findByServiceType(String serviceType);
+
     List<BiService> findByName(String name);
     List<BiService> findByStatus(String status);
 
@@ -26,22 +26,6 @@ public interface BiServiceRepository extends JpaRepository<BiService, Long> {
      */
     List<BiService> findByProductCategoryAndServiceCategory(String productCategory, String serviceCategory);
 
-    /**
-     *
-     * @param productCategory 3 tier/soa
-     * @param serviceType 3 tier (null), soa (business/common)
-     * @return List<BiService>
-     */
-    List<BiService> findByProductCategoryAndServiceType(String productCategory, String serviceType);
-
-    /**
-     *
-     * @param productCategory 3 tier/soa
-     * @param serviceType 3 tier (null), soa (business/common)
-     * @param serviceCategory 3 tier (web/app/data/aux), soa (app/data/other)
-     * @return List<BiService>
-     */
-    List<BiService> findByProductCategoryAndServiceTypeAndServiceCategory(String productCategory, String serviceType, String serviceCategory);
 
 
 }

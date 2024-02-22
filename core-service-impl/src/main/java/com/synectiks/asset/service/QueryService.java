@@ -625,9 +625,5 @@ public class QueryService {
 		return queryRepository.getBiMappingCloudElements(orgId, departmentId, productId, productEnvId);
 	}
 
-	public List<Map<String, Object>> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
-		logger.debug("Get list of cloud-element instances for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}, element-type: {}", orgId, departmentId, productId, productEnvId,elementType);
-		return queryRepository.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
-	}
 
 }

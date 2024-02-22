@@ -61,9 +61,7 @@ public class BiServiceService {
 		if(biServiceDTO.getServiceCategory() != null){
 			primarySql.append(" and upper(c.service_category) = upper(?) ");
 		}
-		if(biServiceDTO.getServiceType() != null){
-			primarySql.append(" and upper(c.service_type) = upper(?) ");
-		}
+
 		if(biServiceDTO.getName() != null){
 			primarySql.append(" and c.name = ? ");
 		}
@@ -87,9 +85,7 @@ public class BiServiceService {
 		if(biServiceDTO.getServiceCategory() != null){
 			query.setParameter(++index, biServiceDTO.getServiceCategory());
 		}
-		if(biServiceDTO.getServiceType() != null){
-			query.setParameter(++index, biServiceDTO.getServiceType());
-		}
+
 		if(biServiceDTO.getName() != null){
 			query.setParameter(++index, biServiceDTO.getName());
 		}

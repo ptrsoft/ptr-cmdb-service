@@ -6041,8 +6041,6 @@ components:
           type: string
         serviceCategory:
           type: string
-        serviceType:
-          type: string
         name:
           type: string
         status:

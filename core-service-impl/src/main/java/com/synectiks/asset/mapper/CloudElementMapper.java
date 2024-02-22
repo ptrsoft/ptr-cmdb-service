@@ -11,10 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
-import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Mapper
@@ -157,41 +154,5 @@ public interface CloudElementMapper {
         return cloudElement;
     }
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target="hostedServices", ignore = true)
-    @Mapping(target="slaJson", ignore = true)
-    @Mapping(target="costJson", ignore = true)
-    @Mapping(target="viewJson", ignore = true)
-    @Mapping(target="configJson", ignore = true)
-    @Mapping(target="complianceJson", ignore = true)
-    default CloudElementDTO copyMapToDto(Map<String, Object> map){
-        CloudElementDTO dto = new CloudElementDTO();
-        dto.setId(map.get("id") != null ? ((BigInteger)map.get("id")).longValue() : null);
-        dto.setElementType(map.get("element_type") != null ? (String)map.get("element_type") : null);
-        dto.setArn(map.get("arn") != null ? (String)map.get("arn") : null);
-        dto.setInstanceId(map.get("instance_id") != null ? (String)map.get("instance_id") : null);
-        dto.setInstanceName(map.get("instance_name") != null ? (String)map.get("instance_name") : null);
-        dto.setCategory(map.get("category") != null ? (String)map.get("category") : null);
-        dto.setStatus(map.get("status") != null ? (String)map.get("status") : null);
-        dto.setCreatedBy(map.get("created_by") != null ? (!StringUtils.isBlank((String)map.get("created_by")) ? (String)map.get("created_by") : null)  : null);
-        dto.setUpdatedBy(map.get("updated_by") != null ? (!StringUtils.isBlank((String)map.get("updated_by")) ? (String)map.get("updated_by") : null) : null);
-        dto.setCreatedOn(map.get("created_on") != null ? ((Timestamp)map.get("created_on")).toString() : null);
-        dto.setUpdatedOn(map.get("updated_on") != null ? ((Timestamp)map.get("updated_on")).toString() : null);
-        dto.setLandingzoneId(map.get("landingzone_id") != null ? ((BigInteger)map.get("landingzone_id")).longValue() : null);
-        dto.setLandingZone(map.get("landing_zone") != null ? (String)map.get("landing_zone") : null);
-        dto.setDbCategoryId(map.get("db_category_id") != null ? ((BigInteger)map.get("db_category_id")).longValue() : null);
-        dto.setDbCategoryName(map.get("db_category_name") != null ? (String)map.get("db_category_name") : null);
-        dto.setProductEnclaveId(map.get("product_enclave_id") != null ? ((BigInteger)map.get("product_enclave_id")).longValue() : null);
-        dto.setProductEnclaveInstanceId(map.get("product_enclave_instance_id") != null ? (String)map.get("product_enclave_instance_id") : null);
-        dto.setCloud(map.get("cloud") != null ? (String)map.get("cloud") : null);
-        dto.setLogLocation(map.get("log_location") != null ? (String)map.get("log_location") : null);
-        dto.setTraceLocation(map.get("trace_location") != null ? (String)map.get("trace_location") : null);
-        dto.setMetricLocation(map.get("metric_location") != null ? (String)map.get("metric_location") : null);
-        return dto;
-    }
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    default List<CloudElementDTO> copyListOfMapToDtoList(List<Map<String, Object>> list){
-        List<CloudElementDTO> cloudElementDTOList = list.stream().map(dtoObj -> copyMapToDto(dtoObj)).collect(Collectors.toList());
-        return cloudElementDTOList;
-    }
+
 }
