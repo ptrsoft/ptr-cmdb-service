@@ -100,6 +100,9 @@ public class CloudElementService {
         if(!StringUtils.isBlank(cloudElementDTO.getElementType())){
             primarySql.append(" and upper(ce.element_type) = upper(?) ");
         }
+        if(!StringUtils.isBlank(cloudElementDTO.getCloud())){
+            primarySql.append(" and upper(ce.cloud) = upper(?) ");
+        }
         if(!StringUtils.isBlank(cloudElementDTO.getArn())){
             primarySql.append(" and ce.arn = ? ");
         }
@@ -137,6 +140,9 @@ public class CloudElementService {
         }
         if(!StringUtils.isBlank(cloudElementDTO.getElementType())){
             query.setParameter(++index, cloudElementDTO.getElementType());
+        }
+        if(!StringUtils.isBlank(cloudElementDTO.getCloud())){
+            query.setParameter(++index, cloudElementDTO.getCloud());
         }
         if(!StringUtils.isBlank(cloudElementDTO.getArn())){
             query.setParameter(++index, cloudElementDTO.getArn());

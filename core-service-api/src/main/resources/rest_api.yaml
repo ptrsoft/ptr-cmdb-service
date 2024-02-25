@@ -104,6 +104,8 @@ tags:
     description: Cloud element supported APIs
   - name: BiService
     description: Master service list for business to infra mapping
+  - name: CloudServiceMaster
+    description: Master service list for business to infra mapping
 
 paths:
   /organization:
@@ -5119,6 +5121,132 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-service:
+    get:
+      tags:
+        - CloudServiceMaster
+      summary: Fetch list of all cloud services registered in appkube
+      operationId: getCloudServiceList
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    post:
+      tags:
+        - CloudServiceMaster
+      summary: Add cloud service
+      operationId: addCloudService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+    patch:
+      tags:
+        - CloudServiceMaster
+      summary: Update cloud service
+      operationId: updateCloudService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudDTO'
+        201:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-service/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          format: int64
+        required: true
+    get:
+      tags:
+        - CloudServiceMaster
+      summary: Fetch a cloud service of a given id
+      operationId: getCloudService
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /cloud-service/search:
+    get:
+      tags:
+        - CloudServiceMaster
+      summary: Search cloud service data
+      operationId: searchCloudService
+      parameters:
+        - name: cloudDTO
+          in: query
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudDTO'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -6040,6 +6168,26 @@ components:
         productCategory:
           type: string
         serviceCategory:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdOn:
+          type: string
+        updatedOn:
+          type: string
+    CloudDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        elementType:
           type: string
         name:
           type: string
