@@ -4913,12 +4913,12 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /infra-discovery/organization/{orgId}/aws:
+  /infra-discovery/organization/{orgId}:
     get:
       tags:
         - InfraDiscovery
       summary: Getting AWS elements
-      operationId: discoverAwsCloudElements
+      operationId: discoverCloudElements
       parameters:
         - in: path
           name: orgId
@@ -4927,17 +4927,18 @@ paths:
             format: int64
           required: true
         - in: query
-          name: landingZone
-          schema:
-            type: string
-          required: true
-        - in: query
           name: elementType
           schema:
             type: string
           required: true
         - in: query
-          name: awsRegion
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: query
           schema:
             type: string
           required: false
@@ -4947,50 +4948,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CloudElementDTO'
-        404:
-          description: "Service Not found"
-        500:
-          description: "Internal Server Error"
-  /infra-discovery/organization/{orgId}/azure:
-    get:
-      tags:
-        - InfraDiscovery
-      summary: Getting Azure elements
-      operationId: discoverAzureCloudElements
-      parameters:
-        - in: path
-          name: orgId
-          schema:
-            type: integer
-            format: int64
-          required: true
-        - in: query
-          name: landingZone
-          schema:
-            type: string
-          required: true
-        - in: query
-          name: elementType
-          schema:
-            type: string
-          required: true
-        - in: query
-          name: awsRegion
-          schema:
-            type: string
-          required: false
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CloudElementDTO'
+                type: object
         404:
           description: "Service Not found"
         500:
@@ -6190,6 +6148,16 @@ components:
         elementType:
           type: string
         name:
+          type: string
+        isCronScheduled:
+          type: boolean
+        listQuery:
+          type: string
+        configQuery:
+          type: string
+        configKey:
+          type: string
+        uiMapping:
           type: string
         status:
           type: string

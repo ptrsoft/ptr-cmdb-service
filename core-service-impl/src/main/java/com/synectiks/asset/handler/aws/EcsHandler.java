@@ -58,8 +58,23 @@ public class EcsHandler implements CloudHandler {
         }
     }
 
-    private void addUpdate(Landingzone landingZone, Map clusterMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List responseList = (ArrayList)response;
+            for(Object obj: responseList){
+                Map configMap = (Map)obj;
+                cloudElementList.addAll(addUpdate(landingzone, configMap));
+            }
+        }
+        return cloudElementList;
+    }
+
+    private List<CloudElement> addUpdate(Landingzone landingZone, Map clusterMap) {
         List configList = (List)clusterMap.get("Clusters");
+        List<CloudElement> cloudElementList = new ArrayList<>();
         for(Object obj: configList){
             Map configMap = (Map)obj;
             CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)configMap.get("ClusterArn"), Constants.ECS);
@@ -68,11 +83,11 @@ public class EcsHandler implements CloudHandler {
                 cloudElement.setConfigJson(configMap);
                 cloudElement.setInstanceId((String)configMap.get("ClusterName"));
                 cloudElement.setInstanceName((String)configMap.get("ClusterName"));
-                cloudElementService.save(cloudElement);
+                cloudElement = cloudElementService.save(cloudElement);
             }else{
                 logger.debug("Adding ecs: {} for landing-zone: {}",(String)configMap.get("ClusterName"), landingZone.getLandingZone());
                 String instanceId = (String)configMap.get("ClusterName");
-                CloudElement cloudElementObj = CloudElement.builder()
+                cloudElement = CloudElement.builder()
                     .elementType(Constants.ECS)
                     .arn((String)configMap.get("ClusterArn"))
                     .instanceId(instanceId)
@@ -80,11 +95,13 @@ public class EcsHandler implements CloudHandler {
                     .category(Constants.APP_SERVICES)
                     .landingzone(landingZone)
                     .configJson(configMap)
+                    .cloud(landingZone.getCloud().toUpperCase())
                     .build();
-                cloudElementService.save(cloudElementObj);
+                cloudElement = cloudElementService.save(cloudElement);
             }
+            cloudElementList.add(cloudElement);
         }
-
+        return cloudElementList;
     }
 
     @Override
@@ -92,6 +109,12 @@ public class EcsHandler implements CloudHandler {
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.ecs-api");
     }
 
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
+    }
     @Override
     public Map<String, List<Object>> processTag(CloudElement cloudElement){
         List<Object> successTagging = new ArrayList<>();

@@ -62,5 +62,10 @@ public class CloudElementSummaryService {
 		logger.debug("Get all cloud-element-summaries of a landing-zone-id {}", landingZoneId);
 		return cloudElementSummaryRepository.getCloudElementSummary(landingZoneId);
 	}
-	
+
+	@Transactional(readOnly = true)
+	public CloudElementSummary findByLandingzoneId(Long landingZoneId) {
+		logger.debug("Get cloud-element-summary of a landing-zone-id {}", landingZoneId);
+		return cloudElementSummaryRepository.findByLandingzoneId(landingZoneId);
+	}
 }

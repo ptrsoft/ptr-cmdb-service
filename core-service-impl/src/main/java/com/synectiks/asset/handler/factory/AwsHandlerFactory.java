@@ -6,7 +6,7 @@ import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.aws.*;
 
 public class AwsHandlerFactory {
-    public static CloudHandler getHandler(String elementType){
+    public static synchronized CloudHandler getHandler(String elementType){
         if(Constants.APP_CONFIG_SUMMARY.equalsIgnoreCase(elementType)){
             return AssetserviceApp.getBean(AppConfigHandler.class);
         }
@@ -40,6 +40,56 @@ public class AwsHandlerFactory {
         if(Constants.DYNAMODB.equalsIgnoreCase(elementType)){
             return AssetserviceApp.getBean(DynamodbHandler.class);
         }
+        return null;
+    }
+
+    public static synchronized CloudHandler getHandlerByQuery(String query){
+        if("getApiGwList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(ApiGwHandler.class);
+        }
+        if("getCdnList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(CdnHandler.class);
+        }
+        if("getDiscoveredResourceCounts".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(AppConfigHandler.class);
+        }
+        if("getDynamoDbList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(DynamodbHandler.class);
+        }
+        if("getEc2List".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(Ec2Handler.class);
+        }
+        if("getEcsList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(EcsHandler.class);
+        }
+        if("getEksList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(EksHandler.class);
+        }
+        if("getLbList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(LbHandler.class);
+        }
+        if("getKinesisList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(KinesysHandler.class);
+        }
+        if("getKmsList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(KmsHandler.class);
+        }
+        if("getLambdaList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(LambdaHandler.class);
+        }
+        if("getRdsList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(RdsHandler.class);
+        }
+        if("getS3List".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(S3Handler.class);
+        }
+        if("getVpcList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(VpcHandler.class);
+        }
+        if("getWafList".equalsIgnoreCase(query)){
+            return AssetserviceApp.getBean(WafHandler.class);
+        }
+
         return null;
     }
 }

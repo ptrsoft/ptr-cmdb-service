@@ -16,8 +16,14 @@ import java.util.Map;
 
 public interface CloudHandler {
 
-    public void save(Organization organization, Department department, Landingzone landingZone, String awsRegion);
+    default void save(Organization organization, Department department, Landingzone landingZone, String awsRegion){}
+    default Object save(String elementType, Landingzone landingzone, String query){
+        return null;
+    }
     default String getUrl() {
+        return null;
+    }
+    default String getUrl(String elementType, String landingZoneId, String query) {
         return null;
     }
 
@@ -29,6 +35,11 @@ public interface CloudHandler {
         }
         String awsxUrl = url+params;
         Object response = restTemplate.getForObject(awsxUrl, Object.class);
+        return response;
+    }
+
+    default Object getResponse(RestTemplate restTemplate, String url) {
+        Object response = restTemplate.getForObject(url, Object.class);
         return response;
     }
 

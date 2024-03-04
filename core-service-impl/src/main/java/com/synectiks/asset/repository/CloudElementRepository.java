@@ -23,13 +23,13 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
     CloudElement getCloudElementByLandingZoneAndInstanceId(@Param("landingZoneId") Long landingZoneId, @Param("instanceId") String instanceId);
 
 
-    String CLOUD_ELEMENT_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
+    String CLOUD_ELEMENT_QUERY ="select id,element_type,hosted_services,arn,instance_id,instance_name ,category,landingzone_id,db_category_id,product_enclave_id, null as sla_json, null as cost_json, null as view_json,config_json , null as compliance_json,status,created_on ,updated_on ,updated_by,created_by,cloud,log_location,trace_location,metric_location from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
     @Query(value = CLOUD_ELEMENT_QUERY, nativeQuery = true)
     CloudElement getCloudElementByArn(@Param("landingZoneId") Long landingZoneId,
                                       @Param("arn") String arn,
                                       @Param("elementType") String elementType);
 
-    String CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.instance_id = :instanceId  ";
+    String CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY ="select id,element_type,hosted_services,arn,instance_id,instance_name ,category,landingzone_id,db_category_id,product_enclave_id, null as sla_json, null as cost_json, null as view_json,config_json , null as compliance_json,status,created_on ,updated_on ,updated_by,created_by,cloud,log_location,trace_location,metric_location from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.instance_id = :instanceId  ";
     @Query(value = CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY, nativeQuery = true)
     CloudElement getCloudElementByInstanceId(@Param("landingZoneId") Long landingZoneId,
                                  @Param("instanceId") String instanceId,

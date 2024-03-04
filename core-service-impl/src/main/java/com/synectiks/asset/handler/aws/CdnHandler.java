@@ -49,12 +49,26 @@ public class CdnHandler implements CloudHandler {
             List list = (ArrayList)response;
             for(Object cdnObj: list){
                 Map cdnMap = (Map)cdnObj;
-                addUpdate(department, landingZone, cdnMap);
+                addUpdate(landingZone, cdnMap);
             }
         }
     }
 
-    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List list = (ArrayList)response;
+            for(Object cdnObj: list){
+                Map cdnMap = (Map)cdnObj;
+                cloudElementList.add(addUpdate(landingzone, cdnMap));
+            }
+        }
+        return cloudElementList;
+    }
+
+    private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         String instanceId = (String)((Map)configMap.get("distribution")).get("Id");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.CDN);
         setAdditionalConfig(configMap);
@@ -63,10 +77,10 @@ public class CdnHandler implements CloudHandler {
             cloudElement.setConfigJson(configMap);
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName(instanceId);
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding cdn: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
-            CloudElement cloudElementObj = CloudElement.builder()
+            cloudElement = CloudElement.builder()
                     .elementType(Constants.CDN)
                     .arn((String)((Map)configMap.get("distribution")).get("ARN"))
                     .instanceId(instanceId)
@@ -74,14 +88,23 @@ public class CdnHandler implements CloudHandler {
                     .category(Constants.APP_SERVICES)
                     .landingzone(landingZone)
                     .configJson(configMap)
+                    .cloud(landingZone.getCloud().toUpperCase())
                     .build();
-            cloudElementService.save(cloudElementObj);
+            cloudElementService.save(cloudElement);
         }
+        return cloudElement;
     }
 
     @Override
     public String getUrl(){
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.cdn-api");
+    }
+
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
     }
 
     // TODO: static values to be changed with actual values

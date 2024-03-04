@@ -11,10 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class RdsHandler implements CloudHandler {
@@ -56,18 +53,35 @@ public class RdsHandler implements CloudHandler {
                 Map responseMap = (Map)respObj;
                 List dbInstanceList = (List)responseMap.get("DBInstances");
                 for(Object obj: dbInstanceList) {
-                    addUpdate(department, landingZone, (Map) obj);
+                    addUpdate(landingZone, (Map) obj);
                 }
             }
         }
     }
 
-    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List responseList = (ArrayList)response;
+            for(Object respObj: responseList){
+                Map responseMap = (Map)respObj;
+                List dbInstanceList = (List)responseMap.get("DBInstances");
+                for(Object obj: dbInstanceList) {
+                    cloudElementList.add(addUpdate(landingzone, (Map) obj));
+                }
+            }
+        }
+        return cloudElementList;
+    }
+
+    private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         ProductEnclave productEnclave = null;
         if(configMap.containsKey("DBSubnetGroup")){
             if(((Map)configMap.get("DBSubnetGroup")).containsKey("VpcId")) {
                 String vpcId = (String)((Map)configMap.get("DBSubnetGroup")).get("VpcId");
-                productEnclave = productEnclaveService.findProductEnclave(vpcId, department.getId(), landingZone.getId());
+                productEnclave = productEnclaveService.findProductEnclave(vpcId, landingZone.getDepartment().getId(), landingZone.getId());
             }
         }
 
@@ -79,7 +93,7 @@ public class RdsHandler implements CloudHandler {
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName(instanceId);
             cloudElement.setProductEnclave(productEnclave);
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding rds: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
             DbCategory dbCategory = dbCategoryService.findByName(Constants.SQL_DB);
@@ -93,16 +107,23 @@ public class RdsHandler implements CloudHandler {
                 .configJson(configMap)
                 .dbCategory(dbCategory)
                 .productEnclave(productEnclave)
+                .cloud(landingZone.getCloud().toUpperCase())
                 .build();
-            cloudElementService.save(cloudElementObj);
+            cloudElement = cloudElementService.save(cloudElementObj);
         }
+        return cloudElement;
     }
 
     @Override
     public String getUrl(){
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.rds-api");
     }
-
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
+    }
     @Override
     public Map<String, List<Object>> processTag(CloudElement cloudElement){
         List<Object> successTagging = new ArrayList<>();

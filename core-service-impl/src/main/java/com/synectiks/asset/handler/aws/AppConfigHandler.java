@@ -1,6 +1,5 @@
 package com.synectiks.asset.handler.aws;
 
-import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElementSummary;
 import com.synectiks.asset.domain.Department;
 import com.synectiks.asset.domain.Landingzone;
@@ -9,7 +8,6 @@ import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.service.CloudElementSummaryService;
 import com.synectiks.asset.service.LandingzoneService;
 import com.synectiks.asset.service.VaultService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AppConfigHandler implements CloudHandler {
@@ -65,7 +64,31 @@ public class AppConfigHandler implements CloudHandler {
     }
 
     @Override
-    public String getUrl(){
-        return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.appconfig-api");
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+
+        Map appConfigSummaryResponse = (Map)response;
+
+        CloudElementSummary cloudElementSummary =  cloudElementSummaryService.findByLandingzoneId(landingzone.getId());
+        if(cloudElementSummary != null){
+            logger.info("Updating cloud-element-summary for existing landingZoneId: {}", landingzone.getId());
+            cloudElementSummary.setSummaryJson(appConfigSummaryResponse);
+            cloudElementSummaryService.save(cloudElementSummary);
+        }else{
+            logger.info("Adding cloud-element-summary for landingZoneId: {}", landingzone.getId());
+            cloudElementSummary = CloudElementSummary.builder()
+                    .summaryJson(appConfigSummaryResponse)
+                    .landingzone(landingzone)
+                    .build();
+            cloudElementSummaryService.save(cloudElementSummary);
+        }
+        return cloudElementSummary;
+    }
+
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
     }
 }

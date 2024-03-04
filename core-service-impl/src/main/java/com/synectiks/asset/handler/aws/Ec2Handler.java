@@ -64,7 +64,25 @@ public class Ec2Handler implements CloudHandler {
         }
     }
 
-    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
+            Map responseMap = (LinkedHashMap)response;
+            List reservations = (List)responseMap.get("Reservations");
+            for(Object obj: reservations){
+                Map configMap = (Map)obj;
+                List instances = (List)configMap.get("Instances");
+                for(Object ec2Instance: instances){
+                    cloudElementList.add(addUpdate(landingzone.getDepartment(), landingzone, (Map)ec2Instance));
+                }
+            }
+        }
+        return cloudElementList;
+    }
+
+    private CloudElement addUpdate(Department department, Landingzone landingZone, Map configMap) {
         String instanceId = (String)configMap.get("InstanceId");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.EC2);
         ProductEnclave productEnclave = null;
@@ -79,11 +97,11 @@ public class Ec2Handler implements CloudHandler {
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName(instanceId);
             cloudElement.setProductEnclave(productEnclave);
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding ec2: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
 
-            CloudElement cloudElementObj = CloudElement.builder()
+            cloudElement = CloudElement.builder()
                 .elementType(Constants.EC2)
                 .instanceId(instanceId)
                 .instanceName(instanceId)
@@ -91,14 +109,23 @@ public class Ec2Handler implements CloudHandler {
                 .landingzone(landingZone)
                 .configJson(configMap)
                 .productEnclave(productEnclave)
+                .cloud(landingZone.getCloud().toUpperCase())
                 .build();
-            cloudElementService.save(cloudElementObj);
+            cloudElementService.save(cloudElement);
         }
+        return cloudElement;
     }
 
     @Override
     public String getUrl(){
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.ec2-api");
+    }
+
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
     }
 
     @Override

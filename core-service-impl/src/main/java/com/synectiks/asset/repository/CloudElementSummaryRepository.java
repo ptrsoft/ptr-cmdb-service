@@ -19,4 +19,5 @@ public interface CloudElementSummaryRepository extends JpaRepository<CloudElemen
     @Query(value = CLOUD_ELEMENT_SUMMARY_QUERY, nativeQuery = true)
     List<CloudElementSummary> getCloudElementSummary(@Param("landingZoneId") Long landingZoneId);
 
+    CloudElementSummary findByLandingzoneId(Long landingzoneId);
 }

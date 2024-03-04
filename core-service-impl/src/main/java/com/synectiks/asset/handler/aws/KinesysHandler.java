@@ -55,12 +55,26 @@ public class KinesysHandler implements CloudHandler {
             List responseList = (ArrayList)response;
             for(Object obj: responseList){
                 Map configMap = (Map)obj;
-                addUpdate(department, landingZone, configMap);
+                addUpdate(landingZone, configMap);
             }
         }
     }
 
-    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List responseList = (ArrayList)response;
+            for(Object obj: responseList){
+                Map configMap = (Map)obj;
+                cloudElementList.add(addUpdate(landingzone, configMap));
+            }
+        }
+        return cloudElementList;
+    }
+
+    private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         String instanceId = (String)((Map)((Map)configMap.get("stream")).get("StreamDescription")).get("StreamName");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.KINESYS);
         if(cloudElement != null ){
@@ -68,7 +82,7 @@ public class KinesysHandler implements CloudHandler {
             cloudElement.setConfigJson(configMap);
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName(instanceId);
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding kinesys: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
             CloudElement cloudElementObj = CloudElement.builder()
@@ -79,9 +93,11 @@ public class KinesysHandler implements CloudHandler {
                     .category(Constants.APP_SERVICES)
                     .landingzone(landingZone)
                     .configJson(configMap)
+                    .cloud(landingZone.getCloud().toUpperCase())
                     .build();
-            cloudElementService.save(cloudElementObj);
+            cloudElement = cloudElementService.save(cloudElementObj);
         }
+        return cloudElement;
     }
 
     @Override
@@ -89,6 +105,12 @@ public class KinesysHandler implements CloudHandler {
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.kinesys-api");
     }
 
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
+    }
     @Override
     public Map<String, List<Object>> processTag(CloudElement cloudElement){
         List<Object> successTagging = new ArrayList<>();

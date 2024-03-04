@@ -53,21 +53,38 @@ public class EksHandler implements CloudHandler {
             List responseList = (ArrayList)response;
             for(Object obj: responseList){
                 Map configMap = (Map)obj;
-                addUpdate(department, landingZone, configMap);
+                addUpdate(landingZone, configMap);
             }
         }else if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
             Map configMap = (LinkedHashMap)response;
-            addUpdate(department, landingZone, configMap);
+            addUpdate(landingZone, configMap);
         }
     }
 
-    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List responseList = (ArrayList)response;
+            for(Object obj: responseList){
+                Map configMap = (Map)obj;
+                cloudElementList.add(addUpdate(landingzone, configMap));
+            }
+        }else if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
+            Map configMap = (LinkedHashMap)response;
+            cloudElementList.add(addUpdate(landingzone, configMap));
+        }
+        return cloudElementList;
+    }
+
+    private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)((Map)configMap.get("Cluster")).get("Arn"), Constants.EKS);
         ProductEnclave productEnclave = null;
         if(((Map)configMap.get("Cluster")).containsKey("ResourcesVpcConfig")){
             if(((Map)((Map)configMap.get("Cluster")).get("ResourcesVpcConfig")).containsKey("VpcId")){
                 String vpcId = (String)((Map)((Map)configMap.get("Cluster")).get("ResourcesVpcConfig")).get("VpcId");
-                productEnclave = productEnclaveService.findProductEnclave(vpcId, department.getId(), landingZone.getId());
+                productEnclave = productEnclaveService.findProductEnclave(vpcId, landingZone.getDepartment().getId(), landingZone.getId());
             }
         }
 
@@ -77,7 +94,7 @@ public class EksHandler implements CloudHandler {
             cloudElement.setInstanceId((String)((Map)configMap.get("Cluster")).get("Name"));
             cloudElement.setInstanceName((String)((Map)configMap.get("Cluster")).get("Name"));
             cloudElement.setProductEnclave(productEnclave);
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding eks: {} for landing-zone: {}",(String)((Map)configMap.get("Cluster")).get("Name"), landingZone.getLandingZone());
             String instanceId = (String)((Map) configMap.get("Cluster")).get("Name");
@@ -85,7 +102,7 @@ public class EksHandler implements CloudHandler {
                 instanceId = (String)((Map) configMap.get("Cluster")).get("Id");
             }
 
-            CloudElement cloudElementObj = CloudElement.builder()
+            cloudElement = CloudElement.builder()
                 .elementType(Constants.EKS)
                 .arn((String)((Map) configMap.get("Cluster")).get("Arn"))
                 .instanceId(instanceId)
@@ -94,16 +111,23 @@ public class EksHandler implements CloudHandler {
                 .landingzone(landingZone)
                 .configJson(configMap)
                 .productEnclave(productEnclave)
+                .cloud(landingZone.getCloud().toUpperCase())
                 .build();
-            cloudElementService.save(cloudElementObj);
+            cloudElement = cloudElementService.save(cloudElement);
         }
+        return cloudElement;
     }
 
     @Override
     public String getUrl(){
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.eks-api");
     }
-
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
+    }
     @Override
     public Map<String, List<Object>> processTag(CloudElement cloudElement){
         List<Object> successTagging = new ArrayList<>();

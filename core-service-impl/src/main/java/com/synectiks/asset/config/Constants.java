@@ -182,11 +182,14 @@ public final class Constants {
     public static final String RDS = "RDS";
     public static final String GLACIER = "GLACIER";
     public static final String CDN = "CDN";
+    public static final String KMS = "KMS";
 
     public static final String KINESYS = "KINESYS";
     public static final String DYNAMODB = "DYNAMODB";
     public static final String WAF = "WAF";
-
+    public static final String APIGATEWAY = "APIGATEWAY";
+    public static final String LOADBALANCER = "LOADBALANCER";
+    public static final String PERIPHERAL_SERVICES = "PERIPHERAL";
 
     public static final String SQL_DB = "SQL DB";
     public static final String NO_SQL_DB = "No SQL DB";

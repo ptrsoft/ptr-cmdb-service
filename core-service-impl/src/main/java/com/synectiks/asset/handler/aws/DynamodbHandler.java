@@ -54,12 +54,26 @@ public class DynamodbHandler implements CloudHandler {
             List responseList = (ArrayList)response;
             for(Object respObj: responseList){
                 Map responseMap = (Map)respObj;
-                addUpdate(department, landingZone, responseMap);
+                addUpdate(landingZone, responseMap);
             }
         }
     }
 
-    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List list = (ArrayList)response;
+            for(Object obj: list){
+                Map configMap = (Map)obj;
+                cloudElementList.add(addUpdate(landingzone, configMap));
+            }
+        }
+        return cloudElementList;
+    }
+
+    private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         Map tableMap = (Map)((Map)configMap.get("table")).get("Table");
         String instanceId = (String)tableMap.get("TableId");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.DYNAMODB);
@@ -68,11 +82,11 @@ public class DynamodbHandler implements CloudHandler {
             cloudElement.setConfigJson(configMap);
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName((String)tableMap.get("TableName"));
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding dynamodb: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
             DbCategory dbCategory = dbCategoryService.findByName(Constants.NO_SQL_DB);
-            CloudElement cloudElementObj = CloudElement.builder()
+            cloudElement = CloudElement.builder()
                 .elementType(Constants.DYNAMODB)
                 .arn((String)tableMap.get("TableArn"))
                 .instanceId(instanceId)
@@ -81,9 +95,11 @@ public class DynamodbHandler implements CloudHandler {
                 .landingzone(landingZone)
                 .configJson(configMap)
                 .dbCategory(dbCategory)
+                .cloud(landingZone.getCloud().toUpperCase())
                 .build();
-            cloudElementService.save(cloudElementObj);
+            cloudElementService.save(cloudElement);
         }
+        return cloudElement;
     }
 
     @Override
@@ -91,6 +107,12 @@ public class DynamodbHandler implements CloudHandler {
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.dynamodb-api");
     }
 
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
+    }
     @Override
     public Map<String, List<Object>> processTag(CloudElement cloudElement){
         List<Object> successTagging = new ArrayList<>();

@@ -95,5 +95,34 @@ public class CloudService {
 		return query.getResultList();
 	}
 
+	public List<Cloud> findByElementType(String elementType){
+		return cloudRepository.findByElementType(elementType);
+	}
 
+	public List<Cloud> findByName(String name){
+		return cloudRepository.findByName(name);
+	}
+
+	public List<Cloud> findByStatus(String status){
+		return cloudRepository.findByStatus(status);
+	}
+
+	public List<Cloud> findByNameAndStatus(String name, String status){
+		return cloudRepository.findByNameAndStatus(name, status);
+	}
+	public List<Cloud> findByNameAndIsCronScheduled(String name, boolean isCronScheduled){
+		return cloudRepository.findByNameAndIsCronScheduled(name, isCronScheduled);
+	}
+	public List<Cloud> findByNameAndIsCronScheduledAndStatus(String name, boolean isCronScheduled, String status){
+		return cloudRepository.findByNameAndIsCronScheduledAndStatus(name, isCronScheduled, status);
+	}
+	public Cloud findByNameAndElementType(String name, String elementType){
+		return cloudRepository.findByNameAndElementType(name, elementType);
+	}
+	public List<Cloud> findByElementTypeAndNameAndStatus(String elementType, String name, String status){
+		return cloudRepository.findByElementTypeAndNameAndStatus(elementType, name, status);
+	}
+	public Cloud findByNameAndListQuery(String name, String listQuery){
+		return cloudRepository.findByNameAndListQuery(name, listQuery);
+	}
 }

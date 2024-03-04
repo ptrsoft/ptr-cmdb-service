@@ -56,13 +56,30 @@ public class S3Handler implements CloudHandler {
                 List list = (ArrayList)map.get("Buckets");
                 for(Object s3Obj: list){
                     Map configMap = (Map)s3Obj;
-                    addUpdate(department, landingZone, configMap);
+                    addUpdate(landingZone, configMap);
                 }
             }
         }
     }
 
-    private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
+    @Override
+    public Object save(String elementType, Landingzone landingzone, String query) {
+        Object response = getResponse(restTemplate, getUrl(elementType, String.valueOf(landingzone.getId()), query));
+        List<CloudElement> cloudElementList = new ArrayList<>();
+        if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
+            Map map = (Map)response;
+            if(map != null && map.size() > 0){
+                List list = (ArrayList)map.get("Buckets");
+                for(Object s3Obj: list){
+                    Map configMap = (Map)s3Obj;
+                    cloudElementList.add(addUpdate(landingzone, configMap));
+                }
+            }
+        }
+        return cloudElementList;
+    }
+
+    private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         String instanceId = (String) configMap.get("Name");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.S3);
         setAdditionalConfig(configMap);
@@ -73,7 +90,7 @@ public class S3Handler implements CloudHandler {
             cloudElement.setConfigJson(bucketMap);
             cloudElement.setInstanceId(instanceId);
             cloudElement.setInstanceName(instanceId);
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding s3: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
             DbCategory dbCategory = dbCategoryService.findByName(Constants.OBJECT_DB);
@@ -85,14 +102,23 @@ public class S3Handler implements CloudHandler {
                     .landingzone(landingZone)
                     .configJson(bucketMap)
                     .dbCategory(dbCategory)
+                    .cloud(landingZone.getCloud().toUpperCase())
                     .build();
-            cloudElementService.save(cloudElementObj);
+            cloudElement = cloudElementService.save(cloudElementObj);
         }
+        return cloudElement;
     }
 
     @Override
     public String getUrl(){
         return env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.s3-api");
+    }
+
+    @Override
+    public String getUrl(String elementType, String landingZoneId, String query){
+        String baseUrl = env.getProperty("awsx-api.base-url");
+        String param = "?elementType=landingZone&landingZoneId="+landingZoneId+"&query="+query;
+        return baseUrl+param;
     }
 
     // TODO: static values to be changed with actual values
