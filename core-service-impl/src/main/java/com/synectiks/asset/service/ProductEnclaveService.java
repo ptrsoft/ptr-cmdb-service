@@ -2,6 +2,7 @@ package com.synectiks.asset.service;
 
 import com.synectiks.asset.domain.ProductEnclave;
 import com.synectiks.asset.repository.ProductEnclaveRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,12 @@ public class ProductEnclaveService {
 
 	@Transactional(readOnly = true)
 	public Optional<ProductEnclave> findOne(Long id) {
-		logger.debug("Request to get a product-enclave : {}", id);
+		logger.debug("Request to get a product-enclave. id: {}", id);
 		return productEnclaveRepository.findById(id);
 	}
 
 	public void delete(Long id) {
-		logger.debug("Request to delete a product-enclave : {}", id);
+		logger.debug("Request to delete a product-enclave. id: {}", id);
 		productEnclaveRepository.deleteById(id);
 	}
 
@@ -54,6 +55,11 @@ public class ProductEnclaveService {
 	}
 
 	public ProductEnclave findProductEnclave(String instanceId,Long departmentId, Long landingZoneId){
+		logger.debug("Get product-enclaves on vpc id: {}, department id: {}, landing-zone-id: {}",instanceId, departmentId, landingZoneId);
+		if(StringUtils.isBlank(instanceId)){
+			logger.warn("vpc id is null");
+			return null;
+		}
 		return productEnclaveRepository.findProductEnclave(instanceId, departmentId, landingZoneId);
 	}
 }

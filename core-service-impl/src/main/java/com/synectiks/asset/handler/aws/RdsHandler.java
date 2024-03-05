@@ -78,14 +78,17 @@ public class RdsHandler implements CloudHandler {
 
     private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         ProductEnclave productEnclave = null;
+        String instanceId = (String)configMap.get("DbiResourceId");
         if(configMap.containsKey("DBSubnetGroup")){
             if(((Map)configMap.get("DBSubnetGroup")).containsKey("VpcId")) {
                 String vpcId = (String)((Map)configMap.get("DBSubnetGroup")).get("VpcId");
                 productEnclave = productEnclaveService.findProductEnclave(vpcId, landingZone.getDepartment().getId(), landingZone.getId());
+                if (productEnclave == null){
+                    logger.warn("product enclave (vpc) is null for rds: {}",instanceId);
+                }
             }
         }
 
-        String instanceId = (String)configMap.get("DbiResourceId");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.RDS);
         if(cloudElement != null ){
             logger.debug("Updating rds: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());

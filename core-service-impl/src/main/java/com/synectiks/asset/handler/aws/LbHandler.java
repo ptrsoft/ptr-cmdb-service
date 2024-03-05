@@ -67,6 +67,9 @@ public class LbHandler implements CloudHandler {
         if(configMap.containsKey("VpcId")){
             String vpcId = (String)configMap.get("VpcId");
             productEnclave = productEnclaveService.findProductEnclave(vpcId, landingZone.getDepartment().getId(), landingZone.getId());
+            if (productEnclave == null){
+                logger.warn("product enclave (vpc) is null for load-balancer: {}",instanceId);
+            }
         }
         if(cloudElement != null ){
             logger.debug("Updating load-balancer: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());

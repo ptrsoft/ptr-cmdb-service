@@ -88,6 +88,9 @@ public class LambdaHandler implements CloudHandler {
                         && ((Map)lambdaMap.get("VpcConfig")).get("VpcId") != null) {
                     String vpcId = (String)((Map)lambdaMap.get("VpcConfig")).get("VpcId");
                     productEnclave = productEnclaveService.findProductEnclave(vpcId, landingZone.getDepartment().getId(), landingZone.getId());
+                    if (productEnclave == null){
+                        logger.warn("product enclave (vpc) is null for lambda: {}",(String)lambdaMap.get("FunctionName"));
+                    }
                 }
             }
 

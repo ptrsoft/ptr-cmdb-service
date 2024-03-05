@@ -80,33 +80,40 @@ public class EksHandler implements CloudHandler {
 
     private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
         CloudElement cloudElement =  cloudElementService.getCloudElementByArn(landingZone.getId(), (String)((Map)configMap.get("Cluster")).get("Arn"), Constants.EKS);
+        String instanceId = (String)((Map) configMap.get("Cluster")).get("Name");
+        if(((Map) configMap.get("Cluster")).get("Id") != null){
+            instanceId = (String)((Map) configMap.get("Cluster")).get("Id");
+        }
         ProductEnclave productEnclave = null;
         if(((Map)configMap.get("Cluster")).containsKey("ResourcesVpcConfig")){
             if(((Map)((Map)configMap.get("Cluster")).get("ResourcesVpcConfig")).containsKey("VpcId")){
                 String vpcId = (String)((Map)((Map)configMap.get("Cluster")).get("ResourcesVpcConfig")).get("VpcId");
                 productEnclave = productEnclaveService.findProductEnclave(vpcId, landingZone.getDepartment().getId(), landingZone.getId());
+                if (productEnclave == null){
+                    logger.warn("product enclave (vpc) is null for eks cluster name: {}",instanceId);
+                }
             }
         }
 
         if(cloudElement != null ){
             logger.debug("Updating eks: {} for landing-zone: {}",(String)((Map)configMap.get("Cluster")).get("Name"), landingZone.getLandingZone());
             cloudElement.setConfigJson(configMap);
-            cloudElement.setInstanceId((String)((Map)configMap.get("Cluster")).get("Name"));
-            cloudElement.setInstanceName((String)((Map)configMap.get("Cluster")).get("Name"));
+            cloudElement.setInstanceId(instanceId);
+            cloudElement.setInstanceName(instanceId);
             cloudElement.setProductEnclave(productEnclave);
             cloudElement = cloudElementService.save(cloudElement);
         }else{
             logger.debug("Adding eks: {} for landing-zone: {}",(String)((Map)configMap.get("Cluster")).get("Name"), landingZone.getLandingZone());
-            String instanceId = (String)((Map) configMap.get("Cluster")).get("Name");
-            if(((Map) configMap.get("Cluster")).get("Id") != null){
-                instanceId = (String)((Map) configMap.get("Cluster")).get("Id");
-            }
+//            String instanceId = (String)((Map) configMap.get("Cluster")).get("Name");
+//            if(((Map) configMap.get("Cluster")).get("Id") != null){
+//                instanceId = (String)((Map) configMap.get("Cluster")).get("Id");
+//            }
 
             cloudElement = CloudElement.builder()
                 .elementType(Constants.EKS)
                 .arn((String)((Map) configMap.get("Cluster")).get("Arn"))
                 .instanceId(instanceId)
-                .instanceName((String)((Map) configMap.get("Cluster")).get("Name"))
+                .instanceName(instanceId)
                 .category(Constants.APP_SERVICES)
                 .landingzone(landingZone)
                 .configJson(configMap)

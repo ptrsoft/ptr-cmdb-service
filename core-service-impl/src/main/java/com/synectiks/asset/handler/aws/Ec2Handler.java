@@ -89,6 +89,9 @@ public class Ec2Handler implements CloudHandler {
         if(configMap.containsKey("VpcId")){
             String vpcId = (String)configMap.get("VpcId");
             productEnclave = productEnclaveService.findProductEnclave(vpcId, department.getId(), landingZone.getId());
+            if (productEnclave == null){
+                logger.warn("product enclave (vpc) is null for ec2 instance id: {}",instanceId);
+            }
         }
 
         if(cloudElement != null ){
