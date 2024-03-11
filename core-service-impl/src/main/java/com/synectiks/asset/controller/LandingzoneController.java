@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.controller.LandingzoneApi;
 import com.synectiks.asset.api.model.LandingzoneDTO;
 import com.synectiks.asset.api.model.LandingzoneResponseDTO;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.repository.LandingzoneRepository;
@@ -71,14 +72,17 @@ public class LandingzoneController implements LandingzoneApi {
     public ResponseEntity<LandingzoneResponseDTO> addLandingzone(LandingzoneDTO landingzoneDTO){
         logger.debug("REST request to add a landing-zone : {}", landingzoneDTO);
         validator.validateNotNull(landingzoneDTO.getId(), ENTITY_NAME);
+        if(StringUtils.isBlank(landingzoneDTO.getStatus())){
+            landingzoneDTO.setStatus(Constants.ACTIVE);
+        }
         Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntity(landingzoneDTO);
         if(StringUtils.isBlank(landingzoneDTO.getLandingZone())){
             landingzone.setLandingZone(landingzoneDTO.getRoleArn().split(":")[4]);
         }
         landingzone = landingzoneService.save(landingzone);
-        Optional<Landingzone> optionalLandingzone = landingzoneService.findOne(landingzone.getId());
-        LandingzoneResponseDTO result = LandingzoneMapper.INSTANCE.entityToResponseDto(optionalLandingzone.orElse(null));
-        addLandingZoneInVault(result);
+//        Optional<Landingzone> optionalLandingzone = landingzoneService.findOne(landingzone.getId());
+        LandingzoneResponseDTO result = LandingzoneMapper.INSTANCE.entityToResponseDto(landingzone);
+//        addLandingZoneInVault(result);
         return ResponseEntity.ok(result);
     }
 
@@ -152,7 +156,7 @@ public class LandingzoneController implements LandingzoneApi {
         Landingzone landingzone = optionalLandingzone.get();
         String vaultKey =  vaultService.resolveVaultKey(landingzone.getDepartment().getOrganization().getName(), landingzone.getDepartment().getName(), landingzone.getCloud(), landingzone.getLandingZone());
         try {
-            response = (ObjectNode)vaultService.getCloudCreds(vaultKey);
+            response = (ObjectNode)vaultService.getCloudCreds(null);
         } catch (JsonProcessingException e) {
             logger.error("Error in getting user creds from vault: ",e);
             response = setStatus("error", "Error in getting user creds from vault: "+e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), null);

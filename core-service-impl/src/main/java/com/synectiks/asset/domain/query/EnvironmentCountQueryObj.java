@@ -16,7 +16,7 @@ public interface EnvironmentCountQueryObj extends Serializable{
     Long getAlerts();
 
     @Value("#{target.totalbilling}")
-    Long getTotalBilling();
+    Long getTotalbilling();
 
     @Value("#{target.cloud}")
     String getCloud();

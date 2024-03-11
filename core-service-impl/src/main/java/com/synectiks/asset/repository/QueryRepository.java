@@ -16,14 +16,29 @@ import java.util.List;
 @Repository
 public interface QueryRepository extends JpaRepository<Organization, Long>{
 
-    String ENV_COUNT_QUERY ="select l.cloud, count(l.id) as environments, \n" +
-			" sum(cast (ces.summary_json -> 'TotalDiscoveredResources' as integer)) as assets, \n" +
-			" 0 as alerts, 0 as totalbilling \n" +
-			" from landingzone l, cloud_element_summary ces, department dep, organization org  \n" +
-			" where l.id = ces.landingzone_id  \n" +
-			" and l.department_id = dep.id and dep.organization_id = org.id \n" +
-			" and org.id = :orgId \n" +
-			" group by l.cloud \n";
+    String ENV_COUNT_QUERY ="with tmp_landingzone as\n" +
+			" (\n" +
+			" \tselect l.cloud, count(*) as environments, null as assets, 0 as alerts, 0 as totalbilling \n" +
+			" \tfrom landingzone l,department dep, organization org \n" +
+			" \twhere upper(l.status) = upper('ACTIVE') \n" +
+			" \tand l.department_id = dep.id and dep.organization_id = org.id \n" +
+			"\tand org.id = :orgId \n" +
+			" \tgroup by l.cloud \n" +
+			" ),\n" +
+			" tmp_cloud_element_summary as \n" +
+			" (\n" +
+			"\tselect l.cloud, count(l.id) as environments, \n" +
+			"\t sum(cast (ces.summary_json -> 'TotalDiscoveredResources' as integer)) as assets, \n" +
+			"\t 0 as alerts, 0 as totalbilling \n" +
+			"\t from landingzone l, cloud_element_summary ces, department dep, organization org  \n" +
+			"\t where l.id = ces.landingzone_id  \n" +
+			"\t and l.department_id = dep.id and dep.organization_id = org.id \n" +
+			"\t and org.id = :orgId \n" +
+			"\t group by l.cloud\n" +
+			" )\n" +
+			" select tl.cloud,tl.environments, coalesce(tc.assets,0) as assets, coalesce(tc.alerts,0) as alerts, coalesce(tc.totalbilling,0) as totalbilling " +
+			" from tmp_landingzone tl\n" +
+			" left join tmp_cloud_element_summary tc on tl.cloud = tc.cloud\n ";
     @Query(value = ENV_COUNT_QUERY, nativeQuery = true)
     List<EnvironmentCountQueryObj> getEnvStats(@Param("orgId") Long orgId);
 
