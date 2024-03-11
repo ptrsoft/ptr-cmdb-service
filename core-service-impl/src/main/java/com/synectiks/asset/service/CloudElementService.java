@@ -88,7 +88,7 @@ public class CloudElementService {
                 "ce.landingzone_id, ce.db_category_id, ce.product_enclave_id, " +
                 " ce.status, ce.created_by, ce.created_on, ce.updated_by, ce.updated_on, " +
                 " null as sla_json, null as cost_json, null as view_json, null as config_json, null as compliance_json, " +
-                " l.cloud, ce.log_location, ce.trace_location, ce.metric_location \n" +
+                " l.cloud, ce.log_location, ce.trace_location, ce.metric_location, ce.service_category, ce.region, ce.log_group \n" +
                 " from cloud_element ce \n" +
                 "left join landingzone l on ce.landingzone_id = l.id\n" +
                 "left join db_category dc on ce.db_category_id = dc.id\n" +
@@ -133,6 +133,17 @@ public class CloudElementService {
         if(!StringUtils.isBlank(cloudElementDTO.getUpdatedBy())){
             primarySql.append(" and upper(ce.updated_by) = upper(?) ");
         }
+
+        if(!StringUtils.isBlank(cloudElementDTO.getLogLocation())){
+            primarySql.append(" and ce.log_location = ? ");
+        }
+        if(!StringUtils.isBlank(cloudElementDTO.getTraceLocation())){
+            primarySql.append(" and ce.trace_location = ? ");
+        }
+        if(!StringUtils.isBlank(cloudElementDTO.getMetricLocation())){
+            primarySql.append(" and ce.metric_location = ? ");
+        }
+
         Query query = entityManager.createNativeQuery(primarySql.toString(),CloudElement.class);
         int index = 0;
         if(cloudElementDTO.getId() != null){
@@ -174,6 +185,16 @@ public class CloudElementService {
         if(!StringUtils.isBlank(cloudElementDTO.getUpdatedBy())){
             query.setParameter(++index, cloudElementDTO.getUpdatedBy());
         }
+        if(!StringUtils.isBlank(cloudElementDTO.getLogLocation())){
+            query.setParameter(++index, cloudElementDTO.getLogLocation());
+        }
+        if(!StringUtils.isBlank(cloudElementDTO.getTraceLocation())){
+            query.setParameter(++index, cloudElementDTO.getTraceLocation());
+        }
+        if(!StringUtils.isBlank(cloudElementDTO.getMetricLocation())){
+            query.setParameter(++index, cloudElementDTO.getMetricLocation());
+        }
+
         List<CloudElement> list = query.getResultList();
         for(CloudElement cloudElement: list){
             if(!StringUtils.isBlank(cloudElement.getElementType()) &&
@@ -417,12 +438,15 @@ public class CloudElementService {
                 objectNode.set("tag", jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, (ObjectNode)reqObj.get("tag"), JsonNode.class));
             }
 
-            boolean isTagFound = isTagExist(arrayNode, objectNode);
-            if(isTagFound){
-                logger.info("Tag already exists. Error code: 4");
-                return 4;
-//                return cloudElement.getHostedServices();
+            if(!arrayNode.isEmpty()){
+
+                boolean isTagFound = isTagExist(arrayNode, objectNode);
+                if(isTagFound){
+                    logger.info("Tag already exists. Error code: 4");
+                    return 4;
+                }
             }
+
 
             arrayNode.add(objectNode);
             ObjectNode finalNode =  objectMapper.createObjectNode();
