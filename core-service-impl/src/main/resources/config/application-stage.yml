@@ -148,26 +148,7 @@ hashicorp-vault:
   provider-aws-creds-key: /PROVIDER/AWS/CREDS
 
 awsx-api:
-  base-url: http://localhost:7000/awsx
-  appconfig-api: /appconfig
-  lambda-api: /lambda
-  lambda-tag-api: /lambda/function-with-tag
-  eks-api: /eks
-  ecs-api: /ecs
-  vpc-api: /vpc
-  ec2-api: /ec2
-  rds-api: /rds
-  s3-api: /s3
-  s3-tag-api: /s3/bucket-with-tag
-  cdn-api: /cdn
-  waf-api: /waf
-  dynamodb-api: /dynamodb
-  kinesys-api: /kinesys
-  iam-api: /iam
-  apigw-api: /apigw
-  glacier-api: /glacier
-  open-search-api: /open-search
-  elastic-search-api: /elastic-search
+  base-url: https://api.synectiks.net/awsx-api/getQueryOutput
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
