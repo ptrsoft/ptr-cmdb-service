@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -412,15 +413,7 @@ public class CloudElementService {
         }
         Map updatedHostedServiceMap = null;
         try{
-            String hostedServiceJson = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getHostedServices(), Map.class);
-            JsonNode rootNode = null;
-            ArrayNode arrayNode = null;
-            if(!StringUtils.isBlank(hostedServiceJson) && !"null".equalsIgnoreCase(hostedServiceJson)){
-                rootNode = objectMapper.readTree(hostedServiceJson);
-                arrayNode = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, rootNode.get("HOSTEDSERVICES"), ArrayNode.class);
-            }else{
-                arrayNode = objectMapper.createArrayNode();
-            }
+            ArrayNode arrayNode = getArrayNodeFromHostedService(cloudElement, objectMapper);
 
             ObjectNode objectNode = objectMapper.createObjectNode();
             if(reqObj.get("instanceId") != null){
@@ -438,17 +431,12 @@ public class CloudElementService {
                 objectNode.set("tag", jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, (ObjectNode)reqObj.get("tag"), JsonNode.class));
             }
 
-            if(!arrayNode.isEmpty()){
 
-                boolean isTagFound = isTagExist(arrayNode, objectNode);
-                if(isTagFound){
-                    logger.info("Tag already exists. Error code: 4");
-                    return 4;
-                }
+            boolean isTagFound = replaceIfTagFound(arrayNode, objectNode);
+            if(!isTagFound){
+                arrayNode.add(objectNode);
             }
 
-
-            arrayNode.add(objectNode);
             ObjectNode finalNode =  objectMapper.createObjectNode();
             finalNode.put("HOSTEDSERVICES", arrayNode);
             updatedHostedServiceMap = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
@@ -458,7 +446,20 @@ public class CloudElementService {
         }
         cloudElement.setHostedServices(updatedHostedServiceMap);
         return 0;
-//        return updatedHostedServiceMap;
+
+    }
+
+    public ArrayNode getArrayNodeFromHostedService(CloudElement cloudElement, ObjectMapper objectMapper) throws IOException {
+        String hostedServiceJson = jsonAndObjectConverterUtil.convertObjectToJsonString(objectMapper, cloudElement.getHostedServices(), Map.class);
+        JsonNode rootNode = null;
+        ArrayNode arrayNode = null;
+        if(!StringUtils.isBlank(hostedServiceJson) && !"null".equalsIgnoreCase(hostedServiceJson)){
+            rootNode = objectMapper.readTree(hostedServiceJson);
+            arrayNode = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, rootNode.get("HOSTEDSERVICES"), ArrayNode.class);
+        }else{
+            arrayNode = objectMapper.createArrayNode();
+        }
+        return arrayNode;
     }
 
     List<CloudElement> getCloudElementsByLandingZoneIds(List<Long> landingZoneIdList){
@@ -502,11 +503,14 @@ public class CloudElementService {
         }
     }
 
-    public boolean isTagExist(ArrayNode arrayNode, JsonNode jsonNode){
+    public boolean replaceIfTagFound(ArrayNode arrayNode, JsonNode jsonNode){
         boolean isExists = false;
-        for (JsonNode element : arrayNode) {
+        for (int i = 0; i < arrayNode.size(); i++) {
+            JsonNode element = arrayNode.get(i);
             isExists = (element.get("serviceId").asLong() == jsonNode.get("serviceId").longValue()) && element.get("instanceId").equals(jsonNode.get("instanceId")) ;
             if(isExists){
+                logger.info("Previous tag found. Replacing previous tag with new tag");
+                arrayNode.insert(i, jsonNode);
                 break;
             }
         }

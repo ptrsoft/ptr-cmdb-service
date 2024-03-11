@@ -219,6 +219,73 @@ public final class Constants {
     public static final String DATABASE = "DATABASE";
     public static final String OTHER = "OTHER";
 
+    public static final String SOA_TAG_TEMPLATE = "{\n" +
+            "\t\t\t\"tag\": {\n" +
+            "\t\t\t\t\"org\": {\n" +
+            "\t\t\t\t\t\"id\": 1,\n" +
+            "\t\t\t\t\t\"dep\": {\n" +
+            "\t\t\t\t\t\t\"id\": 1,\n" +
+            "\t\t\t\t\t\t\"name\": \"HR\",\n" +
+            "\t\t\t\t\t\t\"product\": {\n" +
+            "\t\t\t\t\t\t\t\"id\": 6,\n" +
+            "\t\t\t\t\t\t\t\"name\": \"Education Management System\",\n" +
+            "\t\t\t\t\t\t\t\"productEnv\": {\n" +
+            "\t\t\t\t\t\t\t\t\"id\": 22,\n" +
+            "\t\t\t\t\t\t\t\t\"name\": \"STAGE\",\n" +
+            "\t\t\t\t\t\t\t\t\"type\": {\n" +
+            "\t\t\t\t\t\t\t\t\t\"name\": \"Business\",\n" +
+            "\t\t\t\t\t\t\t\t\t\"module\": {\n" +
+            "\t\t\t\t\t\t\t\t\t\t\"id\": 755,\n" +
+            "\t\t\t\t\t\t\t\t\t\t\"name\": \"Library\",\n" +
+            "\t\t\t\t\t\t\t\t\t\t\"service\": {\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\"id\": 1401,\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Library Postgres database service\"\n" +
+            "\t\t\t\t\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"name\": \"Synectiks\"\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"type\": \"SOA\"\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"serviceId\": 1401,\n" +
+            "\t\t\t\"instanceId\": \"db-XQWMRG6XXNVS5IHW7YTTMMUS6A\"\n" +
+            "\t\t}";
+
+    public static final String THREE_TIER_TAG_TEMPLATE = "{\n" +
+            "\t\t\t\"tag\": {\n" +
+            "\t\t\t\t\"org\": {\n" +
+            "\t\t\t\t\t\"id\": \"1\",\n" +
+            "\t\t\t\t\t\"dep\": {\n" +
+            "\t\t\t\t\t\t\"id\": 3,\n" +
+            "\t\t\t\t\t\t\"name\": \"LOGISTICS\",\n" +
+            "\t\t\t\t\t\t\"product\": {\n" +
+            "\t\t\t\t\t\t\t\"id\": 5,\n" +
+            "\t\t\t\t\t\t\t\"name\": \"INVENTORY\",\n" +
+            "\t\t\t\t\t\t\t\"productEnv\": {\n" +
+            "\t\t\t\t\t\t\t\t\"id\": 18,\n" +
+            "\t\t\t\t\t\t\t\t\"name\": \"STAGE\",\n" +
+            "\t\t\t\t\t\t\t\t\"type\": {\n" +
+            "\t\t\t\t\t\t\t\t\t\"name\": \"Data Layer\",\n" +
+            "\t\t\t\t\t\t\t\t\t\"service\": {\n" +
+            "\t\t\t\t\t\t\t\t\t\t\"id\": 2759,\n" +
+            "\t\t\t\t\t\t\t\t\t\t\"name\": \"Log Manager Postgres database service\"\n" +
+            "\t\t\t\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t\t}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"name\": \"SYNECTIKS\"\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"type\": \"3 Tier\"\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"serviceId\": 2759,\n" +
+            "\t\t\t\"instanceId\": \"i-0d614d60ce3d60534\"\n" +
+            "\t\t}";
+
+    public static final String HOSTEDSERVICES = "HOSTEDSERVICES";
     private Constants() {
     }
 }

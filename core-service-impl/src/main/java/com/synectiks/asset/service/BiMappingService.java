@@ -1,7 +1,11 @@
 package com.synectiks.asset.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.*;
+import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +39,8 @@ public class BiMappingService {
 	@Autowired
 	private CloudElementService cloudElementService;
 
+	@Autowired
+	private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
 	@Transactional
 	public Map<String, String> save(Organization organization, Department department, Map departmentMap) {
@@ -164,8 +171,12 @@ public class BiMappingService {
 				logger.info("4. business-element already exists in given organization, department, product, product-env. business-element: {}, product-env-id: {}, product id: {}, department id: {}, organization id: {} ",(String)serviceMap.get("name"), productEnv.getId(), product.getId(), product.getDepartment().getId(), product.getDepartment().getOrganization().getId());
 			}
 			businessElement = exitstingBusinessElement;
-			businessElement.setMetadata((Map) cloudElementMap.get("managementInfo"));
-			businessElement.setConfigJson((Map) cloudElementMap.get("configInfo"));
+			Map<String, Object> mgmtInfo = new HashMap<>();
+			mgmtInfo.put("managementInfo", (List)cloudElementMap.get("managementInfo"));
+			businessElement.setMetadata(mgmtInfo);
+			Map<String, Object> cfgInfo = new HashMap<>();
+			cfgInfo.put("configInfo", (List)cloudElementMap.get("configInfo"));
+			businessElement.setConfigJson(cfgInfo);
 			businessElement.setStatus(Constants.ACTIVE);
 		}else{
 			businessElement = BusinessElement.builder()
@@ -178,13 +189,128 @@ public class BiMappingService {
 					.productEnv(productEnv)
 					.module(module)
 					.cloudElement(cloudElement)
-					.metadata((Map) cloudElementMap.get("managementInfo"))
-					.configJson((Map) cloudElementMap.get("configInfo"))
 					.build();
-
+			Map<String, Object> mgmtInfo = new HashMap<>();
+			mgmtInfo.put("managementInfo", (List)cloudElementMap.get("managementInfo"));
+			businessElement.setMetadata(mgmtInfo);
+			Map<String, Object> cfgInfo = new HashMap<>();
+			cfgInfo.put("configInfo", (List)cloudElementMap.get("configInfo"));
+			businessElement.setConfigJson(cfgInfo);
 		}
 		logger.info("4. Saving business-element");
 		businessElement = businessElementService.save(businessElement);
+
+		logger.info("5. Saving cloud-element");
+		ObjectMapper objectMapper = Constants.instantiateMapper();
+		ObjectNode objectNode = null;
+		try {
+			ArrayNode arrayNode = cloudElementService.getArrayNodeFromHostedService(cloudElement, objectMapper);
+			if(Constants.SOA.equalsIgnoreCase(product.getType())){
+				objectNode = (ObjectNode)objectMapper.readTree(Constants.SOA_TAG_TEMPLATE);
+				createSoaTag(objectNode, product, productEnv, module, cloudElement, businessElement);
+			}else{
+				objectNode = (ObjectNode)objectMapper.readTree(Constants.THREE_TIER_TAG_TEMPLATE);
+				create3TierTag(objectNode, product, productEnv, cloudElement, businessElement);
+			}
+
+			boolean isTagFound = cloudElementService.replaceIfTagFound(arrayNode, objectNode);
+			if(!isTagFound){
+				arrayNode.add(objectNode);
+			}
+
+			ObjectNode finalNode =  objectMapper.createObjectNode();
+			finalNode.put(Constants.HOSTEDSERVICES, arrayNode);
+			Map updatedHostedService = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
+			cloudElement.setHostedServices(updatedHostedService);
+			cloudElement = cloudElementService.save(cloudElement);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
 		return businessElement;
+	}
+
+
+	private void createSoaTag(ObjectNode objectNode, Product product, ProductEnv productEnv, Module module, CloudElement cloudElement, BusinessElement businessElement){
+		ObjectNode tagNode = (ObjectNode)objectNode.get("tag");
+
+		ObjectNode orgNode = (ObjectNode)tagNode.get("org");
+		orgNode.put("id",product.getDepartment().getOrganization().getId());
+		orgNode.put("name",product.getDepartment().getOrganization().getName());
+
+		ObjectNode depNode = (ObjectNode)orgNode.get("dep");
+		depNode.put("id",product.getDepartment().getId());
+		depNode.put("name",product.getDepartment().getName());
+
+		ObjectNode productNode = (ObjectNode)depNode.get("product");
+		productNode.put("id",product.getId());
+		productNode.put("name",product.getName());
+
+		ObjectNode productEnvNode = (ObjectNode)productNode.get("productEnv");
+		productEnvNode.put("id",productEnv.getId());
+		productEnvNode.put("name",productEnv.getName().toUpperCase());
+
+		ObjectNode typeNode = (ObjectNode)productEnvNode.get("type");
+		typeNode.put("name",businessElement.getServiceNature());
+
+		ObjectNode moduleNode = (ObjectNode)typeNode.get("module");
+		moduleNode.put("id",module.getId());
+		moduleNode.put("name",module.getName());
+
+		ObjectNode serviceNode = (ObjectNode)moduleNode.get("service");
+		serviceNode.put("id",businessElement.getId());
+		serviceNode.put("name",businessElement.getServiceName());
+
+		moduleNode.put("service",serviceNode);
+		typeNode.put("module",moduleNode);
+		productEnvNode.put("type",typeNode);
+		productNode.put("productEnv",productEnvNode);
+		depNode.put("product",productNode);
+		orgNode.put("dep",depNode);
+		tagNode.put("org",orgNode);
+		objectNode.put("tag",tagNode);
+		objectNode.put("serviceId",businessElement.getId());
+		objectNode.put("instanceId",cloudElement.getInstanceId());
+		logger.info("New soa tag: {}",objectNode);
+	}
+
+	private void create3TierTag(ObjectNode objectNode, Product product, ProductEnv productEnv, CloudElement cloudElement, BusinessElement businessElement){
+		ObjectNode tagNode = (ObjectNode)objectNode.get("tag");
+
+		ObjectNode orgNode = (ObjectNode)tagNode.get("org");
+		orgNode.put("id",product.getDepartment().getOrganization().getId());
+		orgNode.put("name",product.getDepartment().getOrganization().getName());
+
+		ObjectNode depNode = (ObjectNode)orgNode.get("dep");
+		depNode.put("id",product.getDepartment().getId());
+		depNode.put("name",product.getDepartment().getName());
+
+		ObjectNode productNode = (ObjectNode)depNode.get("product");
+		productNode.put("id",product.getId());
+		productNode.put("name",product.getName());
+
+		ObjectNode productEnvNode = (ObjectNode)productNode.get("productEnv");
+		productEnvNode.put("id",productEnv.getId());
+		productEnvNode.put("name",productEnv.getName().toUpperCase());
+
+		ObjectNode typeNode = (ObjectNode)productEnvNode.get("type");
+		typeNode.put("name",businessElement.getServiceType().toUpperCase());
+
+		ObjectNode serviceNode = (ObjectNode)typeNode.get("service");
+		serviceNode.put("id",businessElement.getId());
+		serviceNode.put("name",businessElement.getServiceName());
+
+		typeNode.put("service",serviceNode);
+		productEnvNode.put("type",typeNode);
+		productNode.put("productEnv",productEnvNode);
+		depNode.put("product",productNode);
+		orgNode.put("dep",depNode);
+		tagNode.put("org",orgNode);
+		objectNode.put("tag",tagNode);
+		objectNode.put("serviceId",businessElement.getId());
+		objectNode.put("instanceId",cloudElement.getInstanceId());
+
+		logger.info("New 3 tier tag: {}",objectNode);
+
 	}
 }
