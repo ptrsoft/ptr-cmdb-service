@@ -36,14 +36,14 @@ public interface BusinessElementRepository extends JpaRepository<BusinessElement
     List<BusinessElement> searchByFiltersFor3TierAssociation(@Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("serviceType") String serviceType);
 
     String GET_SOA_SERVICE ="select be.* from business_element be where upper(be.service_name) = upper(:serviceName) \n " +
-            " and upper(be.service_nature) = upper(:serviceNature) and be.product_id = :productId and be.product_env_id = :productEnvId and be.module_id = :moduleId ";
+            " and upper(be.service_nature) = upper(:serviceNature) and upper(be.service_type) = upper(:serviceType) and be.product_id = :productId and be.product_env_id = :productEnvId and be.module_id = :moduleId and be.cloud_element_id = :cloudElementId ";
     @Query(value = GET_SOA_SERVICE, nativeQuery = true)
-    BusinessElement getSoaService(@Param("serviceName") String serviceName, @Param("serviceNature") String serviceNature,  @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("moduleId") Long moduleId);
+    BusinessElement getSoaService(@Param("serviceName") String serviceName, @Param("serviceNature") String serviceNature, @Param("serviceType") String serviceType,  @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("moduleId") Long moduleId, @Param("cloudElementId") Long cloudElementId);
 
     String GET_THREE_TIER_SERVICE ="select be.* from business_element be where upper(be.service_name) = upper(:serviceName) \n " +
-            " and upper(be.service_type) = upper(:serviceType) and be.product_id = :productId and be.product_env_id = :productEnvId  ";
+            " and upper(be.service_type) = upper(:serviceType) and be.product_id = :productId and be.product_env_id = :productEnvId and be.cloud_element_id = :cloudElementId  ";
     @Query(value = GET_THREE_TIER_SERVICE, nativeQuery = true)
-    BusinessElement getThreeTierService(@Param("serviceName") String serviceName, @Param("serviceType") String serviceType,  @Param("productId") Long productId, @Param("productEnvId") Long productEnvId);
+    BusinessElement getThreeTierService(@Param("serviceName") String serviceName, @Param("serviceType") String serviceType,  @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("cloudElementId") Long cloudElementId);
 
     String SERVICE_VIEW_TOPOLOGY_QUERY="select be.* from business_element be \n" +
             "where be.product_id in (select p.id \n" +

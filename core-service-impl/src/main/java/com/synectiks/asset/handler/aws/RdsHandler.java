@@ -111,6 +111,7 @@ public class RdsHandler implements CloudHandler {
                 .dbCategory(dbCategory)
                 .productEnclave(productEnclave)
                 .cloud(landingZone.getCloud().toUpperCase())
+                .serviceCategory(Constants.DATABASE)
                 .build();
             cloudElement = cloudElementService.save(cloudElementObj);
         }

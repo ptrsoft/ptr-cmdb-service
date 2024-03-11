@@ -90,6 +90,7 @@ public class LbHandler implements CloudHandler {
                     .configJson(configMap)
                     .productEnclave(productEnclave)
                     .cloud(landingZone.getCloud().toUpperCase())
+                    .serviceCategory(Constants.OTHER)
                     .build();
             cloudElementService.save(cloudElement);
         }

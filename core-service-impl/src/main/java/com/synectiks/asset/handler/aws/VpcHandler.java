@@ -3,6 +3,7 @@ package com.synectiks.asset.handler.aws;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.*;
 import com.synectiks.asset.handler.CloudHandler;
+import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.LandingzoneService;
 import com.synectiks.asset.service.ProductEnclaveService;
 import com.synectiks.asset.service.VaultService;
@@ -32,6 +33,9 @@ public class VpcHandler implements CloudHandler {
 
     @Autowired
     private LandingzoneService landingzoneService;
+
+    @Autowired
+    private CloudElementService cloudElementService;
 
     @Autowired
     private ProductEnclaveService productEnclaveService;
@@ -71,7 +75,8 @@ public class VpcHandler implements CloudHandler {
     }
 
     private ProductEnclave addUpdate(Landingzone landingZone, Map configMap) {
-        ProductEnclave productEnclave = productEnclaveService.findProductEnclave((String)configMap.get("VpcId"), landingZone.getDepartment().getId(), landingZone.getId());
+        String instanceId = (String)configMap.get("VpcId");
+        ProductEnclave productEnclave = productEnclaveService.findProductEnclave(instanceId, landingZone.getDepartment().getId(), landingZone.getId());
         if(productEnclave != null){
             logger.debug("Updating product-enclave: {} for landing-zone: {}",(String)configMap.get("VpcId"), landingZone.getLandingZone());
             productEnclave.setMetadata(configMap);
@@ -79,14 +84,37 @@ public class VpcHandler implements CloudHandler {
         }else{
             logger.debug("Adding product-enclave: {} for landing-zone: {}",(String)configMap.get("VpcId"), landingZone.getLandingZone());
             productEnclave = ProductEnclave.builder()
-                        .instanceId((String)configMap.get("VpcId"))
-                        .instanceName((String)configMap.get("VpcId"))
+                        .instanceId(instanceId)
+                        .instanceName(instanceId)
                         .metadata(configMap)
                         .department(landingZone.getDepartment())
                         .landingzone(landingZone)
+                        .serviceCategory(Constants.NETWORK)
                         .build();
             productEnclave = productEnclaveService.save(productEnclave);
         }
+
+//        CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.VPC);
+//        if(cloudElement != null ){
+//            logger.debug("Updating vpc: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
+//            cloudElement.setConfigJson(configMap);
+//            cloudElement.setInstanceId(instanceId);
+//            cloudElement.setInstanceName(instanceId);
+//            cloudElement = cloudElementService.save(cloudElement);
+//        }else{
+//            logger.debug("Adding vpc: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
+//            cloudElement = CloudElement.builder()
+//                    .elementType(Constants.VPC)
+//                    .instanceId(instanceId)
+//                    .instanceName(instanceId)
+//                    .landingzone(landingZone)
+//                    .configJson(configMap)
+//                    .cloud(landingZone.getCloud().toUpperCase())
+//                    .serviceCategory(Constants.NETWORK)
+//                    .build();
+//            cloudElement = cloudElementService.save(cloudElement);
+//        }
+
         return productEnclave;
     }
 

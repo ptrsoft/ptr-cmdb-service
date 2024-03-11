@@ -116,6 +116,7 @@ public class LambdaHandler implements CloudHandler {
                         .configJson(functionMap)
                         .productEnclave(productEnclave)
                         .cloud(landingZone.getCloud().toUpperCase())
+                        .serviceCategory(Constants.COMPUTE)
                         .build();
                 cloudElement = cloudElementService.save(cloudElementObj);
             }

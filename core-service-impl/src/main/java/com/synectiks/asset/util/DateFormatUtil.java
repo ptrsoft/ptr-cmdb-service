@@ -16,7 +16,6 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.*;
 
@@ -503,28 +502,126 @@ public final class DateFormatUtil {
 			}
 		}
 
-	public static void main(String a[]) throws Exception {
-//		String dt = changeDateFormat(CmsConstants.DATE_FORMAT_dd_MM_yyyy, "dd/MM/yyyy", "29/04/2019");
-//		Date d = getUtilDate(CmsConstants.DATE_FORMAT_dd_MM_yyyy,dt);
-//		System.out.println(d);
-//		LocalDate date = convertStringToLocalDate("08"+"/"+"09"+"/"+"2019","MM/dd/yyyy"); //LocalDate.now();
-//		System.out.println("date to be formated : "+date);
-//		String dt = changeLocalDateFormat(date, CmsConstants.DATE_FORMAT_MM_dd_yyyy);
-//		DateTimeFormatter formatters = DateTimeFormatter.ofPattern(CmsConstants.DATE_FORMAT_MM_dd_yyyy);
-//		System.out.println("local date after format change : "+formatters.format(date));
+		public static void  getFirstAndLastDateOfYearMonth(int year, int month){
+//			YearMonth startYearMonth = YearMonth.now();
+			LocalDate startOfMonthDate = YearMonth.of(year, month).atDay(1);
+			LocalDate endOfMonthDate   = YearMonth.of(year, month).atEndOfMonth();
+//			System.out.println(startYearMonth);
+			System.out.println("start date: "+startOfMonthDate+", end date: "+endOfMonthDate);
+		}
 
-//		convertStringToInstant();
-//		testFindDatesBetween("2023-07-01","2023-07-31");
-//		find24HoursOfDay("2023-07-11");
-//		randomHourJsonArray ("2023-07-11");
-//		generateTestCostData("2022-11-01","2023-01-31");
-//		weekOfMonthExample ();
-//		weekOfMonthExampleWithStartAndEndDate();
-//		bb();
+		public int getThreeMonthQuarterOfDate(LocalDate dt){
+			int quarter = (dt.getMonthValue() - 1) / 3 + 1;
+			System.out.println("Quarter of given date: "+dt+", quarter: "+ quarter);
+			return quarter;
+		}
+		public int getFourMonthQuarterOfDate(LocalDate dt){
+			int quarter = (dt.getMonthValue() - 1) / 4 + 1;
+			System.out.println("Quarter of given date: "+dt+", quarter: "+ quarter);
+			return quarter;
+		}
+		static Map<Integer, Map<String, LocalDate>> threeMonthQuarterCache = new HashMap<>();
+		static {
+			Map<String, LocalDate> q1 = new HashMap<>();
+			q1.put("startDate", LocalDate.of(LocalDate.now().getYear(), 1, 1));
+			q1.put("endDate",LocalDate.of(LocalDate.now().getYear(), 3, 31));
+			threeMonthQuarterCache.put(1,q1);
+			Map<String, LocalDate> q2 = new HashMap<>();
+			q2.put("startDate",LocalDate.of(LocalDate.now().getYear(), 4, 1));
+			q2.put("endDate",LocalDate.of(LocalDate.now().getYear(), 6, 30));
+			threeMonthQuarterCache.put(2,q2);
+			Map<String, LocalDate> q3 = new HashMap<>();
+			q3.put("startDate",LocalDate.of(LocalDate.now().getYear(), 7, 1));
+			q3.put("endDate",LocalDate.of(LocalDate.now().getYear(), 9, 30));
+			threeMonthQuarterCache.put(3,q3);
+			Map<String, LocalDate> q4 = new HashMap<>();
+			q4.put("startDate",LocalDate.of(LocalDate.now().getYear(), 10, 1));
+			q4.put("endDate",LocalDate.of(LocalDate.now().getYear(), 12, 31));
+			threeMonthQuarterCache.put(4,q4);
+		}
+		public Map<String, LocalDate> getDatesOfCurrentYearQuarters(int quarter){
+			Map dateMap = threeMonthQuarterCache.get(quarter);
+			System.out.println("current year's quarter dates: "+dateMap);
+			return dateMap;
+		}
+		public LocalDate getNewDateByAddingOrSubtractingMonth(int month){
+			LocalDate currentDate = LocalDate.now();
+			if(month < 0){
+				LocalDate newDate = currentDate.minusMonths(Math.abs(month));
+				System.out.println("Current Date: " + currentDate);
+				System.out.println("New Date after subtracting " + month + " months: " + newDate);
+				return newDate;
+			}
+			LocalDate newDate = currentDate.plusMonths(month);
+			System.out.println("Current Date: " + currentDate);
+			System.out.println("New Date after adding " + month + " months: " + newDate);
+			return newDate;
+		}
 
-//		AddMinutesToInstant();
+		public int getYearByAddOrSubtractQuarter(int year, int quarter){
+			// Adjust year if quarter is negative
+			int nYear = year;
+			if (quarter < 0) {
+				nYear -= Math.abs(quarter) / 4; // Assuming 4 quarters in a year
+				if (Math.abs(quarter) % 4 != 0) {
+					nYear--; // Adjust year if the negative quarter is not perfectly divisible by 4
+				}
+				System.out.println("new year after subtracting quarters: " + nYear);
+				return nYear;
+			}
+			nYear += (quarter - 1) / 4;
+			System.out.println("new year after adding quarters: " + nYear);
+			return nYear;
+		}
+		public Map<String, LocalDate> getNewDateRange(int quarter){
+			int months = quarter * 3; // consider 4 quarters in a year
+			LocalDate newDate = getNewDateByAddingOrSubtractingMonth(months);
+			System.out.println("new date: "+newDate);
+			int newQ = getThreeMonthQuarterOfDate(newDate);
+			System.out.println("new quarter: "+newQ);
+			Map<String, LocalDate> dateMap = getDatesOfCurrentYearQuarters(newQ);
+			LocalDate startDate = LocalDate.of(newDate.getYear(),dateMap.get("startDate").getMonth(), dateMap.get("startDate").getDayOfMonth());
+			System.out.println("start date: "+startDate);
+			LocalDate endDate = LocalDate.of(newDate.getYear(),dateMap.get("endDate").getMonth(), dateMap.get("endDate").getDayOfMonth());
+			System.out.println("end date: "+endDate);
+			Map<String, LocalDate> newStartEndDates = new HashMap<>();
+			newStartEndDates.put("startDate",startDate);
+			newStartEndDates.put("endDate",endDate);
+			return newStartEndDates;
+		}
 
-		testSessionTimeout();
-	}
+		public static void main(String a[]) throws Exception {
+//			new DateFormatUtil().getYearByAddOrSubtractQuarter(2024, -1);
+			Map<String, LocalDate> mp = new DateFormatUtil().getNewDateRange(-2);
+			System.out.println("new date range: "+mp);
+
+	//		String dt = changeDateFormat(CmsConstants.DATE_FORMAT_dd_MM_yyyy, "dd/MM/yyyy", "29/04/2019");
+	//		Date d = getUtilDate(CmsConstants.DATE_FORMAT_dd_MM_yyyy,dt);
+	//		System.out.println(d);
+	//		LocalDate date = convertStringToLocalDate("08"+"/"+"09"+"/"+"2019","MM/dd/yyyy"); //LocalDate.now();
+	//		System.out.println("date to be formated : "+date);
+	//		String dt = changeLocalDateFormat(date, CmsConstants.DATE_FORMAT_MM_dd_yyyy);
+	//		DateTimeFormatter formatters = DateTimeFormatter.ofPattern(CmsConstants.DATE_FORMAT_MM_dd_yyyy);
+	//		System.out.println("local date after format change : "+formatters.format(date));
+
+	//		convertStringToInstant();
+	//		testFindDatesBetween("2023-07-01","2023-07-31");
+	//		find24HoursOfDay("2023-07-11");
+	//		randomHourJsonArray ("2023-07-11");
+	//		generateTestCostData("2022-11-01","2023-01-31");
+	//		weekOfMonthExample ();
+	//		weekOfMonthExampleWithStartAndEndDate();
+	//		bb();
+
+	//		AddMinutesToInstant();
+
+	//		testSessionTimeout();
+//			getFirstAndLastDateOfYearMonth(2024, 2);
+//			new DateFormatUtil().getThreeMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
+//			getFourMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
+//			getQuarterDates(3);
+
+
+		}
 
 }

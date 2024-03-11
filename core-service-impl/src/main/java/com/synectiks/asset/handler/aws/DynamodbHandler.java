@@ -96,8 +96,9 @@ public class DynamodbHandler implements CloudHandler {
                 .configJson(configMap)
                 .dbCategory(dbCategory)
                 .cloud(landingZone.getCloud().toUpperCase())
+                .serviceCategory(Constants.DATABASE)
                 .build();
-            cloudElementService.save(cloudElement);
+            cloudElement = cloudElementService.save(cloudElement);
         }
         return cloudElement;
     }

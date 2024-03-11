@@ -1,7 +1,5 @@
 package com.synectiks.asset.handler.aws;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.*;
 import com.synectiks.asset.handler.CloudHandler;
@@ -9,7 +7,6 @@ import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.LandingzoneService;
 import com.synectiks.asset.service.ProductEnclaveService;
 import com.synectiks.asset.service.VaultService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +110,7 @@ public class Ec2Handler implements CloudHandler {
                 .configJson(configMap)
                 .productEnclave(productEnclave)
                 .cloud(landingZone.getCloud().toUpperCase())
+                .serviceCategory(Constants.COMPUTE)
                 .build();
             cloudElementService.save(cloudElement);
         }

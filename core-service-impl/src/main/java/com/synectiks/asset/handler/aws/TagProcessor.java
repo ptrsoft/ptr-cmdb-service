@@ -60,12 +60,12 @@ public class TagProcessor {
         return moduleService.getModule(moduleName, productId,productEnvId);
     }
 
-    public BusinessElement getSoaService(String serviceName, String serviceNature, Long productId, Long productEnvId, Long moduleId){
-        return businessElementService.getSoaService(serviceName, serviceNature, productId, productEnvId, moduleId);
+    public BusinessElement getSoaService(String serviceName, String serviceNature, String serviceType, Long productId, Long productEnvId, Long moduleId, Long cloudElementId){
+        return businessElementService.getSoaService(serviceName, serviceNature, serviceType, productId, productEnvId, moduleId, cloudElementId);
     }
 
-    public BusinessElement getThreeTierService(String serviceName, String serviceType,  Long productId, Long productEnvId){
-        return businessElementService.getThreeTierService(serviceName, serviceType, productId, productEnvId);
+    public BusinessElement getThreeTierService(String serviceName, String serviceType,  Long productId, Long productEnvId, Long cloudElementId){
+        return businessElementService.getThreeTierService(serviceName, serviceType, productId, productEnvId, cloudElementId);
     }
 
     public int process(String tagValue[], CloudElement cloudElement){
@@ -89,43 +89,32 @@ public class TagProcessor {
             logger.error("ProductEnv is null");
             return 10;
         }
-        String type = tagValue[4];
+        String serviceNature = tagValue[4]; //for soa product it will a string value, for 3 tier product it will be null/blank string
+        String type = tagValue[5];
+        String moduleName = tagValue[6]; //for soa product it will a string value, for 3 tier product it will be null/blank string
+        String serviceName = tagValue[7];
+
         if(StringUtils.isBlank(type)){
             logger.error("Type is null");
             return 11;
         }
         Module module = null;
-        BusinessElement businessElement = null;
 
+        BusinessElement businessElement = getThreeTierService(serviceName, type, product.getId(), productEnv.getId(), cloudElement.getId());
         if(Constants.SOA.equalsIgnoreCase(product.getType())){
-            module = getModule(tagValue[5], product.getId(), productEnv.getId());
+            module = getModule(moduleName, product.getId(), productEnv.getId());
             if(module == null){
                 logger.error("Module is null");
                 return 12;
             }
-            businessElement = getSoaService(tagValue[6], type, product.getId(), productEnv.getId(), module.getId());
+            businessElement = getSoaService(serviceName, serviceNature, type, product.getId(), productEnv.getId(), module.getId(), cloudElement.getId());
         }
 
-        String dbType = null;
-        if(Constants.THREE_TIER.equalsIgnoreCase(product.getType())){
-            if("Web Layer".equalsIgnoreCase(type)){
-                dbType = "Web";
-            }else if("App Layer".equalsIgnoreCase(type)){
-                dbType = "App";
-            }else if("Data Layer".equalsIgnoreCase(type)){
-                dbType = "Data";
-            }else{
-                if(StringUtils.isBlank(dbType)){
-                    logger.error("DbType is null");
-                    return 13;
-                }
-            }
-            businessElement = getThreeTierService(tagValue[5], dbType, product.getId(), productEnv.getId());
-        }
         if(businessElement == null){
             logger.error("BusinessElement is null");
             return 14;
         }
+
         ObjectMapper objectMapper = Constants.instantiateMapper();
         ObjectNode tag = createTag(organization, department, product, productEnv, type, module, businessElement, objectMapper);
         Map<String, Object> hostedServiceTag = new HashMap<>();

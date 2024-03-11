@@ -119,6 +119,7 @@ public class EksHandler implements CloudHandler {
                 .configJson(configMap)
                 .productEnclave(productEnclave)
                 .cloud(landingZone.getCloud().toUpperCase())
+                .serviceCategory(Constants.COMPUTE)
                 .build();
             cloudElement = cloudElementService.save(cloudElement);
         }

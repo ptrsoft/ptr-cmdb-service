@@ -155,13 +155,13 @@ public class BusinessElementService {
         return businessElementRepository.searchByFiltersFor3TierAssociation(departmentId, productId, productEnvId, serviceType);
     }
 
-    public BusinessElement getSoaService(String serviceName, String serviceNature, Long productId, Long productEnvId, Long moduleId){
-        logger.debug("Get business-element by service name: {}, service nature: {}, product id: {}, environment id: {}, module id: {} ",serviceName, serviceNature, productId, productEnvId, moduleId);
-        return businessElementRepository.getSoaService(serviceName, serviceNature, productId, productEnvId, moduleId);
+    public BusinessElement getSoaService(String serviceName, String serviceNature,  String serviceType, Long productId, Long productEnvId, Long moduleId, Long cloudElementId){
+        logger.debug("Get business-element by service name: {}, service nature: {}, service type: {}, product id: {}, environment id: {}, module id: {}, cloudElementId: {} ",serviceName, serviceNature, serviceType, productId, productEnvId, moduleId, cloudElementId);
+        return businessElementRepository.getSoaService(serviceName, serviceNature,  serviceType, productId, productEnvId, moduleId, cloudElementId);
     }
-    public BusinessElement getThreeTierService(String serviceName, String serviceType,  Long productId, Long productEnvId){
-        logger.debug("Get business-element by service name: {}, service type: {}, product id: {}, environment id: {} ",serviceName, serviceType,  productId, productEnvId);
-        return businessElementRepository.getThreeTierService(serviceName, serviceType,  productId, productEnvId);
+    public BusinessElement getThreeTierService(String serviceName, String serviceType,  Long productId, Long productEnvId, Long cloudElementId){
+        logger.debug("Get business-element by service name: {}, service type: {}, product id: {}, product-env-id id: {}, cloudElementId: {} ",serviceName, serviceType,  productId, productEnvId, cloudElementId);
+        return businessElementRepository.getThreeTierService(serviceName, serviceType,  productId, productEnvId, cloudElementId);
     }
 
     @Transactional

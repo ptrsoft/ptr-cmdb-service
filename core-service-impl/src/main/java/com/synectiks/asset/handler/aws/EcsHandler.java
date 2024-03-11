@@ -96,6 +96,7 @@ public class EcsHandler implements CloudHandler {
                     .landingzone(landingZone)
                     .configJson(configMap)
                     .cloud(landingZone.getCloud().toUpperCase())
+                    .serviceCategory(Constants.COMPUTE)
                     .build();
                 cloudElement = cloudElementService.save(cloudElement);
             }

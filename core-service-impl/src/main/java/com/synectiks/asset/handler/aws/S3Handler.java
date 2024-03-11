@@ -103,6 +103,7 @@ public class S3Handler implements CloudHandler {
                     .configJson(bucketMap)
                     .dbCategory(dbCategory)
                     .cloud(landingZone.getCloud().toUpperCase())
+                    .serviceCategory(Constants.STORAGE)
                     .build();
             cloudElement = cloudElementService.save(cloudElementObj);
         }

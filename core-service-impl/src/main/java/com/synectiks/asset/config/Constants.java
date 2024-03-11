@@ -213,6 +213,11 @@ public final class Constants {
     public static final String TYPE_BUSINESS = "BUSINESS";
     public static final String TYPE_COMMON = "COMMON";
 
+    public static final String COMPUTE = "COMPUTE";
+    public static final String STORAGE = "STORAGE";
+    public static final String NETWORK = "NETWORK";
+    public static final String DATABASE = "DATABASE";
+    public static final String OTHER = "OTHER";
 
     private Constants() {
     }

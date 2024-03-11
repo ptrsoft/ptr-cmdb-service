@@ -94,6 +94,7 @@ public class KinesysHandler implements CloudHandler {
                     .landingzone(landingZone)
                     .configJson(configMap)
                     .cloud(landingZone.getCloud().toUpperCase())
+                    .serviceCategory(Constants.OTHER)
                     .build();
             cloudElement = cloudElementService.save(cloudElementObj);
         }

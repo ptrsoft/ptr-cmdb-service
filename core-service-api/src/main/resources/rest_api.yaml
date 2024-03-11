@@ -106,6 +106,8 @@ tags:
     description: Master service list for business to infra mapping
   - name: CloudServiceMaster
     description: Master service list for business to infra mapping
+  - name: BiMapping
+    description: Business to infra mapping
 
 paths:
   /organization:
@@ -5201,6 +5203,29 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CloudDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /bi-mapping/add:
+    post:
+      tags:
+        - BiMapping
+      summary: Map business services to cloud infrastructure
+      operationId: addBiMapping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
         404:
           description: "Service Not found"
         500:

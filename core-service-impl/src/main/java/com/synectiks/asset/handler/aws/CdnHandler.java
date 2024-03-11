@@ -89,6 +89,7 @@ public class CdnHandler implements CloudHandler {
                     .landingzone(landingZone)
                     .configJson(configMap)
                     .cloud(landingZone.getCloud().toUpperCase())
+                    .serviceCategory(Constants.OTHER)
                     .build();
             cloudElementService.save(cloudElement);
         }

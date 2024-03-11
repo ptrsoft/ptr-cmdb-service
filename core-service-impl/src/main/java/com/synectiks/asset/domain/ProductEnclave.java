@@ -50,4 +50,13 @@ public class ProductEnclave extends AbstractAuditingEntity implements Serializab
 
 	@ManyToOne
 	private Landingzone landingzone;
+
+	@Column(name = "service_category")
+	private String serviceCategory;
+
+	@Column(name = "region")
+	private String region;
+
+	@Column(name = "log_group")
+	private String logGroup;
 }

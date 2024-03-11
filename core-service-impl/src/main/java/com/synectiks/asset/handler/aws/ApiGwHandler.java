@@ -79,6 +79,7 @@ public class ApiGwHandler implements CloudHandler {
                     .landingzone(landingZone)
                     .configJson(configMap)
                     .cloud(landingZone.getCloud().toUpperCase())
+                    .serviceCategory(Constants.OTHER)
                     .build();
             cloudElementService.save(cloudElement);
         }

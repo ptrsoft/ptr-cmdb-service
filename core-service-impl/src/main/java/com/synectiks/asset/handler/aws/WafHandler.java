@@ -65,7 +65,7 @@ public class WafHandler implements CloudHandler {
 
     private void addUpdate(Department department, Landingzone landingZone, Map configMap) {
         String instanceId = (String)((Map)configMap.get("distribution")).get("Id");
-        CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.CDN);
+        CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.WAF);
         setAdditionalConfig(configMap);
         if(cloudElement != null ){
             logger.debug("Updating cdn: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
@@ -76,13 +76,13 @@ public class WafHandler implements CloudHandler {
         }else{
             logger.debug("Adding cdn: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
             CloudElement cloudElementObj = CloudElement.builder()
-                    .elementType(Constants.CDN)
-                    .arn((String)((Map)configMap.get("distribution")).get("ARN"))
+                    .elementType(Constants.WAF)
                     .instanceId(instanceId)
                     .instanceName(instanceId)
                     .category(Constants.APP_SERVICES)
                     .landingzone(landingZone)
                     .configJson(configMap)
+                    .serviceCategory(Constants.OTHER)
                     .build();
             cloudElementService.save(cloudElementObj);
         }

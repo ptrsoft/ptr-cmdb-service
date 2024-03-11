@@ -92,5 +92,13 @@ public class CloudElement extends AbstractAuditingEntity implements Serializable
 	@Column(name = "metric_location")
 	private String metricLocation;
 
+	@Column(name = "service_category")
+	private String serviceCategory;
+
+	@Column(name = "region")
+	private String region;
+
+	@Column(name = "log_group")
+	private String logGroup;
 
 }

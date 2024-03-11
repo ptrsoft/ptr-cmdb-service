@@ -13,6 +13,12 @@ public class Validator {
         }
     }
 
+    public void validateNull(Object object, String entityName) throws BadRequestAlertException {
+        if(object == null){
+            throw new BadRequestAlertException(String.format("Null object", entityName), entityName, "null");
+        }
+    }
+
     public void validateNull(Long id, String entityName) throws BadRequestAlertException {
         if(id == null){
             throw new BadRequestAlertException(String.format("Null id", entityName), entityName, "idnull");
