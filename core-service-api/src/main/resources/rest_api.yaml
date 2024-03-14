@@ -108,6 +108,8 @@ tags:
     description: Master service list for business to infra mapping
   - name: BiMapping
     description: Business to infra mapping
+  - name: Reporting
+    description: Appkube reporting
 
 paths:
   /organization:
@@ -5230,6 +5232,248 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /reporting/organization/{orgId}/spend-overview:
+    get:
+      tags:
+        - Reporting
+      summary: spend overview report
+      operationId: getSpendOverviewReport
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: serviceCategory
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: cloud
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: granularity
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: compareTo
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /reporting/organization/{orgId}/top-used-service:
+    get:
+      tags:
+        - Reporting
+      summary: top used services report
+      operationId: getTopUsedServicesReport
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: service
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: cloud
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: granularity
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: compareTo
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: noOfRecords
+          schema:
+            type: integer
+            format: int64
+          required: false
+        - in: query
+          name: order
+          schema:
+            type: string
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /reporting/organization/{orgId}/potential-savings:
+    get:
+      tags:
+        - Reporting
+      summary: potential savings report
+      operationId: getPotentialSavingsReport
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: cloud
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: granularity
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: compareTo
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /reporting/organization/{orgId}/cost-top-accounts:
+    get:
+      tags:
+        - Reporting
+      summary: cost of top accounts report
+      operationId: getCostTopAccountsReport
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: cloud
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: account
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: granularity
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: compareTo
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: noOfRecords
+          schema:
+            type: integer
+            format: int64
+          required: false
+        - in: query
+          name: order
+          schema:
+            type: string
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
+  /reporting/organization/{orgId}/spending-trend:
+    get:
+      tags:
+        - Reporting
+      summary: spending trend report
+      operationId: getSpendingTrendReport
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: cloud
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: granularity
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: compareTo
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: forcast
+          schema:
+            type: boolean
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
 components:
   schemas:
     OrganizationDTO:
@@ -5368,6 +5612,12 @@ components:
           type: string
         updatedOn:
           type: string
+        financial_year_start:
+          type: string
+          format: date
+        financial_year_end:
+          type: string
+          format: date
     LandingzoneDTO:
       type: object
       properties:
@@ -5522,6 +5772,12 @@ components:
         traceLocation:
           type: string
         metricLocation:
+          type: string
+        serviceCategory:
+          type: string
+        region:
+          type: string
+        logGroup:
           type: string
     ModuleDTO:
       type: object

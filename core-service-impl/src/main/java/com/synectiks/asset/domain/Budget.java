@@ -7,6 +7,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.Map;
 
 /**
@@ -38,6 +39,12 @@ public class Budget extends AbstractAuditingEntity implements Serializable {
 
 	@Column(name = "status")
 	private String status;
+
+	@Column(name = "financial_year_start")
+	private Date financialYearStart;
+
+	@Column(name = "financial_year_end")
+	private Date financialYearEnd;
 
 	@ManyToOne
 	private Organization organization;

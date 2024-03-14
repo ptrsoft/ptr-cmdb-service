@@ -573,7 +573,7 @@ public final class DateFormatUtil {
 			System.out.println("new year after adding quarters: " + nYear);
 			return nYear;
 		}
-		public Map<String, LocalDate> getNewDateRange(int quarter){
+		public Map<String, LocalDate> getDateRangeOfGivenQuarter(int quarter){
 			int months = quarter * 3; // consider 4 quarters in a year
 			LocalDate newDate = getNewDateByAddingOrSubtractingMonth(months);
 			System.out.println("new date: "+newDate);
@@ -592,8 +592,8 @@ public final class DateFormatUtil {
 
 		public static void main(String a[]) throws Exception {
 //			new DateFormatUtil().getYearByAddOrSubtractQuarter(2024, -1);
-			Map<String, LocalDate> mp = new DateFormatUtil().getNewDateRange(-2);
-			System.out.println("new date range: "+mp);
+//			Map<String, LocalDate> mp = new DateFormatUtil().getNewDateRange(-2);
+//			System.out.println("new date range: "+mp);
 
 	//		String dt = changeDateFormat(CmsConstants.DATE_FORMAT_dd_MM_yyyy, "dd/MM/yyyy", "29/04/2019");
 	//		Date d = getUtilDate(CmsConstants.DATE_FORMAT_dd_MM_yyyy,dt);
@@ -608,7 +608,7 @@ public final class DateFormatUtil {
 	//		testFindDatesBetween("2023-07-01","2023-07-31");
 	//		find24HoursOfDay("2023-07-11");
 	//		randomHourJsonArray ("2023-07-11");
-	//		generateTestCostData("2022-11-01","2023-01-31");
+//			generateTestCostData("2023-01-01","2024-04-30");
 	//		weekOfMonthExample ();
 	//		weekOfMonthExampleWithStartAndEndDate();
 	//		bb();
@@ -619,7 +619,9 @@ public final class DateFormatUtil {
 //			getFirstAndLastDateOfYearMonth(2024, 2);
 //			new DateFormatUtil().getThreeMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
 //			getFourMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
-//			getQuarterDates(3);
+			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
+			String startDate = dateRange.get("startDate").toString();
+			System.out.println("**************************** "+startDate);
 
 
 		}

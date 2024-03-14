@@ -1,16 +1,12 @@
 package com.synectiks.asset.service;
 
 import com.synectiks.asset.api.model.BudgetDTO;
-import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Budget;
-import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.repository.BudgetRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +72,12 @@ public class BudgetService {
 		if(!StringUtils.isBlank(budgetDTO.getUpdatedBy())){
 			primarySql.append(" and upper(b.updated_by) = upper(?) ");
 		}
+		if(budgetDTO.getFinancialYearStart() != null){
+			primarySql.append(" and b.financial_year_start >= ? ");
+		}
+		if(budgetDTO.getFinancialYearEnd() != null){
+			primarySql.append(" and b.financial_year_end <= ? ");
+		}
 		Query query = entityManager.createNativeQuery(primarySql.toString(), Budget.class);
 		int index = 0;
 		if(budgetDTO.getId() != null){
@@ -95,6 +97,12 @@ public class BudgetService {
 		}
 		if(!StringUtils.isBlank(budgetDTO.getUpdatedBy())){
 			query.setParameter(++index, budgetDTO.getUpdatedBy());
+		}
+		if(budgetDTO.getFinancialYearStart() != null){
+			query.setParameter(++index, budgetDTO.getFinancialYearStart());
+		}
+		if(budgetDTO.getFinancialYearEnd() != null){
+			query.setParameter(++index, budgetDTO.getFinancialYearEnd());
 		}
 		return query.getResultList();
 	}

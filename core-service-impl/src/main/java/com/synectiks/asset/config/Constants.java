@@ -286,6 +286,14 @@ public final class Constants {
             "\t\t}";
 
     public static final String HOSTEDSERVICES = "HOSTEDSERVICES";
+
+
+    public static final String GRANULARITY_DAILY = "DAILY";
+    public static final String GRANULARITY_WEEKLY = "WEEKLY";
+    public static final String GRANULARITY_MONTHLY = "MONTHLY";
+    public static final String GRANULARITY_QUARTERLY = "QUARTERLY";
+    public static final String GRANULARITY_HALF_YEARLY = "HALF-YEARLY";
+    public static final String GRANULARITY_YEARLY = "YEARLY";
     private Constants() {
     }
 }

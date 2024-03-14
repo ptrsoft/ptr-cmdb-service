@@ -1,11 +1,14 @@
 package com.synectiks.asset.service;
 
+import com.sun.org.apache.xerces.internal.impl.Constants;
 import com.synectiks.asset.api.model.BillingDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
+import com.synectiks.asset.config.ReportingQueryConstants;
 import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.query.*;
+import com.synectiks.asset.domain.reporting.SpendOverviewReportObj;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.repository.QueryRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -625,5 +628,31 @@ public class QueryService {
 		return queryRepository.getBiMappingCloudElements(orgId, departmentId, productId, productEnvId);
 	}
 
+
+	public List<SpendOverviewReportObj> getSpendOverviewReport(Long orgId, String serviceCategory, String startDate, String endDate, String cloud){
+		logger.debug("Get spend-overview report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, startDate, endDate, cloud);
+		String sql = "";
+		if(!Constants.ACCESS_EXTERNAL_ALL.equalsIgnoreCase(serviceCategory)){
+			sql = ReportingQueryConstants.SPEND_OVERVIEW.replace("#DYNAMIC_CONDITION#"," and upper(ce.service_category) = upper(?) ");
+		}else {
+			sql = ReportingQueryConstants.SPEND_OVERVIEW.replace("#DYNAMIC_CONDITION#"," ");
+		}
+
+		Query query = entityManager.createNativeQuery(sql, SpendOverviewReportObj.class);
+		int index = 0;
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+		if(!Constants.ACCESS_EXTERNAL_ALL.equalsIgnoreCase(serviceCategory)){
+			query.setParameter(++index, serviceCategory);
+		}
+
+		List<SpendOverviewReportObj> list = query.getResultList();
+		if(list.size() <= 1){
+			return Collections.emptyList();
+		}
+		return list;
+	}
 
 }
