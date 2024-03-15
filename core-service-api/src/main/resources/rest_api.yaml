@@ -6390,6 +6390,8 @@ components:
           type: string
         updatedOn:
           type: string
+        frames:
+          type: string
     CloudWiseLandingzoneCountQueryDTO:
       type: object
       properties:

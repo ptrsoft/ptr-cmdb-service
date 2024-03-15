@@ -64,6 +64,9 @@ public class CloudElementSupportedApiService {
 		if(cloudElementSupportedApiDTO.getName() != null){
 			primarySql.append(" and c.name = ? ");
 		}
+		if(cloudElementSupportedApiDTO.getFrames() != null){
+			primarySql.append(" and c.frames = ? ");
+		}
 		if(!StringUtils.isBlank(cloudElementSupportedApiDTO.getStatus())){
 			primarySql.append(" and upper(c.status) = upper(?) ");
 		}

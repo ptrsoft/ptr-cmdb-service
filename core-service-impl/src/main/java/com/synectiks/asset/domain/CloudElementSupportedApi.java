@@ -38,5 +38,9 @@ public class CloudElementSupportedApi extends AbstractAuditingEntity implements 
 
 	@Column(name = "status")
 	private String status;
+	
+	@Column(name = "frames")
+	private String frames;
+
 
 }
