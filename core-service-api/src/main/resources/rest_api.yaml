@@ -5651,6 +5651,11 @@ components:
           format: int64
         departmentName:
           type: string
+        organizationId:
+          type: integer
+          format: int64
+        organizationName:
+          type: string
     LandingzoneResponseDTO:
       type: object
       properties:

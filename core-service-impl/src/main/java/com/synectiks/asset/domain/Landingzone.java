@@ -53,4 +53,7 @@ public class Landingzone extends AbstractAuditingEntity implements Serializable 
   @ManyToOne
   private Department department;
 
+  @ManyToOne
+  private Organization organization;
+
 }

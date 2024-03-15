@@ -29,4 +29,6 @@ public interface LandingzoneRepository extends JpaRepository<Landingzone, Long> 
     @Query(value = LANDING_ZONE_BY_ORG_ID_QUERY, nativeQuery = true)
     List<Landingzone> getLandingZoneByOrgId(@Param("orgId") Long orgId, @Param("cloud") String cloud);
 
+    List<Landingzone> findByOrganizationId(Long organizationId);
+    List<Landingzone> findByOrganizationIdAndCloud(Long organizationId, String cloud);
 }

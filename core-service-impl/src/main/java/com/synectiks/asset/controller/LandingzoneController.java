@@ -76,13 +76,17 @@ public class LandingzoneController implements LandingzoneApi {
             landingzoneDTO.setStatus(Constants.ACTIVE);
         }
         Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntity(landingzoneDTO);
+        if(landingzoneDTO.getDepartmentId() == null){
+            landingzone.setDepartment(null);
+        }
+        if(landingzoneDTO.getOrganizationId() == null){
+            landingzone.setOrganization(null);
+        }
         if(StringUtils.isBlank(landingzoneDTO.getLandingZone())){
             landingzone.setLandingZone(landingzoneDTO.getRoleArn().split(":")[4]);
         }
         landingzone = landingzoneService.save(landingzone);
-//        Optional<Landingzone> optionalLandingzone = landingzoneService.findOne(landingzone.getId());
         LandingzoneResponseDTO result = LandingzoneMapper.INSTANCE.entityToResponseDto(landingzone);
-//        addLandingZoneInVault(result);
         return ResponseEntity.ok(result);
     }
 
@@ -117,9 +121,8 @@ public class LandingzoneController implements LandingzoneApi {
 
     @Override
     public ResponseEntity<List<LandingzoneResponseDTO>> searchLandingzone(LandingzoneDTO landingzoneDTO) {
-        Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntityForSearch(landingzoneDTO);
-        logger.debug("REST request to get all landing-zones on given filters : {} ", landingzone);
-        List<Landingzone> landingzoneList = landingzoneService.search(landingzone);
+        logger.debug("REST request to get all landing-zones on given filters : {} ", landingzoneDTO);
+        List<Landingzone> landingzoneList = landingzoneService.search(landingzoneDTO);
         List<LandingzoneResponseDTO> landingzoneResponseDTOList = LandingzoneMapper.INSTANCE.entityToResponseDtoList(landingzoneList);
         return ResponseEntity.ok(landingzoneResponseDTOList);
     }

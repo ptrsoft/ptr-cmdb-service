@@ -1,0 +1,1 @@
+alter table landingzone add column organization_id int8;

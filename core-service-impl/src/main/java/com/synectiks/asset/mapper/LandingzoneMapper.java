@@ -30,13 +30,14 @@ public interface LandingzoneMapper {
     @Mapping(target = "updatedOn", dateFormat = Constants.DEFAULT_DATETIME_FORMAT)
     @Mapping(target = "departmentId", source = "department.id")
     @Mapping(target = "departmentName", source = "department.name")
-    @Mapping(target = "organizationId", source = "department.organization.id")
-    @Mapping(target = "organizationName", source = "department.organization.name")
+    @Mapping(target = "organizationId", source = "organization.id")
+    @Mapping(target = "organizationName", source = "organization.name")
     LandingzoneResponseDTO toResponseDto(Landingzone landingzone);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
     @Mapping(target = "department.id", source = "departmentId")
+    @Mapping(target = "organization.id", source = "organizationId")
     Landingzone toEntity(LandingzoneDTO landingzoneDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
