@@ -11,6 +11,8 @@ import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.repository.LandingzoneRepository;
+import com.synectiks.asset.service.CloudElementService;
+import com.synectiks.asset.service.CloudElementSummaryService;
 import com.synectiks.asset.service.LandingzoneService;
 import com.synectiks.asset.service.VaultService;
 import com.synectiks.asset.web.rest.validation.Validator;
@@ -51,6 +53,9 @@ public class LandingzoneController implements LandingzoneApi {
 
     @Autowired
     private VaultService vaultService;
+
+    @Autowired
+    private CloudElementSummaryService cloudElementSummaryService;
 
     @Override
     public ResponseEntity<LandingzoneResponseDTO> getLandingzone(Long id) {
@@ -124,6 +129,11 @@ public class LandingzoneController implements LandingzoneApi {
         logger.debug("REST request to get all landing-zones on given filters : {} ", landingzoneDTO);
         List<Landingzone> landingzoneList = landingzoneService.search(landingzoneDTO);
         List<LandingzoneResponseDTO> landingzoneResponseDTOList = LandingzoneMapper.INSTANCE.entityToResponseDtoList(landingzoneList);
+        for(LandingzoneResponseDTO dto: landingzoneResponseDTOList){
+            Integer totalAssets = cloudElementSummaryService.getTotalAssetsByLandingZoneId(dto.getId());
+            dto.setTotalAssets(totalAssets != null ? totalAssets.longValue() : 0L);
+        }
+
         return ResponseEntity.ok(landingzoneResponseDTOList);
     }
 

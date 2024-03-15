@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,5 +68,11 @@ public class CloudElementSummaryService {
 	public CloudElementSummary findByLandingzoneId(Long landingZoneId) {
 		logger.debug("Get cloud-element-summary of a landing-zone-id {}", landingZoneId);
 		return cloudElementSummaryRepository.findByLandingzoneId(landingZoneId);
+	}
+
+	@Transactional(readOnly = true)
+	public Integer getTotalAssetsByLandingZoneId(Long landingZoneId){
+		logger.debug("Get total assets of a landing-zone from cloud-element-summary. landing-zone-id {}", landingZoneId);
+		return cloudElementSummaryRepository.getTotalAssetsByLandingZoneId(landingZoneId);
 	}
 }

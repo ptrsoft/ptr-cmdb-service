@@ -5694,6 +5694,9 @@ components:
           format: int64
         organizationName:
           type: string
+        totalAssets:
+          type: integer
+          format: int64
     CloudElementSummaryDTO:
       type: object
       properties:

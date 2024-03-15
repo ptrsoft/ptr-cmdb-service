@@ -20,4 +20,9 @@ public interface CloudElementSummaryRepository extends JpaRepository<CloudElemen
     List<CloudElementSummary> getCloudElementSummary(@Param("landingZoneId") Long landingZoneId);
 
     CloudElementSummary findByLandingzoneId(Long landingzoneId);
+
+    String TOTAL_ASSETS_QUERY ="select coalesce (cast (ces.summary_json -> 'TotalDiscoveredResources' as integer),0) as assets from cloud_element_summary ces where ces.landingzone_id = :landingZoneId";
+    @Query(value = TOTAL_ASSETS_QUERY, nativeQuery = true)
+    Integer getTotalAssetsByLandingZoneId(@Param("landingZoneId") Long landingZoneId);
+
 }
