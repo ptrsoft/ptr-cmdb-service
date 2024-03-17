@@ -513,7 +513,7 @@ public final class DateFormatUtil {
 			newStartEndDates.put("endDate",endOfMonthDate);
 			return newStartEndDates;
 		}
-		public Map<String, LocalDate>  getFirstAndLastDateOfGivenDate(LocalDate weekDate){
+		public Map<String, LocalDate> getFirstAndLastDateOfGivenWeekDate(LocalDate weekDate){
 			LocalDate startOfWeek = weekDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
 			// Get the end date of the week (Sunday)
@@ -570,6 +570,20 @@ public final class DateFormatUtil {
 			LocalDate newDate = currentDate.plusMonths(month);
 			System.out.println("Current Date: " + currentDate);
 			System.out.println("New Date after adding " + month + " months: " + newDate);
+			return newDate;
+		}
+
+		public LocalDate getNewDateByAddingOrSubtractingYear(int year){
+			LocalDate currentDate = LocalDate.now();
+			if(year < 0){
+				LocalDate newDate = currentDate.minusYears(Math.abs(year));
+				System.out.println("Current Date: " + currentDate);
+				System.out.println("New Date after subtracting " + year + " years: " + newDate);
+				return newDate;
+			}
+			LocalDate newDate = currentDate.plusYears(year);
+			System.out.println("Current Date: " + currentDate);
+			System.out.println("New Date after adding " + year + " years: " + newDate);
 			return newDate;
 		}
 
@@ -637,7 +651,7 @@ public final class DateFormatUtil {
 		}
 		public Map<String, LocalDate> getDateRangeOfGivenWeek(int week){
 			LocalDate newDate = getNewDateByAddingOrSubtractingWeek(week);
-			Map<String, LocalDate> newStartEndDates= getFirstAndLastDateOfGivenDate(newDate);
+			Map<String, LocalDate> newStartEndDates= getFirstAndLastDateOfGivenWeekDate(newDate);
 			return newStartEndDates;
 		}
 
@@ -645,6 +659,14 @@ public final class DateFormatUtil {
 			LocalDate newDate = getNewDateByAddingOrSubtractingDay(day);
 			Map<String, LocalDate> newStartEndDates = new HashMap<>();
 			newStartEndDates.put("startDate",newDate);
+			newStartEndDates.put("endDate",newDate);
+			return newStartEndDates;
+		}
+		public Map<String, LocalDate> getDateRangeOfGivenYear(int year){
+			LocalDate newDate = getNewDateByAddingOrSubtractingYear(year);
+			Map<String, LocalDate> newStartEndDates = new HashMap<>();
+			LocalDate startDate = LocalDate.of(newDate.getYear(), 1,1);
+			newStartEndDates.put("startDate",startDate);
 			newStartEndDates.put("endDate",newDate);
 			return newStartEndDates;
 		}
@@ -682,7 +704,8 @@ public final class DateFormatUtil {
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenMonth(1);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenDay(-4);
-			Map<String, LocalDate> dateRange = new DateFormatUtil(). getDateRangeOfGivenWeek(-2);
+//			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenWeek(-2);
+			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenYear(-2);
 			System.out.println("start date : **************************** "+dateRange.get("startDate").toString());
 			System.out.println("end date : **************************** "+dateRange.get("endDate").toString());
 

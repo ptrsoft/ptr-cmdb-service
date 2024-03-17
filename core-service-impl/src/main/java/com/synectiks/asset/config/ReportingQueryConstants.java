@@ -51,6 +51,99 @@ public final class ReportingQueryConstants {
             "union all\n" +
             "select  'Grand Total' as service_category, ps.sumall as total, null as percentage from ps)\n" +
             "select ROW_NUMBER() OVER () as id, service_category, total, percentage from res\n";
+
+    public static String TOP_USED_SERVICES="with p as (\n" +
+            " with PreviousServiceCosts as (\n" +
+            " select\n" +
+            "  ce.element_type,\n" +
+            "  SUM(cast(jb.value as int)) as total\n" +
+            " from\n" +
+            "  cloud_element ce,\n" +
+            "  landingzone l,\n" +
+            "  department d,\n" +
+            "  organization o,\n" +
+            "  jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') as jb(key,\n" +
+            "  value)\n" +
+            " where\n" +
+            "  l.department_id = d.id\n" +
+            "  and d.organization_id = o.id\n" +
+            "  and ce.landingzone_id = l.id\n" +
+            "  and jb.key >= ? \n" +
+            "  and jb.key <= ? \n" +
+            "  and o.id = ? \n" +
+            "  and upper(l.cloud) = upper(?)\n" +
+            "  #DYNAMIC_CONDITION# \n" +
+            " group by \n" +
+            "  ce.element_type)\n" +
+            " select\n" +
+            "  'Previous_Total' as element_type,\n" +
+            "  SUM(total) as total\n" +
+            " from \n" +
+            "  PreviousServiceCosts), \n" +
+            " ct as ( with CurrentServiceCosts as (\n" +
+            " select\n" +
+            "  ce.element_type,\n" +
+            "  SUM(cast(jb.value as int)) as total\n" +
+            " from\n" +
+            "  cloud_element ce,\n" +
+            "  landingzone l,\n" +
+            "  department d,\n" +
+            "  organization o,\n" +
+            "  jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') as jb(key,\n" +
+            "  value)\n" +
+            " where\n" +
+            "  l.department_id = d.id\n" +
+            "  and d.organization_id = o.id\n" +
+            "  and ce.landingzone_id = l.id\n" +
+            "  and jb.key >= ? \n" +
+            "  and jb.key <= ? \n" +
+            "  and o.id = ? \n" +
+            "  and upper(l.cloud) = upper(?)\n" +
+            "  #DYNAMIC_CONDITION# \n" +
+            " group by\n" +
+            "  ce.element_type)\n" +
+            " select\n" +
+            "  'Current_Total' as element_type,\n" +
+            "  SUM(total) as total\n" +
+            " from\n" +
+            "  CurrentServiceCosts),\n" +
+            " ct_list as ( with CurrentServiceCosts as (\n" +
+            " select\n" +
+            "  ce.element_type,\n" +
+            "  SUM(cast(jb.value as int)) as total\n" +
+            " from\n" +
+            "  cloud_element ce,\n" +
+            "  landingzone l,\n" +
+            "  department d,\n" +
+            "  organization o,\n" +
+            "  jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') as jb(key,\n" +
+            "  value)\n" +
+            " where\n" +
+            "  l.department_id = d.id\n" +
+            "  and d.organization_id = o.id\n" +
+            "  and ce.landingzone_id = l.id\n" +
+            "  and jb.key >= ? \n" +
+            "  and jb.key <= ? \n" +
+            "  and o.id = ? \n" +
+            "  and upper(l.cloud) = upper(?) \n" +
+            "  #DYNAMIC_CONDITION# \n" +
+            " group by\n" +
+            "  ce.element_type)\n" +
+            " select\n" +
+            "  element_type,\n" +
+            "  total\n" +
+            " from\n" +
+            "  CurrentServiceCosts\n" +
+            " order by total #DYNAMIC_ORDER# #DYNAMIC_LIMIT# ), \n" +
+            " f as (select upper(p.element_type) as element_type, p.total from p\n" +
+            "union all\n" +
+            " select upper(ct.element_type) as element_type, ct.total from ct\n" +
+            "union all \n" +
+            " select upper('Percentage'), round(((ct.total-p.total)/ ct.total)* 100, 2) from ct, p\n" +
+            "union all\n" +
+            " select upper(ctl.element_type), ctl.total from ct_list ctl) " +
+            " select ROW_NUMBER() OVER () as id, element_type, total from f ";
+
     private ReportingQueryConstants() {
     }
 }

@@ -294,6 +294,11 @@ public final class Constants {
     public static final String GRANULARITY_QUARTERLY = "QUARTERLY";
     public static final String GRANULARITY_HALF_YEARLY = "HALF-YEARLY";
     public static final String GRANULARITY_YEARLY = "YEARLY";
+
+    public static final String DESC = "DESC";
+    public static final String ASC = "ASC";
+
+    public static final String ALL = "ALL";
     private Constants() {
     }
 }

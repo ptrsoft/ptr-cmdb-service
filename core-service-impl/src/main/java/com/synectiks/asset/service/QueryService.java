@@ -1,14 +1,15 @@
 package com.synectiks.asset.service;
 
-import com.sun.org.apache.xerces.internal.impl.Constants;
 import com.synectiks.asset.api.model.BillingDTO;
 import com.synectiks.asset.api.model.EnvironmentQueryDTO;
 import com.synectiks.asset.api.model.EnvironmentSummaryQueryDTO;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.config.ReportingQueryConstants;
 import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.query.*;
 import com.synectiks.asset.domain.reporting.SpendOverviewReportObj;
+import com.synectiks.asset.domain.reporting.TopUsedServicesReportObj;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.repository.QueryRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -632,7 +633,7 @@ public class QueryService {
 	public List<SpendOverviewReportObj> getSpendOverviewReport(Long orgId, String serviceCategory, String startDate, String endDate, String cloud){
 		logger.debug("Get spend-overview report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, startDate, endDate, cloud);
 		String sql = "";
-		if(!Constants.ACCESS_EXTERNAL_ALL.equalsIgnoreCase(serviceCategory)){
+		if(!Constants.ALL.equalsIgnoreCase(serviceCategory)){
 			sql = ReportingQueryConstants.SPEND_OVERVIEW.replace("#DYNAMIC_CONDITION#"," and upper(ce.service_category) = upper(?) ");
 		}else {
 			sql = ReportingQueryConstants.SPEND_OVERVIEW.replace("#DYNAMIC_CONDITION#"," ");
@@ -644,7 +645,7 @@ public class QueryService {
 		query.setParameter(++index, endDate);
 		query.setParameter(++index, cloud);
 		query.setParameter(++index, orgId);
-		if(!Constants.ACCESS_EXTERNAL_ALL.equalsIgnoreCase(serviceCategory)){
+		if(!Constants.ALL.equalsIgnoreCase(serviceCategory)){
 			query.setParameter(++index, serviceCategory);
 		}
 
@@ -655,4 +656,58 @@ public class QueryService {
 		return list;
 	}
 
+	public List<TopUsedServicesReportObj> getTopUsedServicesReport(Long orgId, String service, String startDate, String endDate, String cloud, Long noOfRecords, String order){
+
+		logger.debug("Get top-used-services report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, startDate, endDate, cloud);
+		String sql = "";
+		if(!Constants.ALL.equalsIgnoreCase(service)){
+			sql = ReportingQueryConstants.TOP_USED_SERVICES.replaceAll("#DYNAMIC_CONDITION#"," and upper(ce.element_type) = upper(?) ");
+		}else {
+			sql = ReportingQueryConstants.TOP_USED_SERVICES.replaceAll("#DYNAMIC_CONDITION#"," ");
+		}
+
+		if (noOfRecords != null){
+			sql = sql.replaceAll("#DYNAMIC_LIMIT#"," limit "+noOfRecords);
+		}else {
+			sql = sql.replaceAll("#DYNAMIC_LIMIT#"," ");
+		}
+
+		if(!StringUtils.isBlank(order) && Constants.ASC.equalsIgnoreCase(order)){
+			sql = sql.replaceAll("#DYNAMIC_ORDER#",Constants.ASC);
+		}else {
+			sql = sql.replaceAll("#DYNAMIC_ORDER#",Constants.DESC);
+		}
+
+		Query query = entityManager.createNativeQuery(sql, TopUsedServicesReportObj.class);
+		int index = 0;
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, orgId);
+		query.setParameter(++index, cloud);
+		if(!Constants.ALL.equalsIgnoreCase(service)){
+			query.setParameter(++index, service);
+		}
+
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, orgId);
+		query.setParameter(++index, cloud);
+		if(!Constants.ALL.equalsIgnoreCase(service)){
+			query.setParameter(++index, service);
+		}
+
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, orgId);
+		query.setParameter(++index, cloud);
+		if(!Constants.ALL.equalsIgnoreCase(service)){
+			query.setParameter(++index, service);
+		}
+
+		List<TopUsedServicesReportObj> list = query.getResultList();
+		if(list.size() <= 1){
+			return Collections.emptyList();
+		}
+		return list;
+	}
 }
