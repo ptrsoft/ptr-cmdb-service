@@ -47,8 +47,8 @@ public final class Constants {
     public static final String SERVICE_BUSINESS_SERVICE = "Business Services";
     public static final String APP_SERVICES = "APP";
     public static final String DATA_SERVICES = "DATA";
-
     public static final String WEB_SERVICES = "WEB";
+    public static final String AUX_SERVICES = "AUX";
 
     public static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
     public static final String DATE_FORMAT_MM_DD_YYYY = "MM-dd-yyyy";

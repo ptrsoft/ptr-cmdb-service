@@ -1,6 +1,7 @@
 package com.synectiks.asset.service;
 
 import com.synectiks.asset.api.model.CloudDTO;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Cloud;
 import com.synectiks.asset.repository.CloudRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +55,10 @@ public class CloudService {
 	public List<Cloud> search(CloudDTO cloudDTO) {
 		logger.info("Search cloud");
 		StringBuilder primarySql = new StringBuilder("select c.* from cloud c where 1 = 1 ");
+		if(!StringUtils.isBlank(cloudDTO.getProductCategory()) ||
+				!StringUtils.isBlank(cloudDTO.getServiceCategory())){
+			primarySql = new StringBuilder("select c.*  from cloud c, jsonb_array_elements(c.ui_mapping  -> 'key') with ordinality bg(obj) where 1 = 1 ");
+		}
 		if(cloudDTO.getId() != null){
 			primarySql.append(" and c.id = ? ");
 		}
@@ -71,6 +76,21 @@ public class CloudService {
 		}
 		if(!StringUtils.isBlank(cloudDTO.getUpdatedBy())){
 			primarySql.append(" and upper(c.updated_by) = upper(?) ");
+		}
+		if(!StringUtils.isBlank(cloudDTO.getProductCategory())){
+			primarySql.append(" and upper(bg.obj -> 'productCategory' ->> 'name')  = upper(?) ");
+		}
+		if(!StringUtils.isBlank(cloudDTO.getServiceCategory())){
+			if(Constants.APP_SERVICES.equalsIgnoreCase(cloudDTO.getServiceCategory())){
+				primarySql.append(" and bg.obj -> 'productCategory' -> 'serviceCategory' -> 'name'  @> '[\"app\"]' " );
+			}else if(Constants.DATA_SERVICES.equalsIgnoreCase(cloudDTO.getServiceCategory())){
+				primarySql.append(" and bg.obj -> 'productCategory' -> 'serviceCategory' -> 'name'  @> '[\"data\"]' " );
+			}else if(Constants.WEB_SERVICES.equalsIgnoreCase(cloudDTO.getServiceCategory())){
+				primarySql.append(" and bg.obj -> 'productCategory' -> 'serviceCategory' -> 'name'  @> '[\"web\"]' " );
+			}else if(Constants.AUX_SERVICES.equalsIgnoreCase(cloudDTO.getServiceCategory())){
+				primarySql.append(" and bg.obj -> 'productCategory' -> 'serviceCategory' -> 'name'  @> '[\"aux\"]' " );
+			}
+
 		}
 		Query query = entityManager.createNativeQuery(primarySql.toString(), Cloud.class);
 		int index = 0;
@@ -92,6 +112,10 @@ public class CloudService {
 		if(!StringUtils.isBlank(cloudDTO.getUpdatedBy())){
 			query.setParameter(++index, cloudDTO.getUpdatedBy());
 		}
+		if(!StringUtils.isBlank(cloudDTO.getProductCategory())){
+			query.setParameter(++index, cloudDTO.getProductCategory());
+		}
+
 		return query.getResultList();
 	}
 

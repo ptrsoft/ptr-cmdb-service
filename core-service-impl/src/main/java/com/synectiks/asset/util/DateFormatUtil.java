@@ -502,12 +502,27 @@ public final class DateFormatUtil {
 			}
 		}
 
-		public static void  getFirstAndLastDateOfYearMonth(int year, int month){
+		public Map<String, LocalDate>  getFirstAndLastDateOfYearMonth(int year, int month){
 //			YearMonth startYearMonth = YearMonth.now();
 			LocalDate startOfMonthDate = YearMonth.of(year, month).atDay(1);
 			LocalDate endOfMonthDate   = YearMonth.of(year, month).atEndOfMonth();
 //			System.out.println(startYearMonth);
 			System.out.println("start date: "+startOfMonthDate+", end date: "+endOfMonthDate);
+			Map<String, LocalDate> newStartEndDates = new HashMap<>();
+			newStartEndDates.put("startDate",startOfMonthDate);
+			newStartEndDates.put("endDate",endOfMonthDate);
+			return newStartEndDates;
+		}
+		public Map<String, LocalDate>  getFirstAndLastDateOfGivenDate(LocalDate weekDate){
+			LocalDate startOfWeek = weekDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+			// Get the end date of the week (Sunday)
+			LocalDate endOfWeek = weekDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+			System.out.println("start date: "+startOfWeek+", end date: "+endOfWeek);
+			Map<String, LocalDate> newStartEndDates = new HashMap<>();
+			newStartEndDates.put("startDate",startOfWeek);
+			newStartEndDates.put("endDate",endOfWeek);
+			return newStartEndDates;
 		}
 
 		public int getThreeMonthQuarterOfDate(LocalDate dt){
@@ -558,6 +573,32 @@ public final class DateFormatUtil {
 			return newDate;
 		}
 
+		public LocalDate getNewDateByAddingOrSubtractingDay(int day){
+			LocalDate currentDate = LocalDate.now();
+			if(day < 0){
+				LocalDate newDate = currentDate.minusDays(Math.abs(day));
+				System.out.println("Current Date: " + currentDate);
+				System.out.println("New Date after subtracting " + day + " days: " + newDate);
+				return newDate;
+			}
+			LocalDate newDate = currentDate.plusDays(day);
+			System.out.println("Current Date: " + currentDate);
+			System.out.println("New Date after adding " + day + " days: " + newDate);
+			return newDate;
+		}
+		public LocalDate getNewDateByAddingOrSubtractingWeek(int week){
+			LocalDate currentDate = LocalDate.now();
+			if(week < 0){
+				LocalDate newDate = currentDate.minusWeeks(Math.abs(week));
+				System.out.println("Current Date: " + currentDate);
+				System.out.println("New Date after subtracting " + week + " weeks: " + newDate);
+				return newDate;
+			}
+			LocalDate newDate = currentDate.plusWeeks(week);
+			System.out.println("Current Date: " + currentDate);
+			System.out.println("New Date after adding " + week + " weeks: " + newDate);
+			return newDate;
+		}
 		public int getYearByAddOrSubtractQuarter(int year, int quarter){
 			// Adjust year if quarter is negative
 			int nYear = year;
@@ -587,6 +628,24 @@ public final class DateFormatUtil {
 			Map<String, LocalDate> newStartEndDates = new HashMap<>();
 			newStartEndDates.put("startDate",startDate);
 			newStartEndDates.put("endDate",endDate);
+			return newStartEndDates;
+		}
+		public Map<String, LocalDate> getDateRangeOfGivenMonth(int month){
+			LocalDate newDate = getNewDateByAddingOrSubtractingMonth(month);
+			Map<String, LocalDate> newStartEndDates= getFirstAndLastDateOfYearMonth(newDate.getYear(), newDate.getMonthValue());
+			return newStartEndDates;
+		}
+		public Map<String, LocalDate> getDateRangeOfGivenWeek(int week){
+			LocalDate newDate = getNewDateByAddingOrSubtractingWeek(week);
+			Map<String, LocalDate> newStartEndDates= getFirstAndLastDateOfGivenDate(newDate);
+			return newStartEndDates;
+		}
+
+		public Map<String, LocalDate> getDateRangeOfGivenDay(int day){
+			LocalDate newDate = getNewDateByAddingOrSubtractingDay(day);
+			Map<String, LocalDate> newStartEndDates = new HashMap<>();
+			newStartEndDates.put("startDate",newDate);
+			newStartEndDates.put("endDate",newDate);
 			return newStartEndDates;
 		}
 
@@ -619,10 +678,13 @@ public final class DateFormatUtil {
 //			getFirstAndLastDateOfYearMonth(2024, 2);
 //			new DateFormatUtil().getThreeMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
 //			getFourMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
-			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
-			String startDate = dateRange.get("startDate").toString();
-			System.out.println("**************************** "+startDate);
 
+//			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
+//			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenMonth(1);
+//			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenDay(-4);
+			Map<String, LocalDate> dateRange = new DateFormatUtil(). getDateRangeOfGivenWeek(-2);
+			System.out.println("start date : **************************** "+dateRange.get("startDate").toString());
+			System.out.println("end date : **************************** "+dateRange.get("endDate").toString());
 
 		}
 

@@ -6452,6 +6452,10 @@ components:
           type: string
         status:
           type: string
+        productCategory:
+          type: string
+        serviceCategory:
+          type: string
         createdBy:
           type: string
         updatedBy:
