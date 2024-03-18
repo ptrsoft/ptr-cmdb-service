@@ -43,7 +43,7 @@ public class CustomeHashMapConverter implements AttributeConverter<Map<String, O
     @Override
     public Map<String, Object> convertToEntityAttribute(String strJson) {
     	Map<String, Object> map = null;
-    	if(StringUtils.isBlank(strJson)) {
+    	if(StringUtils.isBlank(strJson) || (!StringUtils.isBlank(strJson) && "null".equalsIgnoreCase(strJson))) {
     		return map;
     	}
         try {
