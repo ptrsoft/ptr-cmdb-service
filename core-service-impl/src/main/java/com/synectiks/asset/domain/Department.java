@@ -36,6 +36,9 @@ public class Department extends AbstractAuditingEntity implements Serializable {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne
     @JsonIgnoreProperties(value = { "departments" }, allowSetters = true)
     private Organization organization;

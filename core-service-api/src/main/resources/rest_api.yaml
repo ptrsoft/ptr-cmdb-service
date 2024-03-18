@@ -845,6 +845,35 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /department/add-department-with-landing-zone:
+    post:
+      tags:
+        - Department
+      summary: Add department with landing-zone
+      operationId: addDepartmentWithLandingZone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentDTO'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /product:
     get:
       tags:
@@ -5506,6 +5535,8 @@ components:
           type: integer
           format: int64
         name:
+          type: string
+        description:
           type: string
         status:
           type: string

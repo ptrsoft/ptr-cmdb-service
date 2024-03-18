@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -27,7 +28,8 @@ public class DepartmentService {
 
 	@Autowired
 	private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
-	
+
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Department save(Department department) {
 		logger.debug("Request to save Department : {}", department);
 		return departmentRepository.save(department);
@@ -45,6 +47,7 @@ public class DepartmentService {
 		return departmentRepository.findById(id);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(Long id) {
 		logger.debug("Request to delete a department : {}", id);
 		departmentRepository.deleteById(id);

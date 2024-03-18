@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -34,6 +35,7 @@ public class LandingzoneService {
     @Autowired
     private EntityManager entityManager;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public Landingzone save(Landingzone landingzone) {
         logger.debug("Request to save landing-zone : {}", landingzone);
         return landingzoneRepository.save(landingzone);
