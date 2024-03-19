@@ -8,7 +8,9 @@ import com.synectiks.asset.config.ReportingQueryConstants;
 import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.query.*;
+import com.synectiks.asset.domain.reporting.CostOfTopAccountsReportObj;
 import com.synectiks.asset.domain.reporting.SpendOverviewReportObj;
+import com.synectiks.asset.domain.reporting.SpendingTrendReportObj;
 import com.synectiks.asset.domain.reporting.TopUsedServicesReportObj;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.repository.QueryRepository;
@@ -656,7 +658,7 @@ public class QueryService {
 		return list;
 	}
 
-	public List<TopUsedServicesReportObj> getTopUsedServicesReport(Long orgId, String service, String startDate, String endDate, String cloud, Long noOfRecords, String order){
+	public List<TopUsedServicesReportObj> getTopUsedServicesReport(Long orgId, String service, String startDate, String endDate, String prevStartDate, String prevEndDate, String cloud, Long noOfRecords, String order){
 
 		logger.debug("Get top-used-services report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, startDate, endDate, cloud);
 		String sql = "";
@@ -680,8 +682,8 @@ public class QueryService {
 
 		Query query = entityManager.createNativeQuery(sql, TopUsedServicesReportObj.class);
 		int index = 0;
-		query.setParameter(++index, startDate);
-		query.setParameter(++index, endDate);
+		query.setParameter(++index, prevStartDate);
+		query.setParameter(++index, prevEndDate);
 		query.setParameter(++index, orgId);
 		query.setParameter(++index, cloud);
 		if(!Constants.ALL.equalsIgnoreCase(service)){
@@ -705,9 +707,68 @@ public class QueryService {
 		}
 
 		List<TopUsedServicesReportObj> list = query.getResultList();
-		if(list.size() <= 1){
-			return Collections.emptyList();
+//		if(list.size() <= 1){
+//			return Collections.emptyList();
+//		}
+		return list;
+	}
+
+	public List<CostOfTopAccountsReportObj> getCostOfTopAccountsReport(Long orgId, String cloud, String account, String startDate, String endDate, Long noOfRecords, String order){
+
+		logger.debug("Get cost-of-top-accounts report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, startDate, endDate, cloud);
+		String sql = "";
+		if(!Constants.ALL.equalsIgnoreCase(account)){
+			sql = ReportingQueryConstants.COST_OF_TOP_ACCOUNTS.replaceAll("#DYNAMIC_CONDITION#"," and upper(d.\"name\") = upper(?) ");
+		}else {
+			sql = ReportingQueryConstants.COST_OF_TOP_ACCOUNTS.replaceAll("#DYNAMIC_CONDITION#"," ");
 		}
+
+		if (noOfRecords != null){
+			sql = sql.replaceAll("#DYNAMIC_LIMIT#"," limit "+noOfRecords);
+		}else {
+			sql = sql.replaceAll("#DYNAMIC_LIMIT#"," ");
+		}
+
+		if(!StringUtils.isBlank(order) && Constants.ASC.equalsIgnoreCase(order)){
+			sql = sql.replaceAll("#DYNAMIC_ORDER#",Constants.ASC);
+		}else {
+			sql = sql.replaceAll("#DYNAMIC_ORDER#",Constants.DESC);
+		}
+
+		Query query = entityManager.createNativeQuery(sql, CostOfTopAccountsReportObj.class);
+		int index = 0;
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		if(!Constants.ALL.equalsIgnoreCase(account)){
+			query.setParameter(++index, account);
+		}
+		query.setParameter(++index, orgId);
+
+		List<CostOfTopAccountsReportObj> list = query.getResultList();
+//		if(list.size() <= 1){
+//			return Collections.emptyList();
+//		}
+		return list;
+	}
+
+	public List<SpendingTrendReportObj> getSpendingTrendReport(Long orgId, String startDate, String endDate, String prevStartDate, String prevEndDate, String futureStartDate, String futureEndDate, String cloud){
+		logger.debug("Get spending-trend report. organization id: {}, start date:{}, end date id: {}, previous start date:{}, previous end date id: {}, future start date:{}, future end date id: {}, cloud: {}", orgId, startDate, endDate, prevStartDate,prevEndDate,futureStartDate,futureEndDate, cloud);
+		Query query = entityManager.createNativeQuery(ReportingQueryConstants.SPENDING_TREND, SpendingTrendReportObj.class);
+		int index = 0;
+		query.setParameter(++index, prevStartDate);
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, orgId);
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, orgId);
+		query.setParameter(++index, futureStartDate);
+		query.setParameter(++index, futureEndDate);
+		List<SpendingTrendReportObj> list = query.getResultList();
 		return list;
 	}
 }

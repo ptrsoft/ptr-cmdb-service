@@ -671,6 +671,22 @@ public final class DateFormatUtil {
 			return newStartEndDates;
 		}
 
+		public Map<String, LocalDate> getDateRange(String granularity, Long compareTo){
+			Map<String, LocalDate> dateRange = null;
+			if(Constants.GRANULARITY_DAILY.equalsIgnoreCase(granularity)){
+				dateRange = getDateRangeOfGivenDay(compareTo.intValue());
+			}else if(Constants.GRANULARITY_WEEKLY.equalsIgnoreCase(granularity)){
+				dateRange = getDateRangeOfGivenWeek(compareTo.intValue());
+			}else if(Constants.GRANULARITY_QUARTERLY.equalsIgnoreCase(granularity)){
+				dateRange = getDateRangeOfGivenQuarter(compareTo.intValue());
+			}else if(Constants.GRANULARITY_MONTHLY.equalsIgnoreCase(granularity)){
+				dateRange = getDateRangeOfGivenMonth(compareTo.intValue());
+			}else if(Constants.GRANULARITY_YEARLY.equalsIgnoreCase(granularity)){
+				dateRange = getDateRangeOfGivenYear(compareTo.intValue());
+			}
+			return dateRange;
+		}
+
 		public static void main(String a[]) throws Exception {
 //			new DateFormatUtil().getYearByAddOrSubtractQuarter(2024, -1);
 //			Map<String, LocalDate> mp = new DateFormatUtil().getNewDateRange(-2);
@@ -701,14 +717,21 @@ public final class DateFormatUtil {
 //			new DateFormatUtil().getThreeMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
 //			getFourMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
 
-//			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
+			int g = -1;
+			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenMonth(1);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenDay(-4);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenWeek(-2);
-			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenYear(-2);
+//			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenYear(-2);
 			System.out.println("start date : **************************** "+dateRange.get("startDate").toString());
 			System.out.println("end date : **************************** "+dateRange.get("endDate").toString());
-
+			if (g < 0){
+				int newg = (Math.abs(g)+1) * -1;
+				System.out.println("new g "+newg);
+				Map<String, LocalDate> ndateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(newg);
+				System.out.println("new start date : **************************** "+ndateRange.get("startDate").toString());
+				System.out.println("new end date : **************************** "+ndateRange.get("endDate").toString());
+			}
 		}
 
 }

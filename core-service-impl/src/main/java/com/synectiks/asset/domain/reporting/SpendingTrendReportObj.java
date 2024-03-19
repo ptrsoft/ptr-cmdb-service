@@ -13,17 +13,20 @@ import java.io.Serializable;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class TopUsedServicesReportObj implements Serializable{
+public class SpendingTrendReportObj implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
-    @Column(name = "element_type")
-    public String elementType;
+    @Column(name = "tenure")
+    public String tenure;
+
+    @Column(name = "dates")
+    public String dates;
 
     @Column(name = "total")
-    public String total;
+    public Long total;
 
 
 }

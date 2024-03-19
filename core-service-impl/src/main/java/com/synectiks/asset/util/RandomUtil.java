@@ -32,7 +32,12 @@ public class RandomUtil {
 		float result = low + (high - low) * r.nextFloat();
 		return result;
 	}
-	
+
+	public static Long getRandomLong(int low, int high) {
+		Random r = new Random();
+		return new Long(r.nextInt(high)+low);
+	}
+
 	public static String randomAlphabeticString() {
 	    int leftLimit = 97; // letter 'a'
 	    int rightLimit = 122; // letter 'z'
@@ -53,9 +58,17 @@ public class RandomUtil {
 //		int rangeMax = 100;
 //		Float randomValue = rangeMin + (rangeMax - rangeMin) * rd.nextFloat();
 //	    System.out.println(randomValue);
-		String input = "897373451";
-		String result = input.replaceAll("^\"|\"$", "");
-		System.out.println(input);
-		System.out.println(result);
+//		String input = "897373451";
+//		String result = input.replaceAll("^\"|\"$", "");
+//		System.out.println(input);
+//		System.out.println(result);
+		int min = 1000;
+		int max = 5000;
+		Long p = getRandomLong(min, max);
+		System.out.println("new value::::: "+p);
+		double x = 23651-21423;
+		double y = x/23651;
+		double per = y*100;
+		System.out.println("percentage ::::: "+per);
 	}
 }
