@@ -991,7 +991,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"\t SELECT b.allocated_budget AS total_sum \n" +
 			"\t FROM budget b \n" +
 			"\t JOIN organization org ON b.organization_id = org.id \n" +
-			"\t WHERE org.id = :orgId  \n" +
+			"\t WHERE org.id = :orgId  and current_date between financial_year_start and financial_year_end \n" +
 			" ) \n" +
 			" SELECT \n" +
 			"\t budget_sum.total_sum AS total_budget, \n" +
