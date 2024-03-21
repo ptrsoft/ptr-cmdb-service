@@ -278,6 +278,89 @@ public final class ReportingQueryConstants {
             "  union all\n" +
             "  select  tenure, dates,  total from f )\n" +
             " select ROW_NUMBER() OVER () as id, tenure, dates, total from res order by id asc";
+
+
+    public static String SPEND_OVERVIEW_DETAIL = " with ltl as ( \n" +
+            "\t with last_to_last as  \n" +
+            "\t (select distinct ce.element_type, SUM(CAST(jb.value AS int)) AS total    \n" +
+            "\t FROM  \n" +
+            "\t  cloud_element ce,  \n" +
+            "\t  landingzone l,  \n" +
+            "\t  department d,  \n" +
+            "\t  organization o,  \n" +
+            "\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value)  \n" +
+            "\t WHERE  \n" +
+            "\t  l.department_id = d.id  \n" +
+            "\t  AND d.organization_id = o.id  \n" +
+            "\t  AND ce.landingzone_id = l.id  \n" +
+            "\t  AND jb.key >= ? AND jb.key <= ?   \n" +
+            "\t  and upper(l.cloud) = upper(?)  \n" +
+            "\t  and upper(ce.service_category) = upper(?)   \n" +
+            "\t  AND o.id = ? " +
+            "       group by ce.element_type) select 'service_name' as service_name, sum(total) as total from last_to_last),   \n" +
+            "\t prev_list as  \n" +
+            "\t (select distinct ce.element_type, SUM(CAST(jb.value AS int)) AS total    \n" +
+            "\t FROM  \n" +
+            "\t  cloud_element ce,  \n" +
+            "\t  landingzone l,  \n" +
+            "\t  department d,  \n" +
+            "\t  organization o,  \n" +
+            "\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value)  \n" +
+            "\t WHERE  \n" +
+            "\t  l.department_id = d.id  \n" +
+            "\t  AND d.organization_id = o.id  \n" +
+            "\t  AND ce.landingzone_id = l.id  \n" +
+            "\t  AND jb.key >= ? AND jb.key <= ?   \n" +
+            "\t  and upper(l.cloud) = upper(?)  \n" +
+            "\t  and upper(ce.service_category) = upper(?)   \n" +
+            "\t  AND o.id = ? group by ce.element_type),  \n" +
+            "\t curr_list as  \n" +
+            "\t (select distinct ce.element_type, SUM(CAST(jb.value AS int)) AS total    \n" +
+            "\t FROM  \n" +
+            "\t  cloud_element ce,  \n" +
+            "\t  landingzone l,  \n" +
+            "\t  department d,  \n" +
+            "\t  organization o,  \n" +
+            "\t  jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value)  \n" +
+            "\t WHERE  \n" +
+            "\t  l.department_id = d.id  \n" +
+            "\t  AND d.organization_id = o.id  \n" +
+            "\t  AND ce.landingzone_id = l.id  \n" +
+            "\t  AND jb.key >= ? AND jb.key <= ?  \n" +
+            "\t  and upper(l.cloud) = upper(?)  \n" +
+            "\t  and upper(ce.service_category) = upper(?)   \n" +
+            "\t  AND o.id = ? group by ce.element_type), \n" +
+            "\t nof_current as ( with num_of_days_current as (SELECT (( EXTRACT(EPOCH FROM cast(? as date)) - EXTRACT(EPOCH FROM cast(? as date)) ) / 86400)+1 AS num_of_days) \n" +
+            "\t  select num_of_days from num_of_days_current), \n" +
+            "\t nof_previous as ( with num_of_days_current as (SELECT (( EXTRACT(EPOCH FROM cast(? as date)) - EXTRACT(EPOCH FROM cast(? as date)) ) / 86400)+1 AS num_of_days) \n" +
+            "\t  select num_of_days from num_of_days_current),  \n" +
+            "\t     prev_list_sum as (select 'service_name' as service_name, sum(total) as total from prev_list ), \n" +
+            "\t     prev_avg_daily_spend as (select 'service_name' as service_name, cast(pls.total/(select num_of_days from nof_previous) as int) as average from prev_list_sum pls ), \n" +
+            "\t curr_list_sum as (select 'service_name' as service_name, sum(total) as total from curr_list ), \n" +
+            "\t future_cost as ( \n" +
+            "\t  SELECT 'service_name' as service_name, (cls.total - cast (floor(random() * (80000 - 70000 + 1) + 70000) as int)) as total from curr_list_sum cls), \n" +
+            "\t f as (select p.element_type as service_name, p.total as last_month_spend, c.total as this_month_spend, 0 as forecasted_spend, 0 as avg_daily_spend,  \n" +
+            "\t round((c.total - p.total)/(c.total * 1.0 ) * 100 , 2) as variance   \n" +
+            "\t from prev_list p left join curr_list c on p.element_type = c.element_type  \n" +
+            "\t  union all  \n" +
+            "\t select upper('total_last_mont_spend') as service_name, ps.total as last_month_spend, null as this_month_spend, 0 as forecasted_spend, 0 as avg_daily_spend,  \n" +
+            "\t round((ps.total - ll.total)/(ps.total * 1.0 ) * 100 , 2) as variance  \n" +
+            "\t from prev_list_sum ps left join ltl ll on ps.service_name = ll.service_name \n" +
+            "\t  union all  \n" +
+            "\t select upper('total_this_mont_spend') as service_name, null as last_month_spend, cls.total as this_month_spend, 0 as forecasted_spend, 0 as avg_daily_spend,  \n" +
+            "\t round((cls.total - pls.total)/(cls.total * 1.0 ) * 100 , 2) as variance  \n" +
+            "\t from curr_list_sum cls left join prev_list_sum pls on cls.service_name = pls.service_name \n" +
+            "\t  union all \n" +
+            "\t select upper('forecasted_spend') as service_name, null as last_month_spend, null as this_month_spend, fc.total as forecasted_spend, 0 as avg_daily_spend,  \n" +
+            "\t round((fc.total - cls.total)/(fc.total * 1.0 ) * 100 , 2) as variance  \n" +
+            "\t from future_cost fc left join curr_list_sum cls on fc.service_name = cls.service_name \n" +
+            "\t  union all  \n" +
+            "\t select upper('avg_daily_spend') as service_name, null as last_month_spend, null as this_month_spend, 0 as forecasted_spend,  \n" +
+            "\t cast(cls.total/(select num_of_days from nof_current) as int) as avg_daily_spend,  \n" +
+            "\t round((cast(cls.total/(select num_of_days from nof_current) as int) - cast(pls.total/(select num_of_days from nof_previous) as int))/(cast(cls.total/(select num_of_days from nof_current) as int) * 1.0 ) * 100 , 2) as variance  \n" +
+            "\t from curr_list_sum cls left join prev_list_sum pls on cls.service_name = pls.service_name) \n" +
+            "\t select ROW_NUMBER() OVER () as id,service_name, last_month_spend, this_month_spend, forecasted_spend, avg_daily_spend, variance from f \n" +
+            "\t order by id asc ";
     private ReportingQueryConstants() {
     }
 }

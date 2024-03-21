@@ -225,4 +225,36 @@ public class ReportingController implements ReportingApi {
         response.put("data",dataObj);
         return ResponseEntity.ok(response);
     }
+
+    @Override
+    public ResponseEntity<Object> getSpendOverviewDetailReport(Long orgId, String serviceCategory, String cloud, String granularity, Long compareTo)  {
+        Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, compareTo);
+        int prevCompareTo = (Math.abs(compareTo.intValue())+1);
+        if (compareTo < 0){
+            prevCompareTo = prevCompareTo * -1;
+        }
+
+        int prevToPrevCompareTo = (Math.abs(prevCompareTo)+1);
+        if (prevCompareTo < 0){
+            prevToPrevCompareTo = prevToPrevCompareTo * -1;
+        }
+
+        Map<String, LocalDate> prevDateRange = dateFormatUtil.getDateRange(granularity, new Long(prevCompareTo));
+        Map<String, LocalDate> prevToPreviousDateRange = dateFormatUtil.getDateRange(granularity, new Long(prevToPrevCompareTo));
+
+        if(currentDateRange == null || (currentDateRange != null && currentDateRange.size() ==0)){
+            logger.error("Granularity not supported. Granularity: {}",granularity);
+            StringBuilder sb = new StringBuilder("Supported granularity: ");
+            sb = sb.append(Constants.GRANULARITY_YEARLY).append(",").append(Constants.GRANULARITY_MONTHLY).append(",")
+                    .append(Constants.GRANULARITY_QUARTERLY).append(",").append(Constants.GRANULARITY_WEEKLY).append(",")
+                    .append(Constants.GRANULARITY_DAILY);
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(sb);
+        }
+        logger.debug("Request to get spend-overview-detail report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString(), cloud);
+        List<SpendOverviewDetailReportObj> list = queryService.getSpendOverviewDetailReport(orgId, serviceCategory, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString(), prevDateRange.get("startDate").toString(), prevDateRange.get("endDate").toString(), prevToPreviousDateRange.get("startDate").toString(), prevToPreviousDateRange.get("endDate").toString(), cloud);
+        Map<String, Object> response = new HashMap<>();
+        response.put("report","SPEND OVERVIEW DETAIL");
+        response.put("data", (list == null || (list != null && list.size() ==0)) ? Collections.emptyList() : list);
+        return ResponseEntity.ok(response);
+    }
 }

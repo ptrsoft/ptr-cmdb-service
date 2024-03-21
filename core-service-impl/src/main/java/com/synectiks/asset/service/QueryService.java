@@ -8,10 +8,7 @@ import com.synectiks.asset.config.ReportingQueryConstants;
 import com.synectiks.asset.domain.BusinessElement;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.query.*;
-import com.synectiks.asset.domain.reporting.CostOfTopAccountsReportObj;
-import com.synectiks.asset.domain.reporting.SpendOverviewReportObj;
-import com.synectiks.asset.domain.reporting.SpendingTrendReportObj;
-import com.synectiks.asset.domain.reporting.TopUsedServicesReportObj;
+import com.synectiks.asset.domain.reporting.*;
 import com.synectiks.asset.mapper.query.EnvironmentQueryMapper;
 import com.synectiks.asset.repository.QueryRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -769,6 +766,42 @@ public class QueryService {
 		query.setParameter(++index, futureStartDate);
 		query.setParameter(++index, futureEndDate);
 		List<SpendingTrendReportObj> list = query.getResultList();
+		return list;
+	}
+
+	public List<SpendOverviewDetailReportObj> getSpendOverviewDetailReport(Long orgId, String serviceCategory, String startDate, String endDate, String prevStartDate, String prevEndDate, String prevToPrevStartDate, String prevToPrevEndDate, String cloud){
+		logger.debug("Get spend-overview report. organization id: {}, start date:{}, end date id: {}, prev start date:{}, prev end date id: {}, prev to prev start date:{}, prev to prev end date id: {}, cloud: {}", orgId, startDate, endDate, prevStartDate, prevEndDate, prevToPrevStartDate, prevToPrevEndDate, cloud);
+		String sql = ReportingQueryConstants.SPEND_OVERVIEW_DETAIL;
+		Query query = entityManager.createNativeQuery(sql, SpendOverviewDetailReportObj.class);
+		int index = 0;
+		query.setParameter(++index, prevToPrevStartDate);
+		query.setParameter(++index, prevToPrevEndDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, serviceCategory);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, prevStartDate);
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, serviceCategory);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, serviceCategory);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, startDate);
+
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, prevStartDate);
+
+		List<SpendOverviewDetailReportObj> list = query.getResultList();
+//		if(list.size() <= 1){
+//			return Collections.emptyList();
+//		}
 		return list;
 	}
 }

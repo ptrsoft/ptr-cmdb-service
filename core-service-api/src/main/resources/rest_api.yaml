@@ -5306,6 +5306,51 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /reporting/organization/{orgId}/spend-overview/detail:
+    get:
+      tags:
+        - Reporting
+      summary: spend overview report
+      operationId: getSpendOverviewDetailReport
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: serviceCategory
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: cloud
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: granularity
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: compareTo
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /reporting/organization/{orgId}/top-used-service:
     get:
       tags:
