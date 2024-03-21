@@ -770,7 +770,7 @@ public class QueryService {
 	}
 
 	public List<SpendOverviewDetailReportObj> getSpendOverviewDetailReport(Long orgId, String serviceCategory, String startDate, String endDate, String prevStartDate, String prevEndDate, String prevToPrevStartDate, String prevToPrevEndDate, String cloud){
-		logger.debug("Get spend-overview report. organization id: {}, start date:{}, end date id: {}, prev start date:{}, prev end date id: {}, prev to prev start date:{}, prev to prev end date id: {}, cloud: {}", orgId, startDate, endDate, prevStartDate, prevEndDate, prevToPrevStartDate, prevToPrevEndDate, cloud);
+		logger.debug("Get spend-overview-detail report. organization id: {}, start date:{}, end date id: {}, prev start date:{}, prev end date id: {}, prev to prev start date:{}, prev to prev end date id: {}, cloud: {}", orgId, startDate, endDate, prevStartDate, prevEndDate, prevToPrevStartDate, prevToPrevEndDate, cloud);
 		String sql = ReportingQueryConstants.SPEND_OVERVIEW_DETAIL;
 		Query query = entityManager.createNativeQuery(sql, SpendOverviewDetailReportObj.class);
 		int index = 0;
@@ -799,9 +799,36 @@ public class QueryService {
 		query.setParameter(++index, prevStartDate);
 
 		List<SpendOverviewDetailReportObj> list = query.getResultList();
-//		if(list.size() <= 1){
-//			return Collections.emptyList();
-//		}
+		return list;
+	}
+
+	public List<TopUsedServicesDetailReportObj> getTopUsedServiceDetailReport(Long orgId, String startDate, String endDate, String prevStartDate, String prevEndDate, String prevToPrevStartDate, String prevToPrevEndDate, String cloud){
+		logger.debug("Get top-used-service-detail report. organization id: {}, start date:{}, end date id: {}, prev start date:{}, prev end date id: {}, prev to prev start date:{}, prev to prev end date id: {}, cloud: {}", orgId, startDate, endDate, prevStartDate, prevEndDate, prevToPrevStartDate, prevToPrevEndDate, cloud);
+		String sql = ReportingQueryConstants.TOP_USED_SERVICES_DETAIL;
+		Query query = entityManager.createNativeQuery(sql, TopUsedServicesDetailReportObj.class);
+		int index = 0;
+		query.setParameter(++index, prevToPrevStartDate);
+		query.setParameter(++index, prevToPrevEndDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, prevStartDate);
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, startDate);
+
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, prevStartDate);
+
+		List<TopUsedServicesDetailReportObj> list = query.getResultList();
 		return list;
 	}
 }
