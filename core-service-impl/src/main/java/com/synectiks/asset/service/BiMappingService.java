@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,53 +44,103 @@ public class BiMappingService {
 	private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
 	@Transactional
-	public Map<String, String> save(Organization organization, Department department, Map departmentMap) {
+	public Map<String, Object> save(Map orgMap, Organization organization, Department department, Map departmentMap) {
 		logger.debug("Request to save bi-mapping");
 		Map productMap = (Map)departmentMap.get("product");
-		Map<String, String> resp = new HashMap<>();
+
+		Map<String, Object> resp = new HashMap<>();
 		if(!Constants.SOA.equalsIgnoreCase(((String) productMap.get("type"))) && !Constants.THREE_TIER.equalsIgnoreCase(((String) productMap.get("type")))){
 			logger.error("Product type not supported");
 			resp.clear();
-			resp.put("status", "1");
+			resp.put("status", 1);
 			resp.put("message", "error - Product type not supported");
+			resp.put("data", null);
 			return resp;
 		}
 
 		Map productEnvMap = (Map)productMap.get("productEnv");
-		Map moduleMap = (Map)productEnvMap.get("module");
-		List serviceList = (List)productEnvMap.get("service");;
+		List moduleList = (List)productEnvMap.get("modules");
 
 		Product  product = saveProduct(organization, department, productMap);
 		ProductEnv productEnv = saveProductEnv(product, productEnvMap);
 		Module module = null;
+		List mList = new ArrayList<>();
 		if(Constants.SOA.equalsIgnoreCase(product.getType())){
-			module = saveModule(product, productEnv, moduleMap);
-			Map serviceMap = (Map)moduleMap.get("service");
-			String serviceArray [] = {"business", "common"};
-			for(String serviceNature: serviceArray){
-				List serviceNatureList = (List)serviceMap.get(serviceNature);
-				for(Object obj: serviceNatureList){
-					Map serviceTypeMap = (Map)obj;
-					logger.debug("SOA - Service name: {}",serviceTypeMap.get("name"));
-					BusinessElement businessElement = saveService(product, productEnv, module, serviceNature, serviceTypeMap);
+			for(Object obj: moduleList){
+				Map moduleMap = (Map)obj;
+				module = saveModule(product, productEnv, moduleMap);
+
+				Map serviceMap = (Map)moduleMap.get("service");
+				String serviceArray [] = {"business", "common"};
+				for(String serviceNature: serviceArray){
+					List serviceNatureList = (List)serviceMap.get(serviceNature);
+					List businessElementList = new ArrayList();
+					for(Object serviceNatureObj: serviceNatureList){
+						Map serviceTypeMap = (Map)serviceNatureObj;
+						logger.debug("SOA - Service name: {}",serviceTypeMap.get("name"));
+						BusinessElement businessElement = saveService(product, productEnv, module, serviceNature, serviceTypeMap);
+						businessElementList.add(businessElement);
+					}
+					serviceMap.put(serviceNature, businessElementList);
 				}
+				moduleMap.put("service",serviceMap);
+				moduleMap.put("id", module.getId());
+				moduleMap.put("name", module.getName());
+				mList.add(moduleMap);
 			}
+
+
+			productEnvMap.put("modules", mList);
+			productEnvMap.put("id", productEnv.getId());
+			productEnvMap.put("name", productEnv.getName());
+			productMap.put("productEnv", productEnvMap);
+			productMap.put("id", product.getId());
+			productMap.put("name", product.getName());
+			productMap.put("type", product.getType());
+			departmentMap.put("product", productMap);
+			departmentMap.put("id", department.getId());
+			departmentMap.put("name", department.getName());
+			orgMap.put("dep", departmentMap);
+			orgMap.put("id", organization.getId());
+			orgMap.put("name", organization.getName());
+			Map data = new HashMap();
+			data.put("org", orgMap);
 			logger.info("SOA services saved successfully");
 			resp.clear();
-			resp.put("status", "0");
-			resp.put("message", "success - SOA services saved successfully");
+			resp.put("status", 0);
+			resp.put("message", "SOA services saved successfully");
+			resp.put("data", data);
 			return resp;
-
 		}
+
+		List serviceList = (List)productEnvMap.get("service");
+		List<BusinessElement> businessElementList = new ArrayList();
 		for(Object obj: serviceList){
 			Map serviceTypeMap = (Map)obj;
 			logger.debug("3 tier - Service name: {}",serviceTypeMap.get("name"));
-			BusinessElement businessElement = saveService(product, productEnv, module, null, serviceTypeMap);
+			BusinessElement businessElement = saveService(product, productEnv, null, null, serviceTypeMap);
+			businessElementList.add(businessElement);
 		}
 		logger.info("3 tier services saved successfully");
+		productEnvMap.put("service", businessElementList);
+		productEnvMap.put("id", productEnv.getId());
+		productEnvMap.put("name", productEnv.getName());
+		productMap.put("productEnv", productEnvMap);
+		productMap.put("id", product.getId());
+		productMap.put("name", product.getName());
+		productMap.put("type", product.getType());
+		departmentMap.put("product", productMap);
+		departmentMap.put("id", department.getId());
+		departmentMap.put("name", department.getName());
+		orgMap.put("dep", departmentMap);
+		orgMap.put("id", organization.getId());
+		orgMap.put("name", organization.getName());
+		Map data = new HashMap();
+		data.put("org", orgMap);
 		resp.clear();
-		resp.put("status", "0");
-		resp.put("message", "success - 3 tier services saved successfully");
+		resp.put("status", 0);
+		resp.put("message", "3 tier services saved successfully");
+		resp.put("data", data);
 		return resp;
 	}
 
@@ -203,28 +254,30 @@ public class BiMappingService {
 		logger.info("5. Saving cloud-element");
 		ObjectMapper objectMapper = Constants.instantiateMapper();
 		ObjectNode objectNode = null;
-		try {
-			ArrayNode arrayNode = cloudElementService.getArrayNodeFromHostedService(cloudElement, objectMapper);
-			if(Constants.SOA.equalsIgnoreCase(product.getType())){
-				objectNode = (ObjectNode)objectMapper.readTree(Constants.SOA_TAG_TEMPLATE);
-				createSoaTag(objectNode, product, productEnv, module, cloudElement, businessElement);
-			}else{
-				objectNode = (ObjectNode)objectMapper.readTree(Constants.THREE_TIER_TAG_TEMPLATE);
-				create3TierTag(objectNode, product, productEnv, cloudElement, businessElement);
-			}
+		if(cloudElement != null){
+			try {
+				ArrayNode arrayNode = cloudElementService.getArrayNodeFromHostedService(cloudElement, objectMapper);
+				if(Constants.SOA.equalsIgnoreCase(product.getType())){
+					objectNode = (ObjectNode)objectMapper.readTree(Constants.SOA_TAG_TEMPLATE);
+					createSoaTag(objectNode, product, productEnv, module, cloudElement, businessElement);
+				}else{
+					objectNode = (ObjectNode)objectMapper.readTree(Constants.THREE_TIER_TAG_TEMPLATE);
+					create3TierTag(objectNode, product, productEnv, cloudElement, businessElement);
+				}
 
-			boolean isTagFound = cloudElementService.replaceIfTagFound(arrayNode, objectNode);
-			if(!isTagFound){
-				arrayNode.add(objectNode);
-			}
+				boolean isTagFound = cloudElementService.replaceIfTagFound(arrayNode, objectNode);
+				if(!isTagFound){
+					arrayNode.add(objectNode);
+				}
 
-			ObjectNode finalNode =  objectMapper.createObjectNode();
-			finalNode.put(Constants.HOSTEDSERVICES, arrayNode);
-			Map updatedHostedService = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
-			cloudElement.setHostedServices(updatedHostedService);
-			cloudElement = cloudElementService.save(cloudElement);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+				ObjectNode finalNode =  objectMapper.createObjectNode();
+				finalNode.put(Constants.HOSTEDSERVICES, arrayNode);
+				Map updatedHostedService = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
+				cloudElement.setHostedServices(updatedHostedService);
+				cloudElement = cloudElementService.save(cloudElement);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		return businessElement;

@@ -7,6 +7,12 @@ info:
 servers:
   - url: '{protocol}://{ip}:{port}/{base-api}'
     variables:
+      dnsurl:
+        enum:
+          - http://localhost:6057/api
+          - http://34.199.12.114:6057/api
+          - https://api.synectiks.net/cmdb
+        default: http://localhost:6057/api
       protocol:
         enum:
           - http
@@ -16,6 +22,7 @@ servers:
         enum:
           - localhost
           - 34.199.12.114
+          - api.synectiks.net
         default: localhost
       port:
         enum:
@@ -5250,6 +5257,8 @@ paths:
           application/json:
             schema:
               type: object
+              example:
+                {"org": {"id": 1,"dep": {"id": 3,"product": {"name": "test","type": "SOA","productEnv": {"name": "DEVELOPMENT","modules": [{"name": "HELOTEST_1","service": {"business": [{"name": "spring boot","type": "app","cloudElementMapping": {"id": 11271,"managementInfo": [{"key": "managementendpoint","value": "IP_PORT"},{"key": "prometheusendpoint","value": "DNS"}],"configInfo": [{"key": "javaversion","value": "1.8"},{"key": "buildtool","value": "maven"}]}},{"name": "spring boot","type": "app","cloudElementMapping": {"id": 11272,"managementInfo": [{"key": "value"},{"key": "value"}],"configInfo": [{"key": "value"},{"key": "value"}]}},{"name": "sql service","type": "data","cloudElementMapping": {"id": 11273,"managementInfo": [{"key": "value"},{"key": "value"}],"configInfo": [{"key": "value"},{"key": "value"}]}}],"common": [{"name": "search spring boot","type": "app","cloudElementMapping": {"id": 11271,"managementInfo": [{"key": "value"},{"key": "value"}],"configInfo": [{"key": "value"},{"key": "value"}]}}]}},{"name": "HELOTEST_2","service": {"business": [{"name": "spring boot","type": "app","cloudElementMapping": {"id": 11271,"managementInfo": [{"key": "managementendpoint","value": "IP_PORT"},{"key": "prometheusendpoint","value": "DNS"}],"configInfo": [{"key": "javaversion","value": "1.8"},{"key": "buildtool","value": "maven"}]}},{"name": "spring boot","type": "app","cloudElementMapping": {"id": 11272,"managementInfo": [{"key": "value"},{"key": "value"}],"configInfo": [{"key": "value"},{"key": "value"}]}},{"name": "sql service","type": "data","cloudElementMapping": {"id": 11273,"managementInfo": [{"key": "value"},{"key": "value"}],"configInfo": [{"key": "value"},{"key": "value"}]}}],"common": [{"name": "search spring boot","type": "app","cloudElementMapping": {"id": 11271,"managementInfo": [{"key": "value"},{"key": "value"}],"configInfo": [{"key": "value"},{"key": "value"}]}}]}}]}}}}}
       responses:
         200:
           description: OK

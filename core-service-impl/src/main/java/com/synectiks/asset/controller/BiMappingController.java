@@ -66,11 +66,11 @@ public class BiMappingController implements BiMappingApi {
             logger.error("Department not found. Given department id: {}",departmentMap.get("id"));
             throw new BadRequestAlertException(String.format("Null id", "Department"), "Department", "idnull");
         }
-        Map<String, String> status = biMappingService.save(oOrg.get(),oDep.get(),departmentMap);
-        if(Integer.parseInt(status.get("status")) == 0){
-            return ResponseEntity.ok(status.get("message"));
+        Map<String, Object> status = biMappingService.save(org, oOrg.get(),oDep.get(),departmentMap);
+        if((int)status.get("status") == 0){
+            return ResponseEntity.ok(status);
         }
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Services could not saved due to some error");
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(status);
 
 
     }
