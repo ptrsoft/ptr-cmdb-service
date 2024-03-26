@@ -644,9 +644,9 @@ public class QueryController implements QueryApi {
 	@Override
 	public ResponseEntity<Object> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
 		logger.debug("REST request to get list of cloud-element instances for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}, element-type: {}", orgId, departmentId, productId, productEnvId,elementType);
-		List<CloudElement> cloudElementList = cloudElementService.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
-		List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
-		return ResponseEntity.ok(cloudElementDTOList);
+		List<BiMappingBusinessCloudElementQueryObj> cloudElementList = cloudElementService.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
+//		List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
+		return ResponseEntity.ok(cloudElementList);
 	}
 }
 

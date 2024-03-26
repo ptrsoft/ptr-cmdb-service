@@ -10,6 +10,7 @@ import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.domain.Organization;
+import com.synectiks.asset.domain.query.BiMappingBusinessCloudElementQueryObj;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.factory.AwsHandlerFactory;
@@ -534,7 +535,7 @@ public class CloudElementService {
         return response;
     }
 
-    public List<CloudElement> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
+    public List<BiMappingBusinessCloudElementQueryObj> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
         logger.debug("Get list of cloud-element instances for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}, element-type: {}", orgId, departmentId, productId, productEnvId,elementType);
         return cloudElementRepository.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
     }

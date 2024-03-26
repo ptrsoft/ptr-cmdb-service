@@ -747,9 +747,6 @@ public class QueryService {
 		query.setParameter(++index, orgId);
 
 		List<CostOfTopAccountsReportObj> list = query.getResultList();
-//		if(list.size() <= 1){
-//			return Collections.emptyList();
-//		}
 		return list;
 	}
 
@@ -830,5 +827,58 @@ public class QueryService {
 
 		List<TopUsedServicesDetailReportObj> list = query.getResultList();
 		return list;
+	}
+	public List<CostOfTopAccountsDetailReportObj> getCostTopAccountsDetailReport(Long orgId, String cloud, Long noOfRecords, String order, String startDate, String endDate, String prevStartDate, String prevEndDate, String prevToPrevStartDate, String prevToPrevEndDate){
+		logger.debug("Get cost-of-top-accounts-detail report. organization id: {}, start date:{}, end date id: {}, prev start date:{}, prev end date id: {}, prev to prev start date:{}, prev to prev end date id: {}, cloud: {}", orgId, startDate, endDate, prevStartDate, prevEndDate, prevToPrevStartDate, prevToPrevEndDate, cloud);
+
+		String sql = ReportingQueryConstants.COST_OF_TOP_ACCOUNTS_DETAIL;
+
+		if (noOfRecords != null){
+			sql = sql.replaceAll("#DYNAMIC_LIMIT#"," limit "+noOfRecords);
+		}else {
+			sql = sql.replaceAll("#DYNAMIC_LIMIT#"," ");
+		}
+
+		if(!StringUtils.isBlank(order) && Constants.ASC.equalsIgnoreCase(order)){
+			sql = sql.replaceAll("#DYNAMIC_ORDER#",Constants.ASC);
+		}else {
+			sql = sql.replaceAll("#DYNAMIC_ORDER#",Constants.DESC);
+		}
+
+		Query query = entityManager.createNativeQuery(sql, CostOfTopAccountsDetailReportObj.class);
+		int index = 0;
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, prevToPrevStartDate);
+		query.setParameter(++index, prevToPrevEndDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, prevStartDate);
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, startDate);
+
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, prevStartDate);
+
+		List list = query.getResultList();
+		return list;
+
 	}
 }

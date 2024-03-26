@@ -439,6 +439,166 @@ public final class ReportingQueryConstants {
             "\t from curr_list_sum cls left join prev_list_sum pls on cls.service_name = pls.service_name) \n" +
             "\t select ROW_NUMBER() OVER () as id,service_name, last_month_spend, this_month_spend, forecasted_spend, avg_daily_spend, variance from f \n" +
             "\t order by id asc ";
+
+    public static String COST_OF_TOP_ACCOUNTS_DETAIL = "with budget_temp as (\n" +
+            "   select\n" +
+            "     distinct b.id,\n" +
+            "     b.allocated_budget,\n" +
+            "     b.organization_id,\n" +
+            "     b.status,\n" +
+            "     b.financial_year_start,\n" +
+            "     b.financial_year_end , \n" +
+            "     cast(bg.obj -> 'depId' as int) as dep_id,\n" +
+            "     cast(bg.obj -> 'allocatedBudget' as int) as dep_allocated_budget\n" +
+            "   from\n" +
+            "     organization o,\n" +
+            "     budget b,\n" +
+            "     jsonb_array_elements(b.budget_json -> 'data') with ordinality bg(obj, pos)\n" +
+            "   where\n" +
+            "     o.id = b.organization_id \n" +
+            "     and b.financial_year_start >= ? \n" +
+            "     and b.financial_year_end <= ? \n" +
+            "     and o.id = ? ),\n" +
+            " \n" +
+            " ltl as (\n" +
+            "  with last_to_last as (\n" +
+            "   select  \n" +
+            "     o.id as org_id,\n" +
+            "       l.landing_zone as account_id, \n" +
+            "     d.\"name\" as department,\n" +
+            "     pe.instance_id as vpc, \n" +
+            "     SUM(cast(jb.value as int)) as total\n" +
+            "     from\n" +
+            "        cloud_element ce, \n" +
+            "        landingzone l,\n" +
+            "        department d,\n" +
+            "        organization o,\n" +
+            "        product_enclave pe, \n" +
+            "        jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') as jb(key, value)\n" +
+            "     where\n" +
+            "      l.department_id = d.id\n" +
+            "      and d.organization_id = o.id\n" +
+            "      and ce.landingzone_id = l.id\n" +
+            "      and jb.key >= ?\n" +
+            "      and jb.key <= ? \n" +
+            "      and upper(l.cloud) = upper(?)\n" +
+            "      and ce.product_enclave_id = pe.id \n" +
+            "      and o.id = ? \n" +
+            "     group by o.id, l.landing_zone, d.\"name\", pe.instance_id) \n" +
+            "  select 'last_to_last' as last_to_last, sum(total) as total from last_to_last),\n" +
+            "  \n" +
+            " hosted_service as (\n" +
+            "  with h as (\n" +
+            "     select\n" +
+            "       distinct l.landing_zone, c.obj -> 'serviceId' as service_id, ce.product_enclave_id\n" +
+            "     from\n" +
+            "        cloud_element ce, \n" +
+            "        landingzone l,\n" +
+            "        department d,\n" +
+            "        organization o,\n" +
+            "        jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') as jb(key, value),\n" +
+            "        jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj, pos)\n" +
+            "     where\n" +
+            "      l.department_id = d.id\n" +
+            "      and d.organization_id = o.id\n" +
+            "      and ce.landingzone_id = l.id\n" +
+            "      and jb.key >= ? \n" +
+            "      and jb.key <= ? \n" +
+            "      and upper(l.cloud) = upper(?)\n" +
+            "      and ce.product_enclave_id is not null\n" +
+            "      and o.id = ? \n" +
+            "    ) select landing_zone, product_enclave_id, count(service_id) as total_services from h group by landing_zone, product_enclave_id\n" +
+            "    ),\n" +
+            "    prev_list as (\n" +
+            "    with s as (\n" +
+            "     select  \n" +
+            "     o.id as org_id,\n" +
+            "       l.landing_zone as account_id, \n" +
+            "     d.\"name\" as department,\n" +
+            "     pe.instance_id as vpc, \n" +
+            "     SUM(cast(jb.value as int)) as total\n" +
+            "     from\n" +
+            "        cloud_element ce, \n" +
+            "        landingzone l,\n" +
+            "        department d,\n" +
+            "        organization o,\n" +
+            "        product_enclave pe, \n" +
+            "        jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') as jb(key, value)\n" +
+            "     where\n" +
+            "      l.department_id = d.id\n" +
+            "      and d.organization_id = o.id\n" +
+            "      and ce.landingzone_id = l.id\n" +
+            "      and jb.key >= ? \n" +
+            "      and jb.key <= ? \n" +
+            "      and upper(l.cloud) = upper(?)\n" +
+            "      and ce.product_enclave_id = pe.id \n" +
+            "      and o.id = ? \n" +
+            "     group by o.id, l.landing_zone, d.\"name\", pe.instance_id)  \n" +
+            "   select org_id, account_id, department, vpc, total from s order by total #DYNAMIC_ORDER# #DYNAMIC_LIMIT# \n" +
+            " ),\n" +
+            "   curr_list as (\n" +
+            "    with s as (\n" +
+            "     select  \n" +
+            "     o.id as org_id,\n" +
+            "       l.landing_zone as account_id, \n" +
+            "     d.\"name\" as department,\n" +
+            "     pe.instance_id as vpc, \n" +
+            "     SUM(cast(jb.value as int)) as total\n" +
+            "     from\n" +
+            "        cloud_element ce, \n" +
+            "        landingzone l,\n" +
+            "        department d,\n" +
+            "        organization o,\n" +
+            "        product_enclave pe, \n" +
+            "        jsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') as jb(key, value)\n" +
+            "     where\n" +
+            "      l.department_id = d.id\n" +
+            "      and d.organization_id = o.id\n" +
+            "      and ce.landingzone_id = l.id\n" +
+            "      and jb.key >= ? \n" +
+            "      and jb.key <= ? \n" +
+            "      and upper(l.cloud) = upper(?)\n" +
+            "      and ce.product_enclave_id = pe.id \n" +
+            "      and o.id = ? \n" +
+            "     group by o.id, l.landing_zone, d.\"name\", pe.instance_id)  \n" +
+            "   select org_id, account_id, department, vpc, total from s order by total #DYNAMIC_ORDER# #DYNAMIC_LIMIT# \n" +
+            " ),\n" +
+            " prev_list_sum as (select sum(total) as total from prev_list ),\n" +
+            "    curr_list_sum as (select sum(total) as total from curr_list ),\n" +
+            "    nof_current as ( with num_of_days_current as (SELECT (( EXTRACT(EPOCH FROM cast(? as date)) - EXTRACT(EPOCH FROM cast(? as date)) ) / 86400)+1 AS num_of_days)\n" +
+            "  select num_of_days from num_of_days_current),\n" +
+            "  nof_previous as ( with num_of_days_current as (SELECT (( EXTRACT(EPOCH FROM cast(? as date)) - EXTRACT(EPOCH FROM cast(? as date)) ) / 86400)+1 AS num_of_days)\n" +
+            "  select num_of_days from num_of_days_current),  \n" +
+            "    future_cost as (SELECT 'service_name' as service_name, (cls.total - cast (floor(random() * (80000 - 70000 + 1) + 70000) as int)) as total from curr_list_sum cls),\n" +
+            " f as (\n" +
+            "  select cl.account_id, cl.department, cl.vpc, coalesce (hs.total_services, 0) as service_count, \n" +
+            "  'US-East(N.Virginia)' as high_spending_region, cl.total as spending,\n" +
+            "  round((cl.total - p.total)/(cl.total * 1.0 ) * 100 , 2) as variance, \n" +
+            "  bt.dep_allocated_budget as budget\n" +
+            "  from curr_list cl \n" +
+            "   left join hosted_service hs on cl.account_id = hs.landing_zone \n" +
+            "   left join budget_temp bt on cl.org_id = bt.organization_id\n" +
+            "   left join prev_list p on cl.account_id = p.account_id and cl.org_id = p.org_id and cl.vpc = p.vpc\n" +
+            "   union all \n" +
+            "  select upper('last_month_spend') as account_id, null as department, null as vpc, null as service_count, null as high_spending_region,\n" +
+            "  ps.total as spending, round((ps.total - ll.total)/(ps.total * 1.0 ) * 100 , 2) as variance, null as budget\n" +
+            "  from prev_list_sum ps left join ltl ll on 1 = 1\n" +
+            "   union all \n" +
+            "  select upper('month_to_date_spend') as account_id, null as department, null as vpc, null as service_count, null as high_spending_region,\n" +
+            "  cls.total as spending, round((cls.total - pls.total)/(cls.total * 1.0 ) * 100 , 2) as variance, null as budget\n" +
+            "  from curr_list_sum cls left join prev_list_sum pls on 1 = 1 \n" +
+            "   union all\n" +
+            "  select upper('forecasted_spend') as account_id, null as department, null as vpc, null as service_count, null as high_spending_region,\n" +
+            "  fc.total as spending, round((fc.total - cls.total)/(fc.total * 1.0 ) * 100 , 2) as variance, null as budget \n" +
+            "  from future_cost fc left join curr_list_sum cls on 1 = 1\n" +
+            "   union all\n" +
+            "  select upper('avg_daily_spend') as account_id, null as department, null as vpc, null as service_count, null as high_spending_region,\n" +
+            "  cast(cls.total/(select num_of_days from nof_current) as int) as spending, \n" +
+            "  round((cast(cls.total/(select num_of_days from nof_current) as int) - cast(pls.total/(select num_of_days from nof_previous) as int))/(cast(cls.total/(select num_of_days from nof_current) as int) * 1.0 ) * 100 , 2) as variance, \n" +
+            "  null as budget \n" +
+            "  from curr_list_sum cls left join prev_list_sum pls on 1 = 1)\n" +
+            " select ROW_NUMBER() OVER () as id,account_id, department, vpc, service_count, high_spending_region, spending, variance, budget from f\n" +
+            "  ";
     private ReportingQueryConstants() {
     }
 }
