@@ -881,4 +881,19 @@ public class QueryService {
 		return list;
 
 	}
+
+	public List<PotentialSavingsDetailRiRecommendReportObj> getPotentialSavingsDetailTopRiRecommendationReport(Long orgId, String serviceCategory, String startDate, String endDate, String cloud){
+		logger.debug("Get potential-savings-detail-top-ri-recommendation report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, startDate, endDate, cloud);
+		String sql = ReportingQueryConstants.POTENTIAL_SAVINGS_DETAIL_TOP_RI_RECOMMENDATION;
+		Query query = entityManager.createNativeQuery(sql, PotentialSavingsDetailRiRecommendReportObj.class);
+		int index = 0;
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, serviceCategory);
+		query.setParameter(++index, orgId);
+
+		List list = query.getResultList();
+		return list;
+	}
 }

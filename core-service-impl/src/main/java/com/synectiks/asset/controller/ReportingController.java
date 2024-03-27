@@ -326,7 +326,120 @@ public class ReportingController implements ReportingApi {
         response.put("report","COST OF TOP ACCOUNTS DETAIL");
         response.put("data", (list == null || (list != null && list.size() ==0)) ? Collections.emptyList() : list);
         return ResponseEntity.ok(response);
+    }
 
+    @Override
+    public ResponseEntity<Object> getPotentialSavingsDetailSummaryReport(Long orgId, String serviceCategory, String cloud, String granularity, Long compareTo) {
+        logger.debug("Request to get potential-savings-detail-summary report. organization id: {}, serviceCategory:{}, cloud: {}, granularity: {}, compareTo: {}", orgId, serviceCategory, cloud, granularity, compareTo);
+        double current = RandomUtil.getRandomLong(80000, 100000)*1.0;
+        double prev = RandomUtil.getRandomLong(100000, 120000)*1.0;
+        double prevToPrev = RandomUtil.getRandomLong(80000, 120000)*1.0;
+        double forecast = RandomUtil.getRandomLong(60000, 80000)*1.0;
+
+        double currentVariance = ((current-prev)/current)*100.0;
+        DecimalFormat df = new DecimalFormat("#.##");
+        PotentialSavingsDetailSummaryReportObj thisMonth = PotentialSavingsDetailSummaryReportObj
+                .build(1L, serviceCategory, "This Month Savings", String.valueOf(current), String.valueOf(prev), df.format(currentVariance));
+
+        double futureVariance = ((forecast-current)/forecast)*100.0;
+        PotentialSavingsDetailSummaryReportObj futureMonth = PotentialSavingsDetailSummaryReportObj
+                .build(2L, serviceCategory, "Forecasting Savings", String.valueOf(forecast), String.valueOf(current), df.format(futureVariance));
+
+        double prevVariance = ((prev-prevToPrev)/prev)*100.0;
+        PotentialSavingsDetailSummaryReportObj lastMonth = PotentialSavingsDetailSummaryReportObj
+                .build(3L, serviceCategory, "Last Month savings", String.valueOf(prev), String.valueOf(prevToPrev), df.format(prevVariance));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("report","POTENTIAL SAVINGS DETAIL - SUMMARY");
+        List list = new ArrayList();
+        list.add(thisMonth);
+        list.add(futureMonth);
+        list.add(lastMonth);
+        response.put("data", (list == null || (list != null && list.size() ==0)) ? Collections.emptyList() : list);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<Object> getPotentialSavingsDetailTotalSavingReport(Long orgId, String serviceCategory, String cloud, String granularity, Long compareTo) {
+        int min = 10;
+        int max = 60;
+        logger.debug("Request to get potential-savings-detail-total-saving report. organization id: {}, serviceCategory:{}, cloud: {}, granularity: {}, compareTo: {}", orgId, serviceCategory, cloud, granularity, compareTo);
+
+        PotentialSavingsReportObj spotInstance = new PotentialSavingsReportObj();
+        spotInstance.setId(1L);
+        spotInstance.setInstanceType("SPOT");
+        spotInstance.setTotal(String.valueOf(RandomUtil.getRandomLong(min, max)));
+
+        PotentialSavingsReportObj reservedInstance = new PotentialSavingsReportObj();
+        reservedInstance.setId(2L);
+        reservedInstance.setInstanceType("RESERVED");
+        reservedInstance.setTotal(String.valueOf(RandomUtil.getRandomLong(min, max)));
+
+        PotentialSavingsReportObj othersInstance = new PotentialSavingsReportObj();
+        othersInstance.setId(3L);
+        othersInstance.setInstanceType("OTHERS");
+        othersInstance.setTotal(String.valueOf(RandomUtil.getRandomLong(min, max)));
+
+        PotentialSavingsReportObj rightSizeInstance = new PotentialSavingsReportObj();
+        rightSizeInstance.setId(4L);
+        rightSizeInstance.setInstanceType("RIGHTSIZE");
+        rightSizeInstance.setTotal(String.valueOf(RandomUtil.getRandomLong(min, max)));
+
+        PotentialSavingsReportObj savingPlanInstance = new PotentialSavingsReportObj();
+        savingPlanInstance.setId(5L);
+        savingPlanInstance.setInstanceType("SAVING_PLAN");
+        savingPlanInstance.setTotal(String.valueOf(RandomUtil.getRandomLong(min, max)));
+
+        PotentialSavingsReportObj currentTotal = new PotentialSavingsReportObj();
+        currentTotal.setId(6L);
+        currentTotal.setInstanceType("CURRENT_TOTAL");
+        Long ct = RandomUtil.getRandomLong(80000, 100000);
+        currentTotal.setTotal(String.valueOf(ct));
+
+        List<PotentialSavingsReportObj> list = new ArrayList<>();
+        list.add(spotInstance);
+        list.add(reservedInstance);
+        list.add(othersInstance);
+        list.add(rightSizeInstance);
+        list.add(savingPlanInstance);
+        list.add(currentTotal);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("report","POTENTIAL SAVINGS DETAIL - TOTAL SAVINGS");
+        response.put("data", (list == null || (list != null && list.size() ==0)) ? Collections.emptyList() : list);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<Object> getPotentialSavingsDetailmonthlySavingReport(Long orgId, String serviceCategory, String cloud, String granularity, Long compareTo) {
+        logger.debug("Request to get potential-savings-detail-monthly-saving report. organization id: {}, serviceCategory:{}, cloud: {}, granularity: {}, compareTo: {}", orgId, serviceCategory, cloud, granularity, compareTo);
+        Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, compareTo);
+        List<String> dateList = DateFormatUtil.getYearMonthBetweenDates(currentDateRange.get("startDate"), LocalDate.now());
+        int min = 100000;
+        int max = 180000;
+        Map<String, Object> data;
+        List<Map<String, Object>> list = new ArrayList<>();
+
+        for(String date: dateList){
+            data = new HashMap<>();
+            data.put("date", date);
+            data.put("total", RandomUtil.getRandomLong(min, max));
+            list.add(data);
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("report","POTENTIAL SAVINGS DETAIL - MONTHLY SAVINGS");
+        response.put("data", list);
+        return ResponseEntity.ok(response);
+    }
+    @Override
+    public ResponseEntity<Object> getPotentialSavingsDetailTopRiRecommendationReport(Long orgId, String serviceCategory, String cloud, String granularity, Long compareTo) {
+        Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, compareTo);
+        List<PotentialSavingsDetailRiRecommendReportObj> list =  queryService.getPotentialSavingsDetailTopRiRecommendationReport(orgId, serviceCategory, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString(), cloud);
+        Map<String, Object> response = new HashMap<>();
+        response.put("report","POTENTIAL SAVINGS DETAIL - TOP RI RECOMMENDATIONS");
+        response.put("data", (list == null || (list != null && list.size() ==0)) ? Collections.emptyList() : list);
+        return ResponseEntity.ok(response);
     }
 
 }

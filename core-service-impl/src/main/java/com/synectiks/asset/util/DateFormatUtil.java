@@ -687,6 +687,19 @@ public final class DateFormatUtil {
 			return dateRange;
 		}
 
+		public static List<String> getYearMonthBetweenDates(LocalDate startDate, LocalDate endDate){
+			LocalDate date = startDate;
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM-yy", Locale.ENGLISH);
+			List<String> list = new ArrayList<>();
+			while (!date.isAfter(endDate)) {
+				String formattedDate = date.format(formatter);
+//				System.out.println(formattedDate);
+				list.add(formattedDate);
+				date = date.plusMonths(1);
+			}
+			return list;
+		}
+
 		public static void main(String a[]) throws Exception {
 //			new DateFormatUtil().getYearByAddOrSubtractQuarter(2024, -1);
 //			Map<String, LocalDate> mp = new DateFormatUtil().getNewDateRange(-2);
@@ -717,21 +730,22 @@ public final class DateFormatUtil {
 //			new DateFormatUtil().getThreeMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
 //			getFourMonthQuarterOfDate(LocalDate.of(2024, 12, 7));
 
-			int g = -1;
-			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
+//			int g = -1;
+//			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(-1);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenMonth(1);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenDay(-4);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenWeek(-2);
 //			Map<String, LocalDate> dateRange = new DateFormatUtil().getDateRangeOfGivenYear(-2);
-			System.out.println("start date : **************************** "+dateRange.get("startDate").toString());
-			System.out.println("end date : **************************** "+dateRange.get("endDate").toString());
-			if (g < 0){
-				int newg = (Math.abs(g)+1) * -1;
-				System.out.println("new g "+newg);
-				Map<String, LocalDate> ndateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(newg);
-				System.out.println("new start date : **************************** "+ndateRange.get("startDate").toString());
-				System.out.println("new end date : **************************** "+ndateRange.get("endDate").toString());
-			}
+//			System.out.println("start date : **************************** "+dateRange.get("startDate").toString());
+//			System.out.println("end date : **************************** "+dateRange.get("endDate").toString());
+//			if (g < 0){
+//				int newg = (Math.abs(g)+1) * -1;
+//				System.out.println("new g "+newg);
+//				Map<String, LocalDate> ndateRange = new DateFormatUtil().getDateRangeOfGivenQuarter(newg);
+//				System.out.println("new start date : **************************** "+ndateRange.get("startDate").toString());
+//				System.out.println("new end date : **************************** "+ndateRange.get("endDate").toString());
+//			}
+//			getYearMonthBetweenDates(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 30));
 		}
 
 }

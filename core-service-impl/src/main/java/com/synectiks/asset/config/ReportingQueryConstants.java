@@ -599,6 +599,26 @@ public final class ReportingQueryConstants {
             "  from curr_list_sum cls left join prev_list_sum pls on 1 = 1)\n" +
             " select ROW_NUMBER() OVER () as id,account_id, department, vpc, service_count, high_spending_region, spending, variance, budget from f\n" +
             "  ";
+
+    public static String POTENTIAL_SAVINGS_DETAIL_TOP_RI_RECOMMENDATION = "select ce.id, ce.element_type, ce.instance_id, 'RI' as recommendation, 't4g.2xlarge' as current_instance, \n" +
+            "\t't2.2xlarge' as recommended_instance, '1yr RI' as terms, 'No Upfront' as payment_mode, '0' as upfront_cost,\n" +
+            "\tround(cast (random() as numeric)  * (0.9 - 0.1 + 1) + 0.1 , 2) as per_hour_cost,\n" +
+            "\tcast (random() as int)  * (800 - 250 + 1) + 250  as estimated_savings,\n" +
+            "\tSUM(CAST(jb.value AS int)) AS total_spend   \n" +
+            "\tFROM \n" +
+            "\t\tcloud_element ce, \n" +
+            "\t\tlandingzone l, \n" +
+            "\t\tdepartment d, \n" +
+            "\t\torganization o, \n" +
+            "\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value) \n" +
+            "\tWHERE \n" +
+            "\t\tl.department_id = d.id \n" +
+            "\t\tAND d.organization_id = o.id \n" +
+            "\t\tAND ce.landingzone_id = l.id \n" +
+            "\t\tAND jb.key >= ? AND jb.key <= ?  \n" +
+            "\t\tand upper(l.cloud) = upper(?) \n" +
+            "\t\tand upper(ce.service_category) = upper(?)  \n" +
+            "\t\tAND o.id = ? group by ce.id, ce.element_type, ce.instance_id,ce.config_json ";
     private ReportingQueryConstants() {
     }
 }
