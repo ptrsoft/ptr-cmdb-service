@@ -63,18 +63,17 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
             "ce.log_location, ce.trace_location, ce.metric_location, l.landing_zone, l.cloud, dc.name as db_category_name, \n" +
             "null as sla_json, null as cost_json, null as view_json, null as config_json, null as compliance_json, null as hosted_services,\n" +
             "ce.service_category,ce.region, ce.log_group \n" +
-            "from " +
-            "cloud_element ce, " +
-            "jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj), \n" +
-            "product_enclave pe, landingzone l, db_category dc, business_element be \n" +
-            "where ce.hosted_services is not null and ce.hosted_services != 'null' \n" +
-            "and ce.product_enclave_id = pe.id and ce.landingzone_id = l.id and ce.db_category_id = dc.id \n" +
-            "and cast(c.obj -> 'tag' -> 'org' ->> 'id' as int) = :orgId \n" +
+            " from cloud_element ce left join jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj) on 1 = 1\n" +
+            "left join business_element be on cast(c.obj -> 'serviceId' as int) = be.id \n" +
+            "left join product_enclave pe on ce.product_enclave_id = pe.id\n" +
+            "left join landingzone l on ce.landingzone_id = l.id\n" +
+            "left join db_category dc on ce.db_category_id = dc.id\n" +
+            "where \n " +
+            " cast(c.obj -> 'tag' -> 'org' ->> 'id' as int) = :orgId \n" +
             "and cast(c.obj -> 'tag' -> 'org' -> 'dep' ->> 'id' as int) = :departmentId \n" +
             "and cast(c.obj -> 'tag' -> 'org' -> 'dep' -> 'product' ->> 'id' as int) = :productId \n" +
             "and cast(c.obj -> 'tag' -> 'org' -> 'dep' -> 'product' -> 'productEnv' ->> 'id' as int) = :productEnvId \n" +
             "and upper(ce.element_type) = upper(:elementType) " +
-            "and cast(c.obj -> 'serviceId' as int) = be.id " +
             "order by ce.element_type asc";
     @Query(value = BI_MAPPING_CLOUD_ELEMENT_INSTANCES,nativeQuery = true)
     List<BiMappingBusinessCloudElementQueryObj> getBiMappingCloudElementInstances(@Param("orgId") Long orgId, @Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("elementType") String elementType);
