@@ -619,6 +619,84 @@ public final class ReportingQueryConstants {
             "\t\tand upper(l.cloud) = upper(?) \n" +
             "\t\tand upper(ce.service_category) = upper(?)  \n" +
             "\t\tAND o.id = ? group by ce.id, ce.element_type, ce.instance_id,ce.config_json ";
+
+    public static String SPEND_OVERVIEW_ELEMENT_DETAIL ="select  ce.id, ce.element_type, ce.instance_id, 'dev-prod' as tags, 't2.2xlarge' as instance_type, 'Running' as instance_status, 'on Demand' as pricing_model, \n" +
+            "\t'us-east-1a' as availability_zone, '0.0015' as ondemand_cost_per_hr, 'Unavailable' as ri_cost_per_hr,\n" +
+            "\t'720hrs' as usage_hours, 'NA' as add_ons, SUM(CAST(jb.value AS int)) AS total_spend   \n" +
+            "\tFROM \n" +
+            "\t\tcloud_element ce, \n" +
+            "\t\tlandingzone l, \n" +
+            "\t\tdepartment d, \n" +
+            "\t\torganization o, \n" +
+            "\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value) \n" +
+            "\tWHERE \n" +
+            "\t\tl.department_id = d.id \n" +
+            "\t\tAND d.organization_id = o.id \n" +
+            "\t\tAND ce.landingzone_id = l.id \n" +
+            "\t\tAND jb.key >= ? AND jb.key <= ?  \n" +
+            "\t\tand upper(l.cloud) = upper(?) \n" +
+            "\t\tand upper(ce.service_category) = upper(?) \n" +
+            "\t\tand upper(ce.element_type) = upper(?)\n" +
+            "\t\tAND o.id = ? \n" +
+            "\t\tgroup by ce.id, ce.element_type,ce.instance_id, ce.config_json";
+
+    public static String SPEND_OVERVIEW_ELEMENT_SUMMARY ="with cur as (\n" +
+            "\t\tselect ce.element_type, count(ce.element_type) as total_instance\t\n" +
+            "\t\tFROM \n" +
+            "\t\t\tcloud_element ce, \n" +
+            "\t\t\tlandingzone l, \n" +
+            "\t\t\tdepartment d, \n" +
+            "\t\t\torganization o, \n" +
+            "\t\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value) \n" +
+            "\t\tWHERE \n" +
+            "\t\t\tl.department_id = d.id \n" +
+            "\t\t\tAND d.organization_id = o.id \n" +
+            "\t\t\tAND ce.landingzone_id = l.id \n" +
+            "\t\t\tAND jb.key >= ? AND jb.key <= ?  \n" +
+            "\t\t\tand upper(l.cloud) = upper(?) \n" +
+            "\t\t\tand upper(ce.service_category) = upper(?) \n" +
+            "\t\t\tand upper(ce.element_type) = upper(?)\n" +
+            "\t\t\tAND o.id = ? \n" +
+            "\t\t\tgroup by ce.element_type),\n" +
+            "\tprev as (\n" +
+            "\t\tselect ce.element_type, count(ce.element_type) as total_instance\t\n" +
+            "\t\tFROM \n" +
+            "\t\t\tcloud_element ce, \n" +
+            "\t\t\tlandingzone l, \n" +
+            "\t\t\tdepartment d, \n" +
+            "\t\t\torganization o, \n" +
+            "\t\t\tjsonb_each_text(ce.cost_json -> 'cost' -> 'DAILYCOST') AS jb(key, value) \n" +
+            "\t\tWHERE \n" +
+            "\t\t\tl.department_id = d.id \n" +
+            "\t\t\tAND d.organization_id = o.id \n" +
+            "\t\t\tAND ce.landingzone_id = l.id \n" +
+            "\t\t\tAND jb.key >= ? AND jb.key <= ?  \n" +
+            "\t\t\tand upper(l.cloud) = upper(?) \n" +
+            "\t\t\tand upper(ce.service_category) = upper(?) \n" +
+            "\t\t\tand upper(ce.element_type) = upper(?)\n" +
+            "\t\t\tAND o.id = ? \n" +
+            "\t\t\tgroup by ce.element_type),\n" +
+            "\ttotal_summary as (\n" +
+            "\t\tselect 'total instances' as instance_desc, c.total_instance as current_total, p.total_instance as previous_total, \n" +
+            "\t\tround((c.total_instance - p.total_instance)/(c.total_instance * 1.0 ) * 100 , 2) as variance   \n" +
+            "\t\tfrom cur c left join prev p on c.element_type = p.element_type),\n" +
+            "\trunning as (select 'running' instance_desc, cast (floor(random() * (80000 - 70000 + 1) + 70000) as int) as current_total, \n" +
+            "\t\t\tcast (floor(random() * (90000 - 60000 + 1) + 60000) as int) as previous_total, \n" +
+            "\t\t\t0 as variance from total_summary),\n" +
+            "\tstopped as (select 'stopped' instance_desc, cast (floor(random() * (90000 - 90000 + 1) + 80000) as int) as current_total, \n" +
+            "\t\t\tcast (floor(random() * (90000 - 60000 + 1) + 60000) as int) as previous_total, \n" +
+            "\t\t\t0 as variance from total_summary),\n" +
+            "\tterminated as (select 'terminated' instance_desc, cast (floor(random() * (90000 - 90000 + 1) + 80000) as int) as current_total, \n" +
+            "\t\t\tcast (floor(random() * (90000 - 60000 + 1) + 60000) as int) as previous_total, \n" +
+            "\t\t\t0 as variance from total_summary),\t\t\n" +
+            "\tf as (select instance_desc, current_total, previous_total, variance from total_summary\n" +
+            "\t\t\tunion all\n" +
+            "\t\t\tselect instance_desc, current_total, previous_total, round((current_total - previous_total)/(current_total * 1.0 ) * 100 , 2) as variance from running\n" +
+            "\t\t\tunion all\n" +
+            "\t\t\tselect instance_desc, current_total, previous_total, round((current_total - previous_total)/(current_total * 1.0 ) * 100 , 2) as variance from stopped\n" +
+            "\t\t\tunion all\n" +
+            "\t\t\tselect instance_desc, current_total, previous_total, round((current_total - previous_total)/(current_total * 1.0 ) * 100 , 2) as variance from terminated)\n" +
+            "\tselect  ROW_NUMBER() OVER () as id, instance_desc, current_total, previous_total, variance from f";
     private ReportingQueryConstants() {
     }
 }

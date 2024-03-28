@@ -896,4 +896,42 @@ public class QueryService {
 		List list = query.getResultList();
 		return list;
 	}
+	public List<SpendOverviewElementDetailReportObj> getSpendOverviewElementDetailReport(Long orgId, String serviceCategory, String elementType, String cloud, String startDate, String endDate) {
+		logger.debug("Get spend-overview-element-detail report. organization id: {}, start date:{}, end date id: {}, cloud: {}, element type: {}", orgId, startDate, endDate, cloud, elementType);
+		String sql = ReportingQueryConstants.SPEND_OVERVIEW_ELEMENT_DETAIL;
+		Query query = entityManager.createNativeQuery(sql, SpendOverviewElementDetailReportObj.class);
+		int index = 0;
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, serviceCategory);
+		query.setParameter(++index, elementType);
+		query.setParameter(++index, orgId);
+
+		List list = query.getResultList();
+		return list;
+	}
+
+	public List<SpendOverviewElementSummaryReportObj> getSpendOverviewElementSummaryReport(Long orgId, String serviceCategory, String elementType, String cloud, String startDate, String endDate, String prevStartDate, String prevEndDate) {
+		logger.debug("Get spend-overview-element-summary report. organization id: {}, start date:{}, end date id: {}, cloud: {}, element type: {}, previous start date: {}, previous end date: {}", orgId, startDate, endDate, cloud, elementType,prevStartDate, prevEndDate);
+		String sql = ReportingQueryConstants.SPEND_OVERVIEW_ELEMENT_SUMMARY;
+		Query query = entityManager.createNativeQuery(sql, SpendOverviewElementSummaryReportObj.class);
+		int index = 0;
+		query.setParameter(++index, startDate);
+		query.setParameter(++index, endDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, serviceCategory);
+		query.setParameter(++index, elementType);
+		query.setParameter(++index, orgId);
+
+		query.setParameter(++index, prevStartDate);
+		query.setParameter(++index, prevEndDate);
+		query.setParameter(++index, cloud);
+		query.setParameter(++index, serviceCategory);
+		query.setParameter(++index, elementType);
+		query.setParameter(++index, orgId);
+
+		List list = query.getResultList();
+		return list;
+	}
 }

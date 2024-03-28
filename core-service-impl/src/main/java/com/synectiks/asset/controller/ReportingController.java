@@ -434,6 +434,7 @@ public class ReportingController implements ReportingApi {
     }
     @Override
     public ResponseEntity<Object> getPotentialSavingsDetailTopRiRecommendationReport(Long orgId, String serviceCategory, String cloud, String granularity, Long compareTo) {
+        logger.debug("Request to get potential-savings-top-ri-recommendation report. organization id: {}, serviceCategory:{}, cloud: {}, granularity: {}, compareTo: {}", orgId, serviceCategory, cloud, granularity, compareTo);
         Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, compareTo);
         List<PotentialSavingsDetailRiRecommendReportObj> list =  queryService.getPotentialSavingsDetailTopRiRecommendationReport(orgId, serviceCategory, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString(), cloud);
         Map<String, Object> response = new HashMap<>();
@@ -442,4 +443,32 @@ public class ReportingController implements ReportingApi {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<Object> getSpendOverviewElementDetailReport(Long orgId, String serviceCategory, String elementType, String cloud, String granularity, Long compareTo) {
+        logger.debug("Request to get spend-overview-element-detail report. organization id: {}, serviceCategory:{}, cloud: {}, granularity: {}, compareTo: {}", orgId, serviceCategory, cloud, granularity, compareTo);
+        Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, compareTo);
+        List<SpendOverviewElementDetailReportObj> list = queryService.getSpendOverviewElementDetailReport(orgId, serviceCategory, elementType, cloud, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString());
+        Map<String, Object> response = new HashMap<>();
+        response.put("report","SPEND OVERVIEW ELEMENT DETAIL");
+        response.put("data", (list == null || (list != null && list.size() ==0)) ? Collections.emptyList() : list);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<Object> getSpendOverviewElementSummaryReport(Long orgId, String serviceCategory, String elementType, String cloud, String granularity, Long compareTo) {
+        logger.debug("Request to get spend-overview-element-summary report. organization id: {}, serviceCategory:{}, cloud: {}, granularity: {}, compareTo: {}", orgId, serviceCategory, cloud, granularity, compareTo);
+        Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, compareTo);
+        int prevCompareTo = (Math.abs(compareTo.intValue())+1);
+        if (compareTo < 0){
+            prevCompareTo = prevCompareTo * -1;
+        }
+        Map<String, LocalDate> prevDateRange = dateFormatUtil.getDateRange(granularity, new Long(prevCompareTo));
+
+        List<SpendOverviewElementSummaryReportObj> list = queryService.getSpendOverviewElementSummaryReport(orgId, serviceCategory, elementType, cloud, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString(), prevDateRange.get("startDate").toString(), prevDateRange.get("endDate").toString());
+        Map<String, Object> response = new HashMap<>();
+        response.put("report","SPEND OVERVIEW ELEMENT SUMMARY");
+        response.put("data", (list == null || (list != null && list.size() ==0)) ? Collections.emptyList() : list);
+        return ResponseEntity.ok(response);
+
+    }
 }
