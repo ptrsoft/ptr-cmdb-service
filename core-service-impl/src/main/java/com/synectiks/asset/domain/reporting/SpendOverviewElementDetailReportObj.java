@@ -37,11 +37,20 @@ public class SpendOverviewElementDetailReportObj implements Serializable{
     @Column(name = "pricing_model")
     public String pricingModel;
 
+    @Column(name = "availability_zone")
+    public String availabilityZone;
+
     @Column(name = "ondemand_cost_per_hr")
     public String ondemandCostPerHr;
 
     @Column(name = "ri_cost_per_hr")
     public String riCostPerHr;
+
+    @Column(name = "usage_hours")
+    public String usageHours;
+
+    @Column(name = "add_ons")
+    public String addOns;
 
     @Column(name = "total_spend")
     public String totalSpend;
