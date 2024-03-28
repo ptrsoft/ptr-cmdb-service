@@ -277,7 +277,7 @@ public final class ReportingQueryConstants {
             "  select  tenure, dates,  total from ct \n" +
             "  union all\n" +
             "  select  tenure, dates,  total from f )\n" +
-            " select ROW_NUMBER() OVER () as id, tenure, dates, total from res order by id asc";
+            " select ROW_NUMBER() OVER () as id, tenure, dates, total from res order by dates asc";
 
 
     public static String SPEND_OVERVIEW_DETAIL = " with ltl as ( \n" +

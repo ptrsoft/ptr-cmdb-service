@@ -5907,12 +5907,6 @@ paths:
             type: string
           required: true
         - in: query
-          name: compareTo
-          schema:
-            type: integer
-            format: int64
-          required: true
-        - in: query
           name: forcast
           schema:
             type: boolean

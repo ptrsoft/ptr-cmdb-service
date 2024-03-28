@@ -202,15 +202,11 @@ public class ReportingController implements ReportingApi {
     }
 
     @Override
-    public ResponseEntity<Object> getSpendingTrendReport(Long orgId, String cloud, String granularity, Long compareTo, Boolean forcast) {
-        Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, compareTo);
-
-        int prevCompareTo = (Math.abs(compareTo.intValue())+1);
-        if (compareTo < 0){
-            prevCompareTo = prevCompareTo * -1;
-        }
-        Map<String, LocalDate> prevDateRange = dateFormatUtil.getDateRange(granularity, new Long(prevCompareTo));
-        Map<String, LocalDate> futureDateRange = dateFormatUtil.getDateRange(granularity, new Long(Math.abs(prevCompareTo)));
+    public ResponseEntity<Object> getSpendingTrendReport(Long orgId, String cloud, String granularity, Boolean forcast) {
+        Map<String, LocalDate> currentDateRange = dateFormatUtil.getDateRange(granularity, 0L);
+        Map<String, LocalDate> prevDateRange = dateFormatUtil.getDateRange(granularity, -1L);
+        Map<String, LocalDate> futureDateRange = dateFormatUtil.getDateRange(granularity, 1L);
+        logger.debug("Request to get spending-trend report. organization id: {}, start date:{}, end date id: {}, cloud: {}", orgId, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString(), cloud);
 
         List<SpendingTrendReportObj> list = queryService.getSpendingTrendReport(orgId, currentDateRange.get("startDate").toString(), currentDateRange.get("endDate").toString(), prevDateRange.get("startDate").toString(), prevDateRange.get("endDate").toString(), futureDateRange.get("startDate").toString(), futureDateRange.get("endDate").toString(), cloud);
 
