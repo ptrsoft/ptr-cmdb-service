@@ -58,46 +58,21 @@ public class QueryService {
 
 	public List<EnvironmentQueryDTO> getEnvironmentSummaryList(Long orgId, Long departmentId, Long productId,
 			String env, String cloud) {
-		String primarySql = "select\n" + "subq1.id, \n" + "subq1.cloud,\n" + "subq1.landing_zone,\n"
-				+ "subq1.product_enclave_count as product_enclave,\n" + "subq2.product_count as total_product,\n"
-				+ "subq3.env_product_count as total_product_prod_env\n" + "FROM\n" + "(\n"
-				+ "select l.id, l.cloud, l.landing_zone,COUNT(DISTINCT pe.instance_id) AS product_enclave_count\n"
-				+ "from landingzone l\n" + "inner join department d on l.department_id = d.id\n"
-				+ "inner join organization o on d.organization_id = o.id\n"
-				+ "left join cloud_element ce on ce.landingzone_id = l.id\n"
-				+ "left join product_enclave pe on pe.landingzone_id = l.id and pe.department_id = d.id\n"
-				+ "left join business_element be on be.cloud_element_id = ce.id\n"
-				+ "left join product p on be.product_id = p.id and p.department_id = d.id and p.organization_id = o.id\n"
-				+ "where o.id = ?\n" + "and o.id = d.organization_id \n" + " ##CONDITION## " + " \n" + "GROUP by\n"
-				+ "l.id,\n" + "l.cloud,\n" + "l.landing_zone\n" + ") AS subq1\n" + "JOIN\n" + "(\n"
-				+ "select l.cloud, l.landing_zone,\n" + "coalesce(count(distinct be.product_id),0) as product_count\n"
-				+ "from landingzone l\n" + "inner join department d on l.department_id = d.id\n"
-				+ "inner join organization o on d.organization_id = o.id\n"
-				+ "left join cloud_element ce on ce.landingzone_id = l.id\n"
-				+ "left join product_enclave pe on pe.landingzone_id = l.id and pe.department_id = d.id\n"
-				+ "left join business_element be on be.cloud_element_id = ce.id\n"
-				+ "left join product p on be.product_id = p.id and p.department_id = d.id and p.organization_id = o.id\n"
-				+ "left join product_env pe2 on pe2.product_id = p.id and be.product_env_id = pe2.id\n"
-				+ "where o.id = ?\n" + "and o.id = d.organization_id\n" + "and l.department_id = d.id\n"
-				+ "group by l.cloud, l.landing_zone\n" + ") AS subq2\n"
-				+ "ON subq1.cloud = subq2.cloud AND subq1.landing_zone = subq2.landing_zone\n" + "JOIN\n"
-				+ "(select distinct l.cloud, l.landing_zone,\n"
-				+ "coalesce(count(distinct be.product_env_id),0) as env_product_count\n" + "from product_env pe \n"
-				+ "left join product p on p.id = pe.product_id \n"
-				+ "inner join department d on p.department_id = d.id\n"
-				+ "inner join organization o on d.organization_id = o.id\n"
-				+ "left join landingzone l on l.department_id = d.id \n"
-				+ "left join cloud_element ce on ce.landingzone_id = l.id\n"
-				+ "left join product_enclave penc on penc.landingzone_id = l.id and penc.department_id = d.id\n"
-				+ "left join business_element be on be.cloud_element_id = ce.id and be.product_env_id = pe.id \n"
-				+ "where o.id = ?\n" + "and o.id = d.organization_id\n"
-				+ "and l.department_id = d.id and upper(pe.\"name\") = upper('prod')\n"
-				+ "group by l.cloud, l.landing_zone\n" + "\n" + ") AS subq3\n"
-				+ "ON subq1.cloud = subq3.cloud AND subq1.landing_zone = subq3.landing_zone\n";
+		String primarySql = "select l.id, l.cloud, l.landing_zone, \n" +
+				" coalesce(count(distinct d.id), 0) as total_department, \n" +
+				"coalesce(count(distinct pe.instance_id), 0) as product_enclave, \n" +
+				"coalesce(count(distinct p.id), 0) as total_product,\n" +
+				"coalesce(count(distinct pe2.id), 0) as total_product_prod_env\n" +
+				"from landingzone l \n" +
+				"left join department d on d.id = l.department_id \n" +
+				"left join product_enclave pe on pe.landingzone_id = l.id\n" +
+				"left join product p on l.organization_id = p.organization_id and l.department_id = p.department_id\n" +
+				"left join product_env pe2 on p.id = pe2.product_id and upper(pe2.name) = upper('prod') \n" +
+				"where l.organization_id = ? \n" ;
 
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(primarySql);
 		if (departmentId != null) {
-			sb.append(" and d.id = ? ");
+			sb.append(" and l.department_id = ? ");
 		}
 		if (productId != null) {
 			sb.append(" and p.id = ?  ");
@@ -105,10 +80,10 @@ public class QueryService {
 		if (!StringUtils.isBlank(cloud)) {
 			sb.append(" and upper(l.cloud) = upper(?) ");
 		}
-		primarySql = primarySql.replaceAll("##CONDITION##", sb.toString());
-		logger.debug("Environment summary query {}", primarySql);
+		sb.append(" group by l.id, l.cloud, l.landing_zone ");
 
-		Query query = entityManager.createNativeQuery(primarySql.toString(), EnvironmentSummaryQueryObj.class);
+		logger.debug("Environment summary query {}", sb.toString());
+		Query query = entityManager.createNativeQuery(sb.toString(), EnvironmentSummaryQueryObj.class);
 
 		int index = 0;
 		query.setParameter(++index, orgId);
@@ -121,8 +96,6 @@ public class QueryService {
 		if (!StringUtils.isBlank(cloud)) {
 			query.setParameter(++index, cloud);
 		}
-		query.setParameter(++index, orgId);
-		query.setParameter(++index, orgId);
 		List<EnvironmentSummaryQueryObj> list = query.getResultList();
 		return filterEnvironmentSummary(list);
 	}

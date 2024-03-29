@@ -34,6 +34,7 @@ public class EnvironmentSummaryQueryObj implements Serializable{
     @Column(name = "total_product_prod_env")
     private Long totalProductProdEnv;
 
-
+    @Column(name = "total_department")
+    private Long totalDepartment;
 
 }

@@ -79,6 +79,8 @@ public class LandingzoneController implements LandingzoneApi {
         validator.validateNotNull(landingzoneDTO.getId(), ENTITY_NAME);
         if(StringUtils.isBlank(landingzoneDTO.getStatus())){
             landingzoneDTO.setStatus(Constants.ACTIVE);
+        }else{
+            landingzoneDTO.setStatus(landingzoneDTO.getStatus().toUpperCase());
         }
         Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntity(landingzoneDTO);
         if(landingzoneDTO.getDepartmentId() == null){
