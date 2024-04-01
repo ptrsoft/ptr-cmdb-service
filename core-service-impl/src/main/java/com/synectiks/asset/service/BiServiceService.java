@@ -74,6 +74,12 @@ public class BiServiceService {
 		if(!StringUtils.isBlank(biServiceDTO.getUpdatedBy())){
 			primarySql.append(" and upper(c.updated_by) = upper(?) ");
 		}
+		if(!StringUtils.isBlank(biServiceDTO.getServiceType())){
+			primarySql.append(" and upper(c.service_type) = upper(?) ");
+		}
+		if(!StringUtils.isBlank(biServiceDTO.getServiceModule())){
+			primarySql.append(" and upper(c.service_module) = upper(?) ");
+		}
 		Query query = entityManager.createNativeQuery(primarySql.toString(), BiService.class);
 		int index = 0;
 		if(biServiceDTO.getId() != null){
@@ -85,7 +91,6 @@ public class BiServiceService {
 		if(biServiceDTO.getServiceCategory() != null){
 			query.setParameter(++index, biServiceDTO.getServiceCategory());
 		}
-
 		if(biServiceDTO.getName() != null){
 			query.setParameter(++index, biServiceDTO.getName());
 		}
@@ -97,6 +102,12 @@ public class BiServiceService {
 		}
 		if(!StringUtils.isBlank(biServiceDTO.getUpdatedBy())){
 			query.setParameter(++index, biServiceDTO.getUpdatedBy());
+		}
+		if(!StringUtils.isBlank(biServiceDTO.getServiceType())){
+			query.setParameter(++index, biServiceDTO.getServiceType());
+		}
+		if(!StringUtils.isBlank(biServiceDTO.getServiceModule())){
+			query.setParameter(++index, biServiceDTO.getServiceModule());
 		}
 		return query.getResultList();
 	}

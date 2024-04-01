@@ -6875,6 +6875,10 @@ components:
           type: string
         status:
           type: string
+        serviceType:
+          type: string
+        serviceModule:
+          type: string
         createdBy:
           type: string
         updatedBy:

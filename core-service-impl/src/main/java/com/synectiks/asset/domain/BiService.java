@@ -39,4 +39,10 @@ public class BiService extends AbstractAuditingEntity implements Serializable {
 	@Column(name = "status")
 	private String status;
 
+	@Column(name = "service_type")
+	private String serviceType;
+
+	@Column(name = "service_module")
+	private String serviceModule;
+
 }
