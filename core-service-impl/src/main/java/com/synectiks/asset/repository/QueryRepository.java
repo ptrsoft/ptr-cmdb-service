@@ -739,7 +739,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"        SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END) AS web_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count,  \n" +
-			"        SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END) as auxiliary_count \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Aux') THEN 1 ELSE 0 END) as auxiliary_count \n" +
 			"    from cloud_element ce, business_element be, product p, product_enclave pe, landingzone l   \n" +
 			"    where ce.id = be.cloud_element_id  \n" +
 			"        and p.id = be.product_id and pe.id = ce.product_enclave_id  \n" +
@@ -799,7 +799,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"        SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END) AS web_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END) AS app_count,  \n" +
 			"        SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END) AS data_count,  \n" +
-			"        SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END) as auxiliary_count \n" +
+			"        SUM(CASE WHEN upper(be.service_type) = upper('Aux') THEN 1 ELSE 0 END) as auxiliary_count \n" +
 			"    from cloud_element ce, business_element be, product p, landingzone l   \n" +
 			"    where  ce.product_enclave_id is null \n" +
 			"   \t\t\tand ce.id = be.cloud_element_id\n" +
@@ -892,7 +892,7 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END),0) AS web_count,\n" +
 			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END),0) AS app_count,\n" +
 			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Data') THEN 1 ELSE 0 END),0) AS data_count,\n" +
-			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Auxiliary') THEN 1 ELSE 0 END),0) as auxiliary_count \n" +
+			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Aux') THEN 1 ELSE 0 END),0) as auxiliary_count \n" +
 			"FROM landingzone l\n" +
 			"INNER JOIN department d ON l.department_id = d.id\n" +
 			"INNER JOIN organization o ON d.organization_id = o.id\n" +

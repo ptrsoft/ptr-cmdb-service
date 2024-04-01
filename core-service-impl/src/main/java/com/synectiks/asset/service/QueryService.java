@@ -67,7 +67,7 @@ public class QueryService {
 				"left join department d on d.id = l.department_id \n" +
 				"left join product_enclave pe on pe.landingzone_id = l.id\n" +
 				"left join product p on l.organization_id = p.organization_id and l.department_id = p.department_id\n" +
-				"left join product_env pe2 on p.id = pe2.product_id and upper(pe2.name) = upper('prod') \n" +
+				"left join product_env pe2 on p.id = pe2.product_id and upper(pe2.name) = upper('Production') \n" +
 				"where l.organization_id = ? \n" ;
 
 		StringBuilder sb = new StringBuilder(primarySql);

@@ -54,7 +54,7 @@ public class VpcHandler implements CloudHandler {
             List responseList = (List)responseMap.get("Vpcs");
             for(Object obj: responseList){
                 Map configMap = (Map)obj;
-                addUpdate(landingZone, configMap);
+                addUpdate(landingZone, configMap, null);
             }
         }
     }
@@ -68,13 +68,20 @@ public class VpcHandler implements CloudHandler {
             List responseList = (List)responseMap.get("Vpcs");
             for(Object obj: responseList){
                 Map configMap = (Map)obj;
-                productEnclaveList.add(addUpdate(landingzone, configMap));
+                productEnclaveList.add(addUpdate(landingzone, configMap, null));
+            }
+        }else if (response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List listObj = (List)response;
+            for(Object obj: listObj){
+                Map configMap = (Map)((Map)obj).get("vpc");
+                String region = (String)((Map)obj).get("region");
+                productEnclaveList.add(addUpdate(landingzone, configMap, region));
             }
         }
         return productEnclaveList;
     }
 
-    private ProductEnclave addUpdate(Landingzone landingZone, Map configMap) {
+    private ProductEnclave addUpdate(Landingzone landingZone, Map configMap, String region) {
         String instanceId = (String)configMap.get("VpcId");
         ProductEnclave productEnclave = productEnclaveService.findProductEnclave(instanceId, landingZone.getDepartment().getId(), landingZone.getId());
         if(productEnclave != null){
@@ -90,6 +97,7 @@ public class VpcHandler implements CloudHandler {
                         .department(landingZone.getDepartment())
                         .landingzone(landingZone)
                         .serviceCategory(Constants.NETWORK)
+                        .region(region)
                         .build();
             productEnclave = productEnclaveService.save(productEnclave);
         }
