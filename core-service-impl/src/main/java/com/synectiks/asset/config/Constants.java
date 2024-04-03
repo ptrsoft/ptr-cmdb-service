@@ -299,6 +299,15 @@ public final class Constants {
     public static final String ASC = "ASC";
 
     public static final String ALL = "ALL";
+
+    public static String AWS_ELEMENT_QUERY = "getVpcList,getApiGwList,getCdnList,getDiscoveredResourceCounts,getDynamoDbList,getEc2List,getEcsList,getEksList,getLbList,getKinesisList,getKmsList,getLambdaList,getRdsList,getS3List";
     private Constants() {
     }
+    public static boolean flag = false;
+    public static final String NEW = "NEW";
+    public static final String IN_PROCESS = "IN PROCESS";
+    public static final String COMPLETED = "COMPLETED";
+    public static final String FAILED = "FAILED";
+
+    public static final String AWS_DISCOVERY = "AWS_DISCOVERY";
 }

@@ -1,19 +1,21 @@
 package com.synectiks.asset.controller;
 
 import com.synectiks.asset.api.controller.InfraDiscoveryApi;
-import com.synectiks.asset.api.model.CloudElementDTO;
-import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.ServiceQueue;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.factory.AwsHandlerFactory;
-import com.synectiks.asset.mapper.CloudElementMapper;
 import com.synectiks.asset.service.CloudElementService;
+import com.synectiks.asset.service.ConfigService;
 import com.synectiks.asset.service.LandingzoneService;
+import com.synectiks.asset.service.ServiceQueueService;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +33,14 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
     @Autowired
     private CloudElementService cloudElementService;
 
+    @Autowired
+    private ServiceQueueService serviceQueueService;
+
+    @Autowired
+    private ConfigService configService;
+
     @Override
+
     public ResponseEntity<Object> discoverCloudElements(Long orgId, String elementType, Long landingZoneId, String query )  {
         logger.debug("REST request to pull aws element details. Org id: {}, landingZoneId: {}, elementType: {}, query: {}", orgId, landingZoneId, elementType, query);
         Optional<Landingzone> oLz = landingzoneService.findOne(landingZoneId);
@@ -44,18 +53,35 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
         return ResponseEntity.ok(object);
     }
 
-    // aws cron job
-    // get data from clod table. if it is cron-scheduled, do below steps otherwise skip this element
-    // loop landing zone for aws and element type from cloud table
-    // pull data-list and add/update cmdb cloud element table
+    @Scheduled(cron = "* */1 * * * ?")
+    public void pullAwsElementJob(){
+        logger.info("calling batch job");
+        List<ServiceQueue> serviceQueueList = serviceQueueService.findByKeyAndStatus(Constants.LANDING_ZONE, Constants.NEW);
+        for(ServiceQueue serviceQueue: serviceQueueList){
+            serviceQueue.setStatus(Constants.IN_PROCESS);
+            serviceQueueService.save(serviceQueue);
+            try{
+                Long landingZoneId = Long.parseLong(serviceQueue.getValue());
+                Optional<Landingzone> oLz = landingzoneService.findOne(landingZoneId);
+                if(oLz.isPresent()){
+                    logger.info("Pulling all the aws elements for landing-zone:  {}",oLz.get().getLandingZone());
+                    String awsQueries[] = Constants.AWS_ELEMENT_QUERY.split(",");
+                    for(String query: awsQueries){
+                        logger.debug("pulling: {}",query);
+                        CloudHandler cloudHandler = AwsHandlerFactory.getHandlerByQuery(query);
+                        Object object = cloudHandler.save("landingZone", oLz.get(), query);
+                    }
+                }
+                serviceQueue.setStatus(Constants.COMPLETED);
+                serviceQueueService.save(serviceQueue);
+            }catch (Exception e){
+                logger.error("exception: ",e );
+                serviceQueue.setStatus(Constants.FAILED);
+                serviceQueueService.save(serviceQueue);
+            }
+        }
 
-//    private List<Landingzone> getLandingzones(String landingZone) {
-//        LandingzoneDTO landingzoneDTO = new LandingzoneDTO();
-//        landingzoneDTO.setLandingZone(landingZone);
-//        landingzoneDTO.setCloud(Constants.AWS);
-//        Landingzone landingzone = LandingzoneMapper.INSTANCE.dtoToEntityForSearch(landingzoneDTO);
-//        logger.debug("Searching landing-zones by given landing-zone : {} ", landingZone);
-//        List<Landingzone> landingzoneList = landingzoneService.search(landingzone);
-//        return landingzoneList;
-//    }
+
+    }
+
 }

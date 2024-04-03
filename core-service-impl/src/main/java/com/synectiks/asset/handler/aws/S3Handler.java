@@ -75,16 +75,23 @@ public class S3Handler implements CloudHandler {
                     cloudElementList.add(addUpdate(landingzone, configMap));
                 }
             }
+        }else if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.ArrayList")){
+            List responseList = (ArrayList)response;
+            for(Object respObj: responseList){
+                Map responseMap = (Map)respObj;
+                cloudElementList.add(addUpdate(landingzone, responseMap));
+            }
         }
         return cloudElementList;
     }
 
     private CloudElement addUpdate(Landingzone landingZone, Map configMap) {
-        String instanceId = (String) configMap.get("Name");
+        String instanceId = (String) ((Map)configMap.get("bucket")).get("Name");
+//        String instanceId = (String) configMap.get("Name");
         CloudElement cloudElement =  cloudElementService.getCloudElementByInstanceId(landingZone.getId(), instanceId, Constants.S3);
         setAdditionalConfig(configMap);
         Map<String, Object> bucketMap = new HashMap();
-        bucketMap.put("bucket", configMap);
+        bucketMap.put("bucket", (Map)configMap.get("bucket"));
         if(cloudElement != null ){
             logger.debug("Updating s3: {} for landing-zone: {}",instanceId, landingZone.getLandingZone());
             cloudElement.setConfigJson(bucketMap);

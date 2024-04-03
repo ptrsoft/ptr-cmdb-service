@@ -9,12 +9,10 @@ import com.synectiks.asset.api.model.LandingzoneDTO;
 import com.synectiks.asset.api.model.LandingzoneResponseDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.ServiceQueue;
 import com.synectiks.asset.mapper.LandingzoneMapper;
 import com.synectiks.asset.repository.LandingzoneRepository;
-import com.synectiks.asset.service.CloudElementService;
-import com.synectiks.asset.service.CloudElementSummaryService;
-import com.synectiks.asset.service.LandingzoneService;
-import com.synectiks.asset.service.VaultService;
+import com.synectiks.asset.service.*;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +25,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -56,6 +56,9 @@ public class LandingzoneController implements LandingzoneApi {
 
     @Autowired
     private CloudElementSummaryService cloudElementSummaryService;
+
+    @Autowired
+    private ServiceQueueService serviceQueueService;
 
     @Override
     public ResponseEntity<LandingzoneResponseDTO> getLandingzone(Long id) {
@@ -94,6 +97,12 @@ public class LandingzoneController implements LandingzoneApi {
         }
         landingzone = landingzoneService.save(landingzone);
         LandingzoneResponseDTO result = LandingzoneMapper.INSTANCE.entityToResponseDto(landingzone);
+
+        ServiceQueue serviceQueue = new ServiceQueue();
+        serviceQueue.setKey(Constants.LANDING_ZONE);
+        serviceQueue.setValue(String.valueOf(landingzone.getId()));
+        serviceQueue.setStatus(Constants.NEW);
+        serviceQueueService.save(serviceQueue);
         return ResponseEntity.ok(result);
     }
 
