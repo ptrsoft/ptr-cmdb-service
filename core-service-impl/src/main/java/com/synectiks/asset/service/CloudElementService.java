@@ -540,4 +540,9 @@ public class CloudElementService {
         return cloudElementRepository.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
     }
 
+    public List<CloudElement> getAllCloudElementsOfOrganization(Long orgId){
+        logger.info("Request to get all cloud-elements of an organization. Org id: {} ", orgId);
+        return cloudElementRepository.getAllCloudElementsOfOrganization(orgId);
+    }
+
 }

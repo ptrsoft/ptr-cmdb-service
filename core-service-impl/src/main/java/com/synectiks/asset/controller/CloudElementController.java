@@ -287,4 +287,12 @@ public class CloudElementController implements CloudElementApi {
         response.put("data",obj);
         return response;
     }
+
+    @Override
+    public ResponseEntity<List<CloudElementDTO>> getAllCloudElementsOfOrganization(Long orgId) {
+        logger.info("REST request to get all cloud-elements of an organization. Org id: {} ", orgId);
+        List<CloudElement> cloudElementList = cloudElementService.getAllCloudElementsOfOrganization(orgId);
+        List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
+        return ResponseEntity.ok(cloudElementDTOList);
+    }
 }

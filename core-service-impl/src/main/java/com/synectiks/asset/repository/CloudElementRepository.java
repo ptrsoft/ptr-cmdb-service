@@ -24,7 +24,7 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
     CloudElement getCloudElementByLandingZoneAndInstanceId(@Param("landingZoneId") Long landingZoneId, @Param("instanceId") String instanceId);
 
 
-    String CLOUD_ELEMENT_QUERY ="select id,element_type,hosted_services,arn,instance_id,instance_name ,category,landingzone_id,db_category_id,product_enclave_id, null as sla_json, null as cost_json, null as view_json,config_json , null as compliance_json,status,created_on ,updated_on ,updated_by,created_by,cloud,log_location,trace_location,metric_location from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
+    String CLOUD_ELEMENT_QUERY ="select id,element_type,hosted_services,arn,instance_id,instance_name ,category,landingzone_id,db_category_id,product_enclave_id, null as sla_json, null as cost_json, null as view_json,config_json , null as compliance_json,status,created_on ,updated_on ,updated_by,created_by,cloud,log_location,trace_location,metric_location, service_category,region,log_group from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
     @Query(value = CLOUD_ELEMENT_QUERY, nativeQuery = true)
     CloudElement getCloudElementByArn(@Param("landingZoneId") Long landingZoneId,
                                       @Param("arn") String arn,
@@ -77,4 +77,18 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
             "order by ce.element_type asc";
     @Query(value = BI_MAPPING_CLOUD_ELEMENT_INSTANCES,nativeQuery = true)
     List<BiMappingBusinessCloudElementQueryObj> getBiMappingCloudElementInstances(@Param("orgId") Long orgId, @Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("elementType") String elementType);
+
+    String GET_ALL_ELEMENTS_OF_ORG="select ce.id, ce.element_type, ce.hosted_services, ce.arn, ce.instance_id, ce.instance_name , ce.category, ce.landingzone_id, ce.db_category_id, ce.product_enclave_id, null as sla_json, null as cost_json, null as view_json, ce.config_json , null as compliance_json, ce.status, ce.created_on , ce.updated_on , ce.updated_by, ce.created_by, ce.cloud, ce.log_location, ce.trace_location, ce.metric_location, ce. service_category, ce.region, ce.log_group\t\n" +
+            "FROM \n" +
+            "\tcloud_element ce, \n" +
+            "\tlandingzone l, \n" +
+            "\tdepartment d, \n" +
+            "\torganization o\n" +
+            "WHERE \n" +
+            "\tl.department_id = d.id \n" +
+            "\tAND d.organization_id = o.id \n" +
+            "\tAND ce.landingzone_id = l.id \n" +
+            "\tAND o.id = :orgId order by ce.id desc";
+    @Query(value = GET_ALL_ELEMENTS_OF_ORG, nativeQuery = true)
+    List<CloudElement> getAllCloudElementsOfOrganization(@Param("orgId") Long orgId);
 }

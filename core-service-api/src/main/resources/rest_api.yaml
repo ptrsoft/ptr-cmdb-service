@@ -1736,6 +1736,32 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /cloud-element/org/{orgId}/all-elements:
+    get:
+      tags:
+        - CloudElement
+      summary: Search all cloud-elements of an organization
+      operationId: getAllCloudElementsOfOrganization
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudElementDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /cloud-element/associate:
     post:
       tags:
