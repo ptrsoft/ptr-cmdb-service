@@ -52,10 +52,13 @@ public class LbHandler implements CloudHandler {
         if(response != null && response.getClass().getName().equalsIgnoreCase("java.util.LinkedHashMap")){
             Map responseMap = (LinkedHashMap)response;
             List responseList = (List)responseMap.get("LoadBalancers");
-            for(Object obj: responseList){
-                Map configMap = (Map)obj;
-                cloudElementList.add(addUpdate(landingzone, configMap));
+            if(responseList != null){
+                for(Object obj: responseList){
+                    Map configMap = (Map)obj;
+                    cloudElementList.add(addUpdate(landingzone, configMap));
+                }
             }
+
         }
         return cloudElementList;
     }
