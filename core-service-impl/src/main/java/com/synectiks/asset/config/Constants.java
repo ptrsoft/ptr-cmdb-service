@@ -306,7 +306,9 @@ public final class Constants {
     public static boolean flag = false;
     public static final String NEW = "NEW";
     public static final String IN_PROCESS = "IN PROCESS";
+    public static final String COST_IN_PROCESS = "COST IN PROCESS";
     public static final String COMPLETED = "COMPLETED";
+    public static final String COST_COMPLETED = "COST COMPLETED";
     public static final String FAILED = "FAILED";
 
     public static final String AWS_DISCOVERY = "AWS_DISCOVERY";
