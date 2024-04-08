@@ -309,6 +309,9 @@ public final class Constants {
     public static final String COST_IN_PROCESS = "COST IN PROCESS";
     public static final String COMPLETED = "COMPLETED";
     public static final String COST_COMPLETED = "COST COMPLETED";
+
+    public static final String TAG_PROCESS_COMPLETED = "TAG PROCESS COMPLETED";
+    public static final String TAG_IN_PROCESS = "TAG IN PROCESS";
     public static final String FAILED = "FAILED";
 
     public static final String AWS_DISCOVERY = "AWS_DISCOVERY";

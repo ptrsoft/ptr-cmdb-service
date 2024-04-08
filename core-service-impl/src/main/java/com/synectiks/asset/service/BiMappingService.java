@@ -24,6 +24,8 @@ public class BiMappingService {
 
 	private final Logger logger = LoggerFactory.getLogger(BiMappingService.class);
 
+	@Autowired
+	private DepartmentService departmentService;
 
 	@Autowired
 	private ProductService productService;
@@ -145,7 +147,7 @@ public class BiMappingService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	private Product saveProduct(Organization organization, Department department, Map productMap){
+	public Product saveProduct(Organization organization, Department department, Map productMap){
 		Product exitstingProduct = productService.getProduct((String) productMap.get("name"), department.getId(), organization.getId());
 		Product product = null;
 		if(exitstingProduct != null){
@@ -165,7 +167,7 @@ public class BiMappingService {
 		return product;
 	}
 	@Transactional(propagation = Propagation.REQUIRED)
-	private ProductEnv saveProductEnv(Product product, Map productEnvMap){
+	public ProductEnv saveProductEnv(Product product, Map productEnvMap){
 		ProductEnv exitstingProductEnv = productEnvService.getProductEnv((String) productEnvMap.get("name"), product.getId());
 		ProductEnv productEnv = null;
 		if(exitstingProductEnv != null){
@@ -184,7 +186,7 @@ public class BiMappingService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	private Module saveModule(Product product, ProductEnv productEnv, Map moduleMap){
+	public Module saveModule(Product product, ProductEnv productEnv, Map moduleMap){
 		Module exitstingModule = moduleService.getModule((String) moduleMap.get("name"), product.getId(), productEnv.getId());
 		Module module = null;
 		if(exitstingModule != null){
@@ -204,7 +206,7 @@ public class BiMappingService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	private BusinessElement saveService(Product product, ProductEnv productEnv, Module module, String serviceNature, Map serviceMap){
+	public BusinessElement saveService(Product product, ProductEnv productEnv, Module module, String serviceNature, Map serviceMap){
 		Map cloudElementMap = (Map)serviceMap.get("cloudElementMapping");
 		Long cloudElementId = ((Integer)cloudElementMap.get("id")).longValue();
 		CloudElement cloudElement = cloudElementService.findOne(cloudElementId).orElse(null);
@@ -284,7 +286,7 @@ public class BiMappingService {
 	}
 
 
-	private void createSoaTag(ObjectNode objectNode, Product product, ProductEnv productEnv, Module module, CloudElement cloudElement, BusinessElement businessElement){
+	public void createSoaTag(ObjectNode objectNode, Product product, ProductEnv productEnv, Module module, CloudElement cloudElement, BusinessElement businessElement){
 		ObjectNode tagNode = (ObjectNode)objectNode.get("tag");
 
 		ObjectNode orgNode = (ObjectNode)tagNode.get("org");
@@ -327,7 +329,7 @@ public class BiMappingService {
 		logger.info("New soa tag: {}",objectNode);
 	}
 
-	private void create3TierTag(ObjectNode objectNode, Product product, ProductEnv productEnv, CloudElement cloudElement, BusinessElement businessElement){
+	public void create3TierTag(ObjectNode objectNode, Product product, ProductEnv productEnv, CloudElement cloudElement, BusinessElement businessElement){
 		ObjectNode tagNode = (ObjectNode)objectNode.get("tag");
 
 		ObjectNode orgNode = (ObjectNode)tagNode.get("org");
@@ -365,5 +367,24 @@ public class BiMappingService {
 
 		logger.info("New 3 tier tag: {}",objectNode);
 
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public Department saveDepartment(Organization organization, Map departmentMap){
+		Department exitstingDepartment = departmentService.getDepartment((String) departmentMap.get("name"), organization.getId());
+		Department department = null;
+		if(exitstingDepartment != null){
+			logger.info("1. department already exists in given organization. department name: {}, organization id: {} ",(String) departmentMap.get("name"), organization.getId());
+			department = exitstingDepartment;
+		}else {
+			logger.info("1. Saving department");
+			department = Department.builder()
+					.name((String) departmentMap.get("name"))
+					.status(Constants.ACTIVE)
+					.organization(organization)
+					.build();
+			department = departmentService.save(department);
+		}
+		return department;
 	}
 }

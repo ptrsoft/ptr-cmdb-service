@@ -141,20 +141,17 @@ public class Ec2Handler implements CloudHandler {
                     Map tag = (Map)object;
                     if(tag.get("Key") != null &&  ((String)tag.get("Key")).toLowerCase().contains("appkube_tag")){
                         String tagValue[] = ((String)tag.get("Value")).split("/");
-                        Map<String, Object> erroMap = validate(tagValue, cloudElement, tagProcessor);
-                        if(erroMap.size() > 0){
-                            logger.error("Validation error: ",erroMap.get("errorMsg"));
-                            tag.put("failure_reason",erroMap.get("errorMsg"));
-                            tag.put("error_code",erroMap.get("errorCode"));
-                            failureTagging.add(tag);
-                            continue;
+                        try{
+                            int errorCode = tagProcessor.process(tagValue, cloudElement);
+                            if(errorCode == 0){
+                                successTagging.add(tag);
+                            }else{
+                                failureTagging.add(tag);
+                            }
+                        }catch (Exception e){
+                            logger.warn("exception in tag processing: ",e.getMessage());
                         }
-                        int errorCode = tagProcessor.process(tagValue, cloudElement);
-                        if(errorCode == 0){
-                            successTagging.add(tag);
-                        }else{
-                            failureTagging.add(tag);
-                        }
+
                     }
                 }
             }

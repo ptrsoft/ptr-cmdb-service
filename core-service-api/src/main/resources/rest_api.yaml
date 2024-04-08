@@ -5019,6 +5019,41 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /infra-discovery/organization/{orgId}/process-aws-tags:
+    get:
+      tags:
+        - InfraDiscovery
+      summary: Process AWS tags to do bi-mapping
+      operationId: processAwsTags
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: query
+          name: elementType
+          schema:
+            type: string
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /bi-service:
     get:
       tags:

@@ -52,7 +52,6 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
 
 
     @Override
-
     public ResponseEntity<Object> discoverCloudElements(Long orgId, String elementType, Long landingZoneId, String query )  {
         logger.debug("REST request to pull aws element details. Org id: {}, landingZoneId: {}, elementType: {}, query: {}", orgId, landingZoneId, elementType, query);
         Optional<Landingzone> oLz = landingzoneService.findOne(landingZoneId);
@@ -65,6 +64,28 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
         return ResponseEntity.ok(object);
     }
 
+    @Override
+    public ResponseEntity<Object> processAwsTags(Long orgId, Long landingZoneId, String elementType )  {
+        logger.debug("REST request to process aws tags. Org id: {}, landingZoneId: {}, elementType: {}", orgId, landingZoneId, elementType);
+        Optional<Landingzone> oLz = landingzoneService.findOne(landingZoneId);
+        if(!oLz.isPresent()){
+            logger.error("landingZoneId does not exists");
+            return ResponseUtil.wrapOrNotFound(Optional.empty());
+        }
+        if(oLz.isPresent()){
+            logger.info("Processing aws tags for landing-zone:  {}",oLz.get().getLandingZone());
+            CloudElementDTO cloudElementDTO = new CloudElementDTO();
+            cloudElementDTO.setLandingzoneId(landingZoneId);
+            cloudElementDTO.setElementType(elementType);
+            List<CloudElement> cloudElementList = cloudElementService.search(cloudElementDTO);
+            for(CloudElement cloudElement: cloudElementList){
+                logger.debug("process tag: {}",elementType);
+                CloudHandler cloudHandler = AwsHandlerFactory.getHandler(elementType);
+                Object object = cloudHandler.processTag(cloudElement);
+            }
+        }
+        return ResponseEntity.ok("done");
+    }
     @Scheduled(cron = "* */1 * * * ?")
     public void pullAwsElementJob(){
         logger.info("calling batch job to pull aws elements");
@@ -134,6 +155,40 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
             }catch (Exception e){
                 logger.error("exception: ",e );
                 serviceQueue.setStatus(Constants.COST_COMPLETED);
+                serviceQueueService.save(serviceQueue);
+            }
+        }
+    }
+
+//    @Scheduled(cron = "* */1 * * * ?")
+    public void processTag(){
+        logger.info("calling batch job to process appkube-tag");
+        List<ServiceQueue> serviceQueueList = serviceQueueService.findByKeyAndStatus(Constants.LANDING_ZONE, Constants.COST_COMPLETED);
+        for(ServiceQueue serviceQueue: serviceQueueList){
+            serviceQueue.setStatus(Constants.TAG_IN_PROCESS);
+            serviceQueue = serviceQueueService.save(serviceQueue);
+            try{
+                Long landingZoneId = Long.parseLong(serviceQueue.getValue());
+                Optional<Landingzone> oLz = landingzoneService.findOne(landingZoneId);
+                if(oLz.isPresent()){
+                    logger.info("Pulling all the aws elements for landing-zone:  {}",oLz.get().getLandingZone());
+                    CloudElementDTO cloudElementDTO = new CloudElementDTO();
+                    cloudElementDTO.setLandingzoneId(landingZoneId);
+                    List<CloudElement> cloudElementList = cloudElementService.search(cloudElementDTO);
+                    for(CloudElement cloudElement: cloudElementList){
+                        String awsQueries[] = Constants.AWS_ELEMENT_QUERY.split(",");
+                        for(String query: awsQueries){
+                            logger.debug("process tag: {}",query);
+                            CloudHandler cloudHandler = AwsHandlerFactory.getHandlerByQuery(query);
+                            Object object = cloudHandler.processTag(cloudElement);
+                        }
+                    }
+                }
+                serviceQueue.setStatus(Constants.TAG_PROCESS_COMPLETED);
+                serviceQueueService.save(serviceQueue);
+            }catch (Exception e){
+                logger.error("exception: ",e );
+                serviceQueue.setStatus(Constants.TAG_PROCESS_COMPLETED);
                 serviceQueueService.save(serviceQueue);
             }
         }
