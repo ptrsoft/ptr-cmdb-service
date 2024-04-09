@@ -5,10 +5,12 @@ import com.synectiks.asset.api.model.DepartmentDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.Department;
 import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.ServiceQueue;
 import com.synectiks.asset.mapper.DepartmentMapper;
 import com.synectiks.asset.repository.DepartmentRepository;
 import com.synectiks.asset.service.DepartmentService;
 import com.synectiks.asset.service.LandingzoneService;
+import com.synectiks.asset.service.ServiceQueueService;
 import com.synectiks.asset.web.rest.validation.Validator;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +48,9 @@ public class DepartmentController implements DepartmentApi {
 
 	@Autowired
 	private LandingzoneService landingzoneService;
+
+	@Autowired
+	private ServiceQueueService serviceQueueService;
 
 	@Override
 	public ResponseEntity<DepartmentDTO> getDepartment(Long id) {
@@ -137,7 +142,13 @@ public class DepartmentController implements DepartmentApi {
 							landingzone.setId(null);
 						}
 						landingzone.setDepartment(department);
-						landingzoneService.save(landingzone);
+						landingzone = landingzoneService.save(landingzone);
+
+						ServiceQueue serviceQueue = new ServiceQueue();
+						serviceQueue.setKey(Constants.LANDING_ZONE);
+						serviceQueue.setValue(String.valueOf(landingzone.getId()));
+						serviceQueue.setStatus(Constants.NEW);
+						serviceQueueService.save(serviceQueue);
 					}
 				}
 			}
