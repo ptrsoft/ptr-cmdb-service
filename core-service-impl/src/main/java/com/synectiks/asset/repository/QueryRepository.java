@@ -18,12 +18,13 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 
     String ENV_COUNT_QUERY ="with tmp_landingzone as\n" +
 			" (\n" +
-			" \tselect l.cloud, count(*) as environments, null as assets, 0 as alerts, 0 as totalbilling \n" +
-			" \tfrom landingzone l,department dep, organization org \n" +
-			" \twhere upper(l.status) = upper('ACTIVE') \n" +
-			" \tand l.department_id = dep.id and dep.organization_id = org.id \n" +
-			"\tand org.id = :orgId \n" +
-			" \tgroup by l.cloud \n" +
+			" \t select l.cloud, count(*) as environments, null as assets, 0 as alerts, 0 as totalbilling \n" +
+			" \t from landingzone l left join department dep on l.department_id = dep.id \n" +
+			" \t left join organization org on l.organization_id = org.id \n" +
+			" \t where upper(l.status) = upper('ACTIVE') \n" +
+//			" \tand l.department_id = dep.id and dep.organization_id = org.id \n" +
+			"\t and org.id = :orgId \n" +
+			" \t group by l.cloud \n" +
 			" ),\n" +
 			" tmp_cloud_element_summary as \n" +
 			" (\n" +
