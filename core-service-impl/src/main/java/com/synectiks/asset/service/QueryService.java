@@ -328,35 +328,35 @@ public class QueryService {
 		return queryRepository.orgVpcSummary(orgId, landingZone, product);
 	}
 
-	public List<InfraTopologyCloudElementQueryObj> getInfraTopologyCloudElementList(Long orgId, String landingZone,
+	public List<InfraTopologyCloudElementQueryObj> getInfraTopologyCloudElementList(Long orgId, Long landingZoneId,
 			String productEnclaveInstanceId) {
 		logger.debug(
 				"Getting infra-topology cloud elements list for a given organization, landing-zone and product-enclave");
-		return queryRepository.getInfraTopologyCloudElementList(orgId, landingZone, productEnclaveInstanceId);
+		return queryRepository.getInfraTopologyCloudElementList(orgId, landingZoneId, productEnclaveInstanceId);
 	}
 
-	public InfraTopology3TierStatsQueryObj getInfraTopology3TierStats(Long orgId, String landingZone,
+	public InfraTopology3TierStatsQueryObj getInfraTopology3TierStats(Long orgId, Long landingZoneId,
 			String productEnclaveInstanceId, String cloudElementInstanceId) {
 		logger.debug(
 				"Getting infra-topology 3 tier statistics for a given organization, landing-zone, product-enclave and cloud-element");
-		return queryRepository.getInfraTopology3TierStats(orgId, landingZone, productEnclaveInstanceId,
+		return queryRepository.getInfraTopology3TierStats(orgId, landingZoneId, productEnclaveInstanceId,
 				cloudElementInstanceId);
 	}
 
-	public InfraTopologySOAStatsQueryObj getInfraTopologySOAStats(Long orgId, String landingZone,
+	public InfraTopologySOAStatsQueryObj getInfraTopologySOAStats(Long orgId, Long landingZoneId,
 			String productEnclaveInstanceId, String cloudElementInstanceId) {
 		logger.debug(
 				"Getting infra-topology SOA statistics for a given organization, landing-zone, product-enclave and cloud-element");
-		return queryRepository.getInfraTopologySOAStats(orgId, landingZone, productEnclaveInstanceId,
+		return queryRepository.getInfraTopologySOAStats(orgId, landingZoneId, productEnclaveInstanceId,
 				cloudElementInstanceId);
 	}
 
-	public List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(Long orgId, String landingZone,
+	public List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(Long orgId, Long landingZoneId,
 			String productEnclaveInstanceId) {
 		logger.debug(
 				"Getting infra-topology category-wise(app/data/data-lake/service-mesh) view for a given organization, landing-zone and product-enclave");
 		List<InfraTopologyCategoryWiseViewQueryObj> infraTopologyCategoryWiseViewQueryObjList = queryRepository
-				.getInfraTopologyCategoryWiseView(orgId, landingZone, productEnclaveInstanceId);
+				.getInfraTopologyCategoryWiseView(orgId, landingZoneId, productEnclaveInstanceId);
 		for (InfraTopologyCategoryWiseViewQueryObj infraTopologyCategoryWiseViewQueryObj : infraTopologyCategoryWiseViewQueryObjList) {
 			if ("ECS".equalsIgnoreCase(infraTopologyCategoryWiseViewQueryObj.getElementType())
 					|| "EKS".equalsIgnoreCase(infraTopologyCategoryWiseViewQueryObj.getElementType())) {

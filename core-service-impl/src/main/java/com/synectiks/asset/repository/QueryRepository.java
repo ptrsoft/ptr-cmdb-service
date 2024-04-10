@@ -854,12 +854,12 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"INNER JOIN organization o ON d.organization_id = o.id\n" +
 			"where ce.product_enclave_id = pe.id and ce.landingzone_id = l.id   \n" +
 			"and pe.instance_id = :productEnclaveInstanceId \n" +
-			"and l.landing_zone = :landingZone \n" +
+			"and ce.landingzone_id = :landingZoneId \n" +
 			"and o.id = :orgId \n" +
 			"group by ce.product_enclave_id, ce.category, ce.element_type, ce.db_category_id  \n" +
 			"order by ce.element_type asc";
 	@Query(value = INFRA_TOPOLOGY_CATEGORY_WISE_VIEW_QUERY, nativeQuery = true)
-	List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId);
+	List<InfraTopologyCategoryWiseViewQueryObj> getInfraTopologyCategoryWiseView(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId, @Param("productEnclaveInstanceId") String productEnclaveInstanceId);
 
 	String INFRA_TOPOLOGY_GLOBAL_SERVICE_CATEGORY_WISE_VIEW_QUERY =" select ce.element_type, jsonb_build_object() as metadata, count(ce.element_type) as total_record   \n" +
 			"    from cloud_element ce   \n" +
@@ -883,11 +883,11 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"INNER JOIN organization o ON d.organization_id = o.id \n" +
 			"where ce.product_enclave_id = pe.id and ce.landingzone_id = l.id \n" +
 			"and pe.instance_id = :productEnclaveInstanceId \n" +
-			"and l.landing_zone = :landingZone \n" +
+			"and ce.landingzone_id = :landingZoneId \n" +
 			"and o.id = :orgId \n" +
 			"order by ce.element_type asc ";
 	@Query(value = INFRA_TOPOLOGY_CLOUD_ELEMENT_QUERY, nativeQuery = true)
-	List<InfraTopologyCloudElementQueryObj> getInfraTopologyCloudElementList(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId);
+	List<InfraTopologyCloudElementQueryObj> getInfraTopologyCloudElementList(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId, @Param("productEnclaveInstanceId") String productEnclaveInstanceId);
 
 	String INFRA_TOPOLOGY_3_TIER_STATS_QUERY ="SELECT \n" +
 			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('Web') THEN 1 ELSE 0 END),0) AS web_count,\n" +
@@ -906,11 +906,11 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"    AND l.department_id = d.id\n" +
 			"    AND upper(p.\"type\") = upper('3 Tier')\n" +
 			"    and o.id = :orgId \n" +
-			"    AND l.landing_zone = :landingZone \n" +
+			"    AND l.id = :landingZoneId \n" +
 			"    and pe.instance_id = :productEnclaveInstanceId \n" +
 			"    and ce.instance_id = :cloudElementInstanceId ";
 	@Query(value = INFRA_TOPOLOGY_3_TIER_STATS_QUERY, nativeQuery = true)
-	InfraTopology3TierStatsQueryObj getInfraTopology3TierStats(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId, @Param("cloudElementInstanceId") String cloudElementInstanceId);
+	InfraTopology3TierStatsQueryObj getInfraTopology3TierStats(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId, @Param("productEnclaveInstanceId") String productEnclaveInstanceId, @Param("cloudElementInstanceId") String cloudElementInstanceId);
 
 	String INFRA_TOPOLOGY_SOA_STATS_QUERY ="SELECT\n" +
 			"    coalesce (SUM(CASE WHEN upper(be.service_type) = upper('App') THEN 1 ELSE 0 END),0) AS app_count,\n" +
@@ -928,11 +928,11 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 			"    AND l.department_id = d.id\n" +
 			"    AND upper(p.\"type\") = upper('SOA')\n" +
 			"    and o.id = :orgId \n" +
-			"    AND l.landing_zone = :landingZone \n" +
+			"    AND l.id = :landingZoneId \n" +
 			"    and pe.instance_id = :productEnclaveInstanceId \n" +
 			"    and ce.instance_id = :cloudElementInstanceId ";
 	@Query(value = INFRA_TOPOLOGY_SOA_STATS_QUERY, nativeQuery = true)
-	InfraTopologySOAStatsQueryObj getInfraTopologySOAStats(@Param("orgId") Long orgId, @Param("landingZone") String landingZone, @Param("productEnclaveInstanceId") String productEnclaveInstanceId, @Param("cloudElementInstanceId") String cloudElementInstanceId);
+	InfraTopologySOAStatsQueryObj getInfraTopologySOAStats(@Param("orgId") Long orgId, @Param("landingZoneId") Long landingZoneId, @Param("productEnclaveInstanceId") String productEnclaveInstanceId, @Param("cloudElementInstanceId") String cloudElementInstanceId);
 
 
 	String MONTHLY_STATISTICS_QUERY = " select * from\n" +

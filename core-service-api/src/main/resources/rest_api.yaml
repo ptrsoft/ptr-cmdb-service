@@ -2729,6 +2729,36 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /query/organization/{orgId}/landing-zone-id/{landingZoneId}/view-service:
+    get:
+      tags:
+        - OrgLandingZoneWiseQuery
+      summary: Get landing-zone wise business services
+      operationId: getLandingZoneWiseBusinessServices
+      parameters:
+        - in: path
+          name: orgId
+          schema:
+            type: integer
+            format: int64
+          required: true
+        - in: path
+          name: landingZoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /query/organization/{orgId}/product-enclave:
     get:
       tags:
@@ -4009,7 +4039,7 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/infra-topology/landing-zone/{landingZone}/product-enclave/{productEnclave}/category-wise-summary:
+  /query/organization/{orgId}/infra-topology/landing-zone/{landingZoneId}/product-enclave/{productEnclave}/category-wise-summary:
     get:
       tags:
         - InfraTopologyQuery
@@ -4023,9 +4053,10 @@ paths:
             format: int64
           required: true
         - in: path
-          name: landingZone
+          name: landingZoneId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: true
         - in: path
           name: productEnclave
@@ -4077,7 +4108,7 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
-  /query/organization/{orgId}/infra-topology/landing-zone/{landingZone}/product-enclave/{productEnclave}/cloud-elements:
+  /query/organization/{orgId}/infra-topology/landing-zone/{landingZoneId}/product-enclave/{productEnclave}/cloud-elements:
     get:
       tags:
         - InfraTopologyQuery
@@ -4091,9 +4122,10 @@ paths:
             format: int64
           required: true
         - in: path
-          name: landingZone
+          name: landingZoneId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: true
         - in: path
           name: productEnclave

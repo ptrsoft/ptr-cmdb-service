@@ -11,12 +11,14 @@
  import com.synectiks.asset.mapper.query.*;
  import com.synectiks.asset.service.CloudElementService;
  import com.synectiks.asset.service.QueryService;
+ import io.swagger.annotations.ApiParam;
  import org.apache.commons.lang3.StringUtils;
  import org.slf4j.Logger;
  import org.slf4j.LoggerFactory;
  import org.springframework.beans.factory.annotation.Autowired;
  import org.springframework.http.HttpStatus;
  import org.springframework.http.ResponseEntity;
+ import org.springframework.web.bind.annotation.PathVariable;
  import org.springframework.web.bind.annotation.RequestMapping;
  import org.springframework.web.bind.annotation.RestController;
 
@@ -357,8 +359,8 @@ public class QueryController implements QueryApi {
 	}
 
 	@Override
-	public ResponseEntity<List<InfraTopologyCategoryWiseViewDTO>> getInfraTopologyCategoryWiseSummary(Long orgId, String landingZone, String productEnclave) {
-		List<InfraTopologyCategoryWiseViewQueryObj> infraTopologyCategoryWiseViewQueryObjList = queryService.getInfraTopologyCategoryWiseView(orgId, landingZone,productEnclave);
+	public ResponseEntity<List<InfraTopologyCategoryWiseViewDTO>> getInfraTopologyCategoryWiseSummary(Long orgId, Long landingZoneId, String productEnclave) {
+		List<InfraTopologyCategoryWiseViewQueryObj> infraTopologyCategoryWiseViewQueryObjList = queryService.getInfraTopologyCategoryWiseView(orgId, landingZoneId,productEnclave);
 		List<InfraTopologyCategoryWiseViewDTO> infraTopologyCategoryWiseViewDTOList = InfraTopologyCategoryWiseViewMapper.INSTANCE.toDtoList(infraTopologyCategoryWiseViewQueryObjList);
 		return ResponseEntity.ok(infraTopologyCategoryWiseViewDTOList);
 	}
@@ -371,14 +373,14 @@ public class QueryController implements QueryApi {
 	}
 
 	@Override
-	public ResponseEntity<List<InfraTopologyCloudElementDTO>> getInfraTopologyCloudElementList(Long orgId, String landingZone, String productEnclave) {
-		List<InfraTopologyCloudElementQueryObj> cloudElementList = queryService.getInfraTopologyCloudElementList(orgId, landingZone,productEnclave);
+	public ResponseEntity<List<InfraTopologyCloudElementDTO>> getInfraTopologyCloudElementList(Long orgId, Long landingZoneId, String productEnclave) {
+		List<InfraTopologyCloudElementQueryObj> cloudElementList = queryService.getInfraTopologyCloudElementList(orgId, landingZoneId,productEnclave);
 		List<InfraTopologyCloudElementDTO> cloudElementDTOList = InfraTopologyCloudElementMapper.INSTANCE.toDtoList(cloudElementList);
 		for(InfraTopologyCloudElementDTO dto: cloudElementDTOList){
-			InfraTopology3TierStatsQueryObj threeTierQueryObj = queryService.getInfraTopology3TierStats(orgId, landingZone,productEnclave, dto.getInstanceId());
+			InfraTopology3TierStatsQueryObj threeTierQueryObj = queryService.getInfraTopology3TierStats(orgId, landingZoneId ,productEnclave, dto.getInstanceId());
 			dto.setThreeTier(InfraTopology3TierStatsMapper.INSTANCE.toDto(threeTierQueryObj));
 
-			InfraTopologySOAStatsQueryObj soaQueryObj = queryService.getInfraTopologySOAStats(orgId, landingZone,productEnclave, dto.getInstanceId());
+			InfraTopologySOAStatsQueryObj soaQueryObj = queryService.getInfraTopologySOAStats(orgId, landingZoneId,productEnclave, dto.getInstanceId());
 			dto.setSoa(InfraTopologySOAStatsMapper.INSTANCE.toDto(soaQueryObj));
 		}
 		return ResponseEntity.ok(cloudElementDTOList);
@@ -647,6 +649,12 @@ public class QueryController implements QueryApi {
 		List<BiMappingBusinessCloudElementQueryObj> cloudElementList = cloudElementService.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
 //		List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
 		return ResponseEntity.ok(cloudElementList);
+	}
+
+	@Override
+	public ResponseEntity<Object> getLandingZoneWiseBusinessServices(Long orgId, Long landingZoneId) {
+		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
 	}
 }
 
