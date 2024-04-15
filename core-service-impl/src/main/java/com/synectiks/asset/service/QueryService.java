@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -906,5 +907,10 @@ public class QueryService {
 
 		List list = query.getResultList();
 		return list;
+	}
+
+	public List<LandingzoneWiseServiceView> getLandingzoneWiseServiceView(Long landingZoneId){
+		logger.debug("Request to get landingzone wise services. landingZoneId id: {}", landingZoneId);
+		return queryRepository.getLandingzoneWiseServiceView(landingZoneId);
 	}
 }

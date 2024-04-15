@@ -1575,4 +1575,19 @@ public interface QueryRepository extends JpaRepository<Organization, Long>{
 	@Query(value = BI_MAPPING_CLOUD_ELEMENTS,nativeQuery = true)
 	List<String> getBiMappingCloudElements(@Param("orgId") Long orgId, @Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId);
 
+
+	String LANDINGZONE_WISE_SERVICE_VIEW_QUERY = "select be.id as service_id, p.id as product_id, p.name as product,p.type as product_type,pe.name as environment, \n" +
+			"m.id as module_id,  m.name as module, be.service_name, be.service_type,\n" +
+			"cast (floor(random() * (98 - 92 + 1) + 92) as int) as sle, cast (floor(random() * (480 - 300 + 1) + 300) as int) as cost\n" +
+			"from business_element be \n" +
+			"inner join cloud_element ce on be.cloud_element_id = ce.id \n" +
+			"inner join product p on be.product_id = p.id\n" +
+			"inner join product_env pe on be.product_env_id = pe.id \n" +
+			"left join module m on be.module_id = m.id\n" +
+			"where ce.landingzone_id = :landingZoneId ";
+	@Query(value = LANDINGZONE_WISE_SERVICE_VIEW_QUERY,nativeQuery = true)
+	List<LandingzoneWiseServiceView> getLandingzoneWiseServiceView(@Param("landingZoneId") Long landingZoneId);
+
+
+
 }

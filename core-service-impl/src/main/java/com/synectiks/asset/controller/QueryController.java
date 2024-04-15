@@ -23,9 +23,10 @@
  import org.springframework.web.bind.annotation.RestController;
 
  import java.util.List;
+ import java.util.stream.Collectors;
 
 
-@RestController
+ @RestController
 @RequestMapping("/api")
 public class QueryController implements QueryApi {
 
@@ -647,14 +648,21 @@ public class QueryController implements QueryApi {
 	public ResponseEntity<Object> getBiMappingCloudElementInstances(Long orgId, Long departmentId, Long productId, Long productEnvId, String elementType){
 		logger.debug("REST request to get list of cloud-element instances for bi mapping. organization id: {}, department id:{}, product id: {}, product-environment id: {}, element-type: {}", orgId, departmentId, productId, productEnvId,elementType);
 		List<BiMappingBusinessCloudElementQueryObj> cloudElementList = cloudElementService.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
-//		List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
 		return ResponseEntity.ok(cloudElementList);
 	}
 
 	@Override
-	public ResponseEntity<Object> getLandingZoneWiseBusinessServices(Long orgId, Long landingZoneId) {
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+	public ResponseEntity<Object> getLandingzoneWiseServiceView(Long orgId, Long landingZoneId, String productType) {
+		logger.debug("REST request to get landing-zone wise service list: organization: {}, landing-zone: {}, product-type: {}", orgId, landingZoneId, productType);
+		List<LandingzoneWiseServiceView> landingzoneWiseServiceList = queryService.getLandingzoneWiseServiceView(landingZoneId);
+		if(!StringUtils.isBlank(productType)){
+			logger.info("Filtering list for product type : {}", productType);
+			List<LandingzoneWiseServiceView> filteredList = landingzoneWiseServiceList.stream()
+					.filter(l -> l.getProductType().equalsIgnoreCase(productType))
+					.collect(Collectors.toList());
+			return ResponseEntity.ok(filteredList);
+		}
+		return ResponseEntity.ok(landingzoneWiseServiceList);
 	}
 }
 

@@ -2733,8 +2733,8 @@ paths:
     get:
       tags:
         - OrgLandingZoneWiseQuery
-      summary: Get landing-zone wise business services
-      operationId: getLandingZoneWiseBusinessServices
+      summary: Get landing-zone wise service view
+      operationId: getLandingzoneWiseServiceView
       parameters:
         - in: path
           name: orgId
@@ -2748,6 +2748,11 @@ paths:
             type: integer
             format: int64
           required: true
+        - in: query
+          name: productType
+          schema:
+            type: string
+          required: false
       responses:
         200:
           description: OK
