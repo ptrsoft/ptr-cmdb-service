@@ -300,19 +300,20 @@ public final class Constants {
 
     public static final String ALL = "ALL";
 
-    public static String AWS_ELEMENT_QUERY = "getVpcList,getApiGwList,getCdnList,getDiscoveredResourceCounts,getDynamoDbList,getEc2List,getEcsList,getEksList,getLbList,getKinesisList,getKmsList,getLambdaList,getRdsList,getS3List";
+    public static String AWS_ELEMENT_QUERY[] = {"getVpcList","getApiGwList","getCdnList","getDiscoveredResourceCounts","getDynamoDbList","getEc2List","getEcsList","getEksList","getLbList","getKinesisList","getKmsList","getLambdaList","getRdsList","getS3List"};
     private Constants() {
     }
     public static boolean flag = false;
     public static final String NEW = "NEW";
     public static final String IN_PROCESS = "IN PROCESS";
-    public static final String COST_IN_PROCESS = "COST IN PROCESS";
     public static final String COMPLETED = "COMPLETED";
-    public static final String COST_COMPLETED = "COST COMPLETED";
-
-    public static final String TAG_PROCESS_COMPLETED = "TAG PROCESS COMPLETED";
-    public static final String TAG_IN_PROCESS = "TAG IN PROCESS";
     public static final String FAILED = "FAILED";
 
+//    public static final String READY_FOR_COST_CALCULATION = "READY FOR COST CALCULATION";
+//    public static final String READY_FOR_TAG_PROCESSING = "READY FOR TAG PROCESSING";
     public static final String AWS_DISCOVERY = "AWS_DISCOVERY";
+    public static final String BATCH_JOB_PULL_AWS_ELEMENTS = "BATCH_JOB_PULL_AWS_ELEMENTS";
+    public static final String BATCH_JOB_PULL_AWS_ELEMENTS_COST = "BATCH_JOB_PULL_AWS_ELEMENTS_COST";
+    public static final String BATCH_JOB_AWS_ELEMENTS_AUTO_TAG_PROCESS = "BATCH_JOB_AWS_ELEMENTS_AUTO_TAG_PROCESS";
+
 }

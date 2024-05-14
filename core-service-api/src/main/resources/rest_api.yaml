@@ -6906,6 +6906,8 @@ components:
           type: string
         status:
           type: string
+        isEncrypted:
+          type: boolean
         createdBy:
           type: string
         updatedBy:

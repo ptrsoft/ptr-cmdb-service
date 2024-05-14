@@ -36,6 +36,9 @@ public class Config extends AbstractAuditingEntity implements Serializable {
 	@Column(name = "status")
 	private String status;
 
+	@Column(name = "is_encrypted")
+	private boolean isEncrypted;
+
 	@ManyToOne
 	private Organization organization;
 }

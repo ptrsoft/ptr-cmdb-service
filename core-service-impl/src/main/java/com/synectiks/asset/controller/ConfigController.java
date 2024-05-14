@@ -46,14 +46,26 @@ public class ConfigController implements ConfigApi {
     public ResponseEntity<ConfigDTO> getConfig(@PathVariable("id") Long id) {
         logger.debug("REST request to get a config : ID: {}", id);
         Optional<Config> oObj = configService.findOne(id);
-        ConfigDTO configDTO = ConfigMapper.INSTANCE.entityToDto(oObj.orElse(null));
-        return ResponseUtil.wrapOrNotFound(Optional.of(configDTO));
+        ConfigDTO result = null;
+        if(oObj.isPresent()){
+            Config config = oObj.get();
+            if(config.isEncrypted()){
+                config.setValue(CryptoUtil.decrypt(config.getValue()));
+            }
+            result = ConfigMapper.INSTANCE.entityToDto(config);
+        }
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(result));
     }
 
     @Override
     public ResponseEntity<List<ConfigDTO>> getConfigList(){
         logger.debug("REST request to get all configs");
         List<Config> configList = configService.findAll();
+        for(Config config: configList){
+            if(config.isEncrypted()){
+                config.setValue(CryptoUtil.decrypt(config.getValue()));
+            }
+        }
         List<ConfigDTO> configDTOList = ConfigMapper.INSTANCE.entityToDtoList(configList);
         return ResponseEntity.ok(configDTOList);
     }
@@ -63,7 +75,13 @@ public class ConfigController implements ConfigApi {
         logger.debug("REST request to add a config : {}", configDTO);
         validator.validateNotNull(configDTO.getId(), ENTITY_NAME);
         Config config = ConfigMapper.INSTANCE.dtoToEntity(configDTO);
+        if(config.isEncrypted()){
+            config.setValue(CryptoUtil.encrypt(config.getValue()));
+        }
         config = configService.save(config);
+        if(config.isEncrypted()){
+            config.setValue(CryptoUtil.decrypt(config.getValue()));
+        }
         ConfigDTO result = ConfigMapper.INSTANCE.entityToDto(config);
         return ResponseEntity.ok(result);
     }
@@ -75,7 +93,13 @@ public class ConfigController implements ConfigApi {
         validator.validateEntityExistsInDb(configDTO.getId(), ENTITY_NAME, configRepository);
         Config existingConfig = configRepository.findById(configDTO.getId()).get();
         Config tempConfig = ConfigMapper.INSTANCE.dtoToEntityForUpdate(configDTO,existingConfig);
+        if(tempConfig.isEncrypted()){
+            tempConfig.setValue(CryptoUtil.encrypt(tempConfig.getValue()));
+        }
         Config config = configService.save(tempConfig);
+        if(config.isEncrypted()){
+            config.setValue(CryptoUtil.decrypt(config.getValue()));
+        }
         ConfigDTO result = ConfigMapper.INSTANCE.entityToDto(config);
         return ResponseEntity.ok(result);
     }
@@ -84,6 +108,9 @@ public class ConfigController implements ConfigApi {
     public ResponseEntity<ConfigDTO> getConfigByKey(@PathVariable("key") String key) {
         logger.debug("REST request to get config on a given key : {} ", key);
         Config config = configService.findByKey(key);
+        if(config.isEncrypted()){
+            config.setValue(CryptoUtil.decrypt(config.getValue()));
+        }
         ConfigDTO configDTO = ConfigMapper.INSTANCE.entityToDto(config);
         return ResponseUtil.wrapOrNotFound(Optional.of(configDTO));
     }
@@ -92,7 +119,12 @@ public class ConfigController implements ConfigApi {
     public ResponseEntity<List<ConfigDTO>> searchConfig(ConfigDTO configDTO) {
         Config config = ConfigMapper.INSTANCE.dtoToEntityForSearch(configDTO);
         logger.debug("REST request to get all configs on given filters : {} ", config);
-        List<Config> configList = configService.search(config);
+        List<Config> configList = configService.search(configDTO);
+        for(Config temp: configList){
+            if(temp.isEncrypted()){
+                temp.setValue(CryptoUtil.decrypt(temp.getValue()));
+            }
+        }
         List<ConfigDTO> configDTOList = ConfigMapper.INSTANCE.entityToDtoList(configList);
         return ResponseEntity.ok(configDTOList);
     }

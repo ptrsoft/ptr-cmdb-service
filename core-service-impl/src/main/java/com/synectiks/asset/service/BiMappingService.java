@@ -208,7 +208,13 @@ public class BiMappingService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public BusinessElement saveService(Product product, ProductEnv productEnv, Module module, String serviceNature, Map serviceMap){
 		Map cloudElementMap = (Map)serviceMap.get("cloudElementMapping");
-		Long cloudElementId = ((Integer)cloudElementMap.get("id")).longValue();
+		Long cloudElementId = null;
+		if(cloudElementMap.get("id").getClass().getName().equalsIgnoreCase("java.lang.Integer")){
+			cloudElementId = ((Integer)cloudElementMap.get("id")).longValue();
+		}else{
+			cloudElementId = (Long)cloudElementMap.get("id");
+		}
+
 		CloudElement cloudElement = cloudElementService.findOne(cloudElementId).orElse(null);
 
 		BusinessElement exitstingBusinessElement = businessElementService.getThreeTierService((String) serviceMap.get("name"), (String) serviceMap.get("type"), product.getId(), productEnv.getId(), cloudElementId);

@@ -1,6 +1,5 @@
 package com.synectiks.asset.handler.aws;
 
-import com.synectiks.asset.api.model.LandingzoneDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.*;
 import com.synectiks.asset.service.*;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -46,6 +44,9 @@ public class TagProcessor {
     @Autowired
     private LandingzoneService landingzoneService;
 
+    @Autowired
+    private ServiceQueueService serviceQueueService;
+
 
     public Organization getOrganization(String organizationName){
         return organizationService.findByName(organizationName);
@@ -76,40 +77,23 @@ public class TagProcessor {
     }
 
     public int process(String tagValue[], CloudElement cloudElement){
-        Organization organization = getOrganization(tagValue[0]);
-        if(organization == null){
-            logger.error("Organization is null");
-            return 7;
-        }
 
-        Map<String, Object> departmentMap = new HashMap<>();
-        departmentMap.put("name",tagValue[1]);
-        Department department = biMappingService.saveDepartment(organization,departmentMap);
-
-        //find landingzone with this department. if not, create landingzone mapping
-        LandingzoneDTO landingzoneDTO = new LandingzoneDTO();
-        landingzoneDTO.setLandingZone(cloudElement.getLandingzone().getLandingZone());
-        landingzoneDTO.setDepartmentId(department.getId());
-        List<Landingzone> landingzoneList = landingzoneService.search(landingzoneDTO);
-        if(landingzoneList != null && landingzoneList.size() == 0){
-
-        }
-
-        String productType = tagValue[3]; // product type SOA/3 TIER
+        String productType = tagValue[0].trim(); // product type SOA/3 TIER
 
         Map<String, Object> productMap = new HashMap<>();
-        productMap.put("name",tagValue[2]);
+        productMap.put("name",tagValue[1].trim());
         productMap.put("type",productType);
-        Product product = biMappingService.saveProduct(organization,department, productMap);
+        Product product = biMappingService.saveProduct(cloudElement.getLandingzone().getOrganization(),cloudElement.getLandingzone().getDepartment(), productMap);
 
         Map<String, Object> productEnvMap = new HashMap<>();
-        productEnvMap.put("name",tagValue[4]);
+        productEnvMap.put("name",tagValue[2].trim());
         ProductEnv productEnv = biMappingService.saveProductEnv(product, productEnvMap);
 
         if(Constants.THREE_TIER.equalsIgnoreCase(productType)){
             logger.info("3 Tier product found in tag");
-            String serviceName = tagValue[5];
-            String serviceType = tagValue[6];
+            String serviceType = tagValue[3];
+            String serviceName = tagValue[4];
+
             Map<String, Object> serviceTypeMap = new HashMap<>();
             serviceTypeMap.put("name",serviceName);
             serviceTypeMap.put("type",serviceType);
@@ -121,14 +105,14 @@ public class TagProcessor {
             biMappingService.saveService(product, productEnv, null, null, serviceTypeMap);
         }else if(Constants.SOA.equalsIgnoreCase(productType)){
             logger.info("SOA product found in tag");
-            String moduleName = tagValue[5];
+            String moduleName = tagValue[3];
             Map<String, Object> moduleMap = new HashMap<>();
             moduleMap.put("name",moduleName);
             Module module = biMappingService.saveModule(product, productEnv, moduleMap);
 
+            String serviceNature = tagValue[4];
+            String serviceType = tagValue[5];
             String serviceName = tagValue[6];
-            String serviceNature = tagValue[7];
-            String serviceType = tagValue[8];
             Map<String, Object> serviceTypeMap = new HashMap<>();
             serviceTypeMap.put("name",serviceName);
             serviceTypeMap.put("type",serviceType);
