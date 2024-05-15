@@ -3,6 +3,7 @@ package com.synectiks.asset.repository;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.query.BiMappingBusinessCloudElementQueryObj;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,13 +25,13 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
     CloudElement getCloudElementByLandingZoneAndInstanceId(@Param("landingZoneId") Long landingZoneId, @Param("instanceId") String instanceId);
 
 
-    String CLOUD_ELEMENT_QUERY ="select id,element_type,hosted_services,arn,instance_id,instance_name ,category,landingzone_id,db_category_id,product_enclave_id, null as sla_json, null as cost_json, null as view_json,config_json , null as compliance_json,status,created_on ,updated_on ,updated_by,created_by,cloud,log_location,trace_location,metric_location, service_category,region,log_group from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
+    String CLOUD_ELEMENT_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.arn = :arn  ";
     @Query(value = CLOUD_ELEMENT_QUERY, nativeQuery = true)
     CloudElement getCloudElementByArn(@Param("landingZoneId") Long landingZoneId,
                                       @Param("arn") String arn,
                                       @Param("elementType") String elementType);
 
-    String CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY ="select id,element_type,hosted_services,arn,instance_id,instance_name ,category,landingzone_id,db_category_id,product_enclave_id, null as sla_json, null as cost_json, null as view_json,config_json , null as compliance_json,status,created_on ,updated_on ,updated_by,created_by,cloud,log_location,trace_location,metric_location, service_category,region,log_group from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.instance_id = :instanceId  ";
+    String CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY ="select ce.* from cloud_element ce where ce.landingzone_id = :landingZoneId and upper(ce.element_type) = upper(:elementType) and ce.instance_id = :instanceId  ";
     @Query(value = CLOUD_ELEMENT_BY_INSTANCE_ID_QUERY, nativeQuery = true)
     CloudElement getCloudElementByInstanceId(@Param("landingZoneId") Long landingZoneId,
                                  @Param("instanceId") String instanceId,
@@ -61,7 +62,7 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
             "ce.element_type, ce.arn, ce.instance_id, ce.instance_name, ce.category,ce.landingzone_id, ce.db_category_id, ce.product_enclave_id, pe.instance_id as product_enclave_instance_id, \n" +
             "ce.status, ce.created_by, ce.created_on, ce.updated_by, ce.updated_on, \n" +
             "ce.log_location, ce.trace_location, ce.metric_location, l.landing_zone, l.cloud, dc.name as db_category_name, \n" +
-            "null as sla_json, null as cost_json, null as view_json, null as config_json, null as compliance_json, null as hosted_services,\n" +
+            "null as view_json, null as config_json, null as hosted_services,\n" +
             "ce.service_category,ce.region, ce.log_group \n" +
             " from cloud_element ce left join jsonb_array_elements(ce.hosted_services -> 'HOSTEDSERVICES') with ordinality c(obj) on 1 = 1\n" +
             "left join business_element be on cast(c.obj -> 'serviceId' as int) = be.id \n" +
@@ -78,7 +79,7 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
     @Query(value = BI_MAPPING_CLOUD_ELEMENT_INSTANCES,nativeQuery = true)
     List<BiMappingBusinessCloudElementQueryObj> getBiMappingCloudElementInstances(@Param("orgId") Long orgId, @Param("departmentId") Long departmentId, @Param("productId") Long productId, @Param("productEnvId") Long productEnvId, @Param("elementType") String elementType);
 
-    String GET_ALL_ELEMENTS_OF_ORG="select ce.id, ce.element_type, ce.hosted_services, ce.arn, ce.instance_id, ce.instance_name , ce.category, ce.landingzone_id, ce.db_category_id, ce.product_enclave_id, null as sla_json, null as cost_json, null as view_json, ce.config_json , null as compliance_json, ce.status, ce.created_on , ce.updated_on , ce.updated_by, ce.created_by, ce.cloud, ce.log_location, ce.trace_location, ce.metric_location, ce. service_category, ce.region, ce.log_group\t\n" +
+    String GET_ALL_ELEMENTS_OF_ORG="select ce.* " +
             "FROM \n" +
             "\tcloud_element ce, \n" +
             "\tlandingzone l, \n" +
@@ -88,7 +89,7 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
             "\tl.department_id = d.id \n" +
             "\tAND d.organization_id = o.id \n" +
             "\tAND ce.landingzone_id = l.id \n" +
-            "\tAND o.id = :orgId order by ce.id desc";
+            "\tAND o.id = :orgId order by ce.element_type asc";
     @Query(value = GET_ALL_ELEMENTS_OF_ORG, nativeQuery = true)
-    List<CloudElement> getAllCloudElementsOfOrganization(@Param("orgId") Long orgId);
+    List<CloudElement> getAllCloudElementsOfOrganization(@Param("orgId") Long orgId, Pageable pageable);
 }

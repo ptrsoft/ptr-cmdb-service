@@ -7,10 +7,12 @@ import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.api.model.LandingzoneDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
+import com.synectiks.asset.domain.CloudElementCost;
 import com.synectiks.asset.domain.Config;
 import com.synectiks.asset.domain.Landingzone;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.factory.AwsHandlerFactory;
+import com.synectiks.asset.service.CloudElementCostService;
 import com.synectiks.asset.service.CloudElementService;
 import com.synectiks.asset.service.ConfigService;
 import com.synectiks.asset.service.LandingzoneService;
@@ -43,6 +45,9 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
 
     @Autowired
     private CloudElementService cloudElementService;
+
+    @Autowired
+    private CloudElementCostService cloudElementCostService;
 
     @Autowired
     private ConfigService configService;
@@ -157,19 +162,22 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
                 List<CloudElement> cloudElementList = cloudElementService.search(cloudElementDTO);
                 ObjectMapper objectMapper = Constants.instantiateMapper();
                 for(CloudElement cloudElement: cloudElementList){
-                    ObjectNode objectNode = objectMapper.createObjectNode();
-                    try{
-                        JSONObject obj = DateFormatUtil.generateTestCostData("2023-01-01", DateFormatUtil.convertLocalDateToString(LocalDate.now(), Constants.DEFAULT_DATE_FORMAT));
-                        for(String key: obj.keySet()){
-                            objectNode.put(key, objectMapper.readTree(obj.get(key).toString()));
+                    CloudElementCost cloudElementCost = cloudElementCostService.findByCloudElementId(cloudElement.getId());
+                    if(cloudElementCost != null){
+                        ObjectNode objectNode = objectMapper.createObjectNode();
+                        try{
+                            JSONObject obj = DateFormatUtil.generateTestCostData("2023-01-01", DateFormatUtil.convertLocalDateToString(LocalDate.now(), Constants.DEFAULT_DATE_FORMAT));
+                            for(String key: obj.keySet()){
+                                objectNode.put(key, objectMapper.readTree(obj.get(key).toString()));
+                            }
+                            ObjectNode finalNode =  objectMapper.createObjectNode();
+                            finalNode.put("cost", objectNode);
+                            Map map = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
+                            cloudElementCost.setCostJson(map);
+                            cloudElementCostService.save(cloudElementCost);
+                        }catch(Exception e){
+                            logger.error("Cost pull failed for landing-zone: {} and element-type: {} failed. Exception: ",landingzone.getLandingZone(), cloudElement.getElementType(), e  );
                         }
-                        ObjectNode finalNode =  objectMapper.createObjectNode();
-                        finalNode.put("cost", objectNode);
-                        Map map = jsonAndObjectConverterUtil.convertSourceObjectToTarget(objectMapper, finalNode, Map.class);
-                        cloudElement.setCostJson(map);
-                        cloudElementService.save(cloudElement);
-                    }catch(Exception e){
-                        logger.error("Cost pull failed for landing-zone: {} and element-type: {} failed. Exception: ",landingzone.getLandingZone(), cloudElement.getElementType(), e  );
                     }
                 }
             }

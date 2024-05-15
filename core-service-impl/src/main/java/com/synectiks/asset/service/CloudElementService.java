@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
@@ -86,11 +87,7 @@ public class CloudElementService {
     @Transactional(readOnly = true)
 	public List<CloudElement> search(CloudElementDTO cloudElementDTO) {
         logger.info("Search cloud element");
-        StringBuilder primarySql = new StringBuilder("select ce.id, ce.element_type,ce.hosted_services, ce.arn, ce.instance_id, ce.instance_name, ce.category, \n" +
-                "ce.landingzone_id, ce.db_category_id, ce.product_enclave_id, " +
-                " ce.status, ce.created_by, ce.created_on, ce.updated_by, ce.updated_on, " +
-                " null as sla_json, null as cost_json, null as view_json, ce.config_json, null as compliance_json, " +
-                " l.cloud, ce.log_location, ce.trace_location, ce.metric_location, ce.service_category, ce.region, ce.log_group \n" +
+        StringBuilder primarySql = new StringBuilder("select ce.*, l.cloud  \n" +
                 " from cloud_element ce \n" +
                 "left join landingzone l on ce.landingzone_id = l.id\n" +
                 "left join db_category dc on ce.db_category_id = dc.id\n" +
@@ -540,9 +537,9 @@ public class CloudElementService {
         return cloudElementRepository.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
     }
 
-    public List<CloudElement> getAllCloudElementsOfOrganization(Long orgId){
+    public List<CloudElement> getAllCloudElementsOfOrganization(Long orgId, Integer pageNo, Integer pageSize){
         logger.info("Request to get all cloud-elements of an organization. Org id: {} ", orgId);
-        return cloudElementRepository.getAllCloudElementsOfOrganization(orgId);
+        return cloudElementRepository.getAllCloudElementsOfOrganization(orgId, PageRequest.of(pageNo.intValue(), pageSize.intValue()));
     }
 
 }

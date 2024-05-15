@@ -35,22 +35,16 @@ public interface CloudElementMapper {
         CloudElement cloudElement = toEntityConvertObjectToMap(cloudElementDTO);
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
         cloudElement.setHostedServices(converter.convertObjectToMap(cloudElementDTO.getHostedServices()));
-        cloudElement.setSlaJson(converter.convertObjectToMap(cloudElementDTO.getSlaJson()));
-        cloudElement.setCostJson(converter.convertObjectToMap(cloudElementDTO.getCostJson()));
         cloudElement.setViewJson(converter.convertObjectToMap(cloudElementDTO.getViewJson()));
         cloudElement.setConfigJson(converter.convertObjectToMap(cloudElementDTO.getConfigJson()));
-        cloudElement.setComplianceJson(converter.convertObjectToMap(cloudElementDTO.getComplianceJson()));
         return cloudElement;
     }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore = true)
     @Mapping(target="hostedServices", ignore = true)
-    @Mapping(target="slaJson", ignore = true)
-    @Mapping(target="costJson", ignore = true)
     @Mapping(target="viewJson", ignore = true)
     @Mapping(target="configJson", ignore = true)
-    @Mapping(target="complianceJson", ignore = true)
     @Mapping(target = "landingzone.id", source = "landingzoneId")
     @Mapping(target = "dbCategory.id", source = "dbCategoryId")
     @Mapping(target = "productEnclave.id", source = "productEnclaveId")
@@ -98,22 +92,16 @@ public interface CloudElementMapper {
         }
         CustomeHashMapConverter converter = new CustomeHashMapConverter();
         temp.setHostedServices(converter.convertObjectToMap(cloudElementDTO.getHostedServices()));
-        temp.setSlaJson(converter.convertObjectToMap(cloudElementDTO.getSlaJson()));
-        temp.setCostJson(converter.convertObjectToMap(cloudElementDTO.getCostJson()));
         temp.setViewJson(converter.convertObjectToMap(cloudElementDTO.getViewJson()));
         temp.setConfigJson(converter.convertObjectToMap(cloudElementDTO.getConfigJson()));
-        temp.setComplianceJson(converter.convertObjectToMap(cloudElementDTO.getComplianceJson()));
         return temp;
     }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target="hostedServices", ignore = true)
-    @Mapping(target="slaJson", ignore = true)
-    @Mapping(target="costJson", ignore = true)
     @Mapping(target="viewJson", ignore = true)
     @Mapping(target="configJson", ignore = true)
-    @Mapping(target="complianceJson", ignore = true)
     CloudElement copyDtoToEntity(CloudElementDTO cloudElementDTO, @MappingTarget CloudElement cloudElement);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

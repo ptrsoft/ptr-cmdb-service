@@ -49,25 +49,13 @@ public class CloudElement extends AbstractAuditingEntity implements Serializable
 	private String category;
 
 	@Convert(converter = CustomeHashMapConverter.class)
-	@Column(name = "sla_json", columnDefinition = "jsonb")
-	private Map<String, Object> slaJson;
-	
-	@Convert(converter = CustomeHashMapConverter.class)
-	@Column(name = "cost_json", columnDefinition = "jsonb")
-	private Map<String, Object> costJson;
-	
-	@Convert(converter = CustomeHashMapConverter.class)
 	@Column(name = "view_json", columnDefinition = "jsonb")
 	private Map<String, Object> viewJson;
 	
 	@Convert(converter = CustomeHashMapConverter.class)
 	@Column(name = "config_json", columnDefinition = "jsonb")
 	private Map<String, Object> configJson;
-	
-	@Convert(converter = CustomeHashMapConverter.class)
-	@Column(name = "compliance_json", columnDefinition = "jsonb")
-	private Map<String, Object> complianceJson;
-	
+
 	@Column(name = "status")
 	private String status;
 
