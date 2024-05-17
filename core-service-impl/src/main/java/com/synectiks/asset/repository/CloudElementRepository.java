@@ -3,6 +3,7 @@ package com.synectiks.asset.repository;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.query.BiMappingBusinessCloudElementQueryObj;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -91,5 +92,5 @@ public interface CloudElementRepository extends JpaRepository<CloudElement, Long
             "\tAND ce.landingzone_id = l.id \n" +
             "\tAND o.id = :orgId order by ce.element_type asc";
     @Query(value = GET_ALL_ELEMENTS_OF_ORG, nativeQuery = true)
-    List<CloudElement> getAllCloudElementsOfOrganization(@Param("orgId") Long orgId, Pageable pageable);
+    Page<CloudElement> getAllCloudElementsOfOrganization(@Param("orgId") Long orgId, Pageable pageable);
 }

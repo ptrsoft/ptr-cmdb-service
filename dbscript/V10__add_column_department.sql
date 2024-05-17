@@ -1,1 +1,0 @@
-alter table department add column description varchar(2000);

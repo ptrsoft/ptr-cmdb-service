@@ -38,7 +38,7 @@ SERVICE_JAR=${SERVICE_JAR:=core-service-impl/target/core-service-impl-0.0.1-SNAP
 SERVICE_PID=${SERVICE_PID:=service-pid.pid}
 LOG_FILE=${LOG_FILE:=console.log}
 #LOG4J=${LOG4J:=}
-DEFAULT_JAVA_OPTS="-Djdk.io.File.enableADS=true -Dserver.profile=dev -Ddb.server.host=postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com -Ddb.server.port=5431 -Ddb.schema=cmdb -Ddb.user=postgres -Ddb.password="Synect!ks2023" -Djdk.tls.acknowledgeCloseNotify=true -Xms1g -Xmx1g -XX:NewRatio=1 -XX:+ResizeTLAB -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSClassUnloadingEnabled -XX:-OmitStackTraceInFastThrow"
+DEFAULT_JAVA_OPTS="-Djdk.io.File.enableADS=true -Dserver.profile=$2 -Ddb.server.host=$3 -Ddb.server.port=$4 -Ddb.schema=$5 -Ddb.user=$6 -Ddb.password=$7 -Djdk.tls.acknowledgeCloseNotify=true -Xms1g -Xmx1g -XX:NewRatio=1 -XX:+ResizeTLAB -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSClassUnloadingEnabled -XX:-OmitStackTraceInFastThrow"
 
 if $JAVA_CMD -XX:+PrintFlagsFinal 2>&1 |grep -q UseParNewGC; then
 	DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+UseParNewGC"
@@ -48,12 +48,12 @@ JAVA_OPTS="${JAVA_OPTS:="$DEFAULT_JAVA_OPTS"}"
 
 start() {
   echo "Starting ${SERVICE_NAME} ...${JAVA_CMD}"
-  "${NOHUP}" "${JAVA_CMD}" -jar "${SERVICE_JAR}" ${JAVA_OPTS}  >> "${LOG_FILE}" 2>> "${LOG_FILE}" & echo $! > "${SERVICE_PID}"
+  "${NOHUP}" "${JAVA_CMD}" ${JAVA_OPTS} -jar "${SERVICE_JAR}"   >> "${LOG_FILE}" 2>> "${LOG_FILE}" & echo $! > "${SERVICE_PID}"
 }
 
 run() {
     echo "Running ${SERVICE_NAME} ..."
-    exec "${JAVA_CMD}" -jar "${SERVICE_JAR}" ${JAVA_OPTS}  >> "${LOG_FILE}" 2>> "${LOG_FILE}" & echo $! > "${SERVICE_PID}"
+    exec "${JAVA_CMD}" ${JAVA_OPTS} -jar "${SERVICE_JAR}"  >> "${LOG_FILE}" 2>> "${LOG_FILE}" & echo $! > "${SERVICE_PID}"
 }
 
 stop() {

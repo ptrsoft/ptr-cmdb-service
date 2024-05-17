@@ -1769,9 +1769,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CloudElementDTO'
+                type: object
         404:
           description: "Service Not found"
         500:
@@ -6343,6 +6341,14 @@ components:
           type: string
         logGroup:
           type: string
+        isTagged:
+          type: boolean
+        isLogEnabled:
+          type: boolean
+        isTraceEnabled:
+          type: boolean
+        isEventEnabled:
+          type: boolean
     ModuleDTO:
       type: object
       properties:
@@ -7054,4 +7060,14 @@ components:
         cloudElementId:
           type: integer
           format: int64
-
+    DiscoveredResourceDTO:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        cloudElementList:
+          type: object

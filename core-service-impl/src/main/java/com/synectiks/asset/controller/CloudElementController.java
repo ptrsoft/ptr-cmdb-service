@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.asset.api.controller.CloudElementApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.api.model.CloudElementTagDTO;
+import com.synectiks.asset.api.model.DiscoveredResourceDTO;
 import com.synectiks.asset.config.Constants;
 import com.synectiks.asset.domain.CloudElement;
 import com.synectiks.asset.domain.query.CloudElementTagQueryObj;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -289,10 +291,16 @@ public class CloudElementController implements CloudElementApi {
     }
 
     @Override
-    public ResponseEntity<List<CloudElementDTO>> getAllCloudElementsOfOrganization(Long orgId, Integer pageNo, Integer pageSize) {
+    public ResponseEntity<Object> getAllCloudElementsOfOrganization(Long orgId, Integer pageNo, Integer pageSize) {
         logger.info("REST request to get all cloud-elements of an organization. Org id: {} ", orgId);
-        List<CloudElement> cloudElementList = cloudElementService.getAllCloudElementsOfOrganization(orgId, pageNo, pageSize);
-        List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementList);
-        return ResponseEntity.ok(cloudElementDTOList);
+        Page<CloudElement> cloudElementPage = cloudElementService.getAllCloudElementsOfOrganization(orgId, pageNo, pageSize);
+        logger.debug("Total elements {}",cloudElementPage.getTotalElements());
+        logger.debug("Total pages {}",cloudElementPage.getTotalPages());
+        List<CloudElementDTO> cloudElementDTOList = CloudElementMapper.INSTANCE.entityToDtoList(cloudElementPage.toList());
+        DiscoveredResourceDTO discoveredResourceDTO = new DiscoveredResourceDTO();
+        discoveredResourceDTO.setTotalPages(new Long(cloudElementPage.getTotalPages()));
+        discoveredResourceDTO.setTotalRecords(cloudElementPage.getTotalElements());
+        discoveredResourceDTO.setCloudElementList(cloudElementDTOList);
+        return ResponseEntity.ok(discoveredResourceDTO);
     }
 }

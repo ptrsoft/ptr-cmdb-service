@@ -97,17 +97,7 @@
         <junit.utReportFolder>${project.testresult.directory}/test</junit.utReportFolder>
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <lombok.version>1.18.20</lombok.version>
-        <fly.user><![CDATA[postgres]]></fly.user>
-        <fly.pwd><![CDATA[P0$tGr3$&s3qua1$n3t!k5]]></fly.pwd>
-        <!-- jhipster-needle-maven-property -->
 
-        <!-- mvn flyway configuraions-->
-        <flyway.url>jdbc:postgresql://postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com:5431/cmdb</flyway.url>
-        <flyway.user>${fly.user}</flyway.user>
-        <flyway.password>${fly.pwd}</flyway.password>
-        <flyway.locations>filesystem:dbscript</flyway.locations>
-        <mvnflyway.version>9.8.1</mvnflyway.version>
-        <!-- mvn flyway configuraions-->
     </properties>
 
     <dependencyManagement>
@@ -961,6 +951,37 @@
     </build>
     <profiles>
         <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-devtools</artifactId>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
+            <properties>
+                <!-- default Spring profiles -->
+                <spring.profiles.active>local</spring.profiles.active>
+                <fly.user><![CDATA[postgres]]></fly.user>
+                <fly.pwd><![CDATA[postgres]]></fly.pwd>
+                <!-- jhipster-needle-maven-property -->
+
+                <!-- mvn flyway configuraions-->
+                <flyway.url>jdbc:postgresql://localhost:5432/ptrcmdb</flyway.url>
+                <flyway.user>${fly.user}</flyway.user>
+                <flyway.password>${fly.pwd}</flyway.password>
+                <flyway.locations>filesystem:dbscript</flyway.locations>
+                <mvnflyway.version>9.8.1</mvnflyway.version>
+            </properties>
+        </profile>
+        <profile>
             <id>no-liquibase</id>
             <properties>
                 <profile.no-liquibase>,no-liquibase</profile.no-liquibase>
@@ -981,7 +1002,7 @@
         <profile>
             <id>dev</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
@@ -996,7 +1017,17 @@
             </dependencies>
             <properties>
                 <!-- default Spring profiles -->
-                <spring.profiles.active>dev${profile.tls}${profile.no-liquibase}</spring.profiles.active>
+<!--                <spring.profiles.active>dev${profile.tls}${profile.no-liquibase}</spring.profiles.active>-->
+                <fly.user><![CDATA[postgres]]></fly.user>
+                <fly.pwd><![CDATA[postgres]]></fly.pwd>
+                <!-- jhipster-needle-maven-property -->
+
+                <!-- mvn flyway configuraions-->
+                <flyway.url>jdbc:postgresql://213.210.36.2:5432/cmdb</flyway.url>
+                <flyway.user>${fly.user}</flyway.user>
+                <flyway.password>${fly.pwd}</flyway.password>
+                <flyway.locations>filesystem:dbscript</flyway.locations>
+                <mvnflyway.version>9.8.1</mvnflyway.version>
             </properties>
         </profile>
         <profile>
@@ -1030,10 +1061,10 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>
-                    </plugin>
+<!--                    <plugin>-->
+<!--                        <groupId>pl.project13.maven</groupId>-->
+<!--                        <artifactId>git-commit-id-plugin</artifactId>-->
+<!--                    </plugin>-->
                 </plugins>
             </build>
             <properties>
@@ -1041,29 +1072,26 @@
                 <spring.profiles.active>prod${profile.swagger}${profile.tls}${profile.no-liquibase}</spring.profiles.active>
             </properties>
         </profile>
-        <profile>
-            <id>war</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!--
-                Profile for tracing requests with Zipkin.
-            -->
-            <id>zipkin</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-zipkin</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
+<!--        <profile>-->
+<!--            <id>war</id>-->
+<!--            <build>-->
+<!--                <plugins>-->
+<!--                    <plugin>-->
+<!--                        <groupId>org.apache.maven.plugins</groupId>-->
+<!--                        <artifactId>maven-war-plugin</artifactId>-->
+<!--                    </plugin>-->
+<!--                </plugins>-->
+<!--            </build>-->
+<!--        </profile>-->
+<!--        <profile>-->
+<!--            <id>zipkin</id>-->
+<!--            <dependencies>-->
+<!--                <dependency>-->
+<!--                    <groupId>org.springframework.cloud</groupId>-->
+<!--                    <artifactId>spring-cloud-starter-zipkin</artifactId>-->
+<!--                </dependency>-->
+<!--            </dependencies>-->
+<!--        </profile>-->
         <profile>
             <!--
                 Profile for applying IDE-specific configuration.

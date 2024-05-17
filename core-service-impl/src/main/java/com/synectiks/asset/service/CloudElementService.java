@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -537,7 +538,7 @@ public class CloudElementService {
         return cloudElementRepository.getBiMappingCloudElementInstances(orgId, departmentId, productId, productEnvId, elementType);
     }
 
-    public List<CloudElement> getAllCloudElementsOfOrganization(Long orgId, Integer pageNo, Integer pageSize){
+    public Page<CloudElement> getAllCloudElementsOfOrganization(Long orgId, Integer pageNo, Integer pageSize){
         logger.info("Request to get all cloud-elements of an organization. Org id: {} ", orgId);
         return cloudElementRepository.getAllCloudElementsOfOrganization(orgId, PageRequest.of(pageNo.intValue(), pageSize.intValue()));
     }

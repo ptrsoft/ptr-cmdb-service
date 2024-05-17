@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.synectiks.asset</groupId>
         <artifactId>appkube-cmdb-service</artifactId>
-        <version>${build.revision}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -89,7 +89,7 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
-                            <Build-Number>${buildNumber}</Build-Number>
+<!--                            <Build-Number>${buildNumber}</Build-Number>-->
                             <Build-Time>${maven.build.timestamp}</Build-Time>
                         </manifestEntries>
                     </archive>

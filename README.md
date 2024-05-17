@@ -58,24 +58,4 @@ Spring Boot Starter Validation: for request validation using annotations.
 Springfox Swagger UI: for rendering the OpenAPI documentation in an interactive UI.
 These dependencies are defined in the pom.xml file in the project's root directory and are automatically resolved and downloaded by Maven.
 
-Contributing
-If you wish to contribute to this project, please follow the guidelines below:
-
-Fork the repository on GitHub.
-Create a new branch for your changes.
-Make the necessary changes and additions.
-Commit and push your changes to your forked repository.
-Submit a pull request to the original repository.
-License
-This project is licensed under the MIT License. Feel free to use, modify, and distribute it as per the terms of the license.
-
-Contact
-If you have any questions or suggestions regarding this project, please feel free to contact the project maintainers:
-
-Name: John Doe
-
-Email: john.doe@example.com
-Name: Jane Smith
-
-Email: jane.smith@example.com
-We appreciate your feedback and contributions!
+Start with run.sh

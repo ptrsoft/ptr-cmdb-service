@@ -1,1 +1,0 @@
-alter table cloud_element_supported_api add column frames varchar(1000);
