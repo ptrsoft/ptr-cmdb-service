@@ -974,7 +974,7 @@
                 <!-- jhipster-needle-maven-property -->
 
                 <!-- mvn flyway configuraions-->
-                <flyway.url>jdbc:postgresql://localhost:5432/ptrcmdb</flyway.url>
+                <flyway.url>jdbc:postgresql://localhost:5432/cmdb</flyway.url>
                 <flyway.user>${fly.user}</flyway.user>
                 <flyway.password>${fly.pwd}</flyway.password>
                 <flyway.locations>filesystem:dbscript</flyway.locations>
@@ -1023,7 +1023,7 @@
                 <!-- jhipster-needle-maven-property -->
 
                 <!-- mvn flyway configuraions-->
-                <flyway.url>jdbc:postgresql://213.210.36.2:5432/cmdb</flyway.url>
+                <flyway.url>jdbc:postgresql://localhost:5432/cmdb</flyway.url>
                 <flyway.user>${fly.user}</flyway.user>
                 <flyway.password>${fly.pwd}</flyway.password>
                 <flyway.locations>filesystem:dbscript</flyway.locations>

@@ -218,6 +218,29 @@ paths:
           description: "Service Not found"
         500:
           description: "Internal Server Error"
+  /organization/get-by-name/{orgName}:
+    parameters:
+      - in: path
+        name: orgName
+        schema:
+          type: string
+        required: true
+    get:
+      tags:
+        - Organization
+      summary: Fetch an organization of given name
+      operationId: getOrganizationByName
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationDTO'
+        404:
+          description: "Service Not found"
+        500:
+          description: "Internal Server Error"
   /organization/search:
     get:
       tags:

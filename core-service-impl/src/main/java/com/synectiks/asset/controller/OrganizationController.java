@@ -92,4 +92,12 @@ public class OrganizationController implements OrganizationApi {
 		List<OrganizationDTO> organizationDTOList = OrganizationMapper.INSTANCE.entityToDtoList(organizationList);
 		return ResponseEntity.ok(organizationDTOList);
 	}
+
+	@Override
+	public ResponseEntity<OrganizationDTO> getOrganizationByName(String orgName) {
+		logger.debug("REST request to get Organization by name: {}", orgName);
+		Organization organization = organizationService.findByName(orgName);
+		OrganizationDTO organizationDTO = OrganizationMapper.INSTANCE.entityToDto(organization);
+		return ResponseUtil.wrapOrNotFound(Optional.of(organizationDTO));
+	}
 }
