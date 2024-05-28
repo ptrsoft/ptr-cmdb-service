@@ -9,11 +9,11 @@
     <version>${build.revision}</version>
     <packaging>pom</packaging>
 
-<!--        <parent>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-parent</artifactId>-->
-<!--            <version>${spring-boot.version}</version>-->
-<!--        </parent>-->
+    <!--        <parent>-->
+    <!--            <groupId>org.springframework.boot</groupId>-->
+    <!--            <artifactId>spring-boot-starter-parent</artifactId>-->
+    <!--            <version>${spring-boot.version}</version>-->
+    <!--        </parent>-->
 
     <modules>
         <module>core-service-api</module>
@@ -97,7 +97,17 @@
         <junit.utReportFolder>${project.testresult.directory}/test</junit.utReportFolder>
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <lombok.version>1.18.20</lombok.version>
+<!--        <fly.user><![CDATA[postgres]]></fly.user>-->
+<!--        <fly.pwd><![CDATA[P0$tGr3$&s3qua1$n3t!k5]]></fly.pwd>-->
+        <!-- jhipster-needle-maven-property -->
 
+        <!-- mvn flyway configuraions-->
+<!--        <flyway.url>jdbc:postgresql://postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com:5431/cmdb</flyway.url>-->
+<!--        <flyway.user>${fly.user}</flyway.user>-->
+<!--        <flyway.password>${fly.pwd}</flyway.password>-->
+<!--        <flyway.locations>filesystem:dbscript</flyway.locations>-->
+<!--        <mvnflyway.version>9.8.1</mvnflyway.version>-->
+        <!-- mvn flyway configuraions-->
     </properties>
 
     <dependencyManagement>
@@ -436,10 +446,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -456,14 +466,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-idea-plugin</artifactId>-->
-<!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-resources-plugin</artifactId>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-idea-plugin</artifactId>-->
+            <!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-resources-plugin</artifactId>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -472,10 +482,10 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.sonarsource.scanner.maven</groupId>-->
-<!--                <artifactId>sonar-maven-plugin</artifactId>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.sonarsource.scanner.maven</groupId>-->
+            <!--                <artifactId>sonar-maven-plugin</artifactId>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
@@ -484,10 +494,10 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>com.google.cloud.tools</groupId>-->
-<!--                <artifactId>jib-maven-plugin</artifactId>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>com.google.cloud.tools</groupId>-->
+            <!--                <artifactId>jib-maven-plugin</artifactId>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
@@ -496,36 +506,36 @@
         </plugins>
         <pluginManagement>
             <plugins>
-<!--                <plugin>-->
-<!--                    <groupId>org.apache.maven.plugins</groupId>-->
-<!--                    <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--                    <version>${maven-checkstyle.version}</version>-->
-<!--                    <dependencies>-->
-<!--                        <dependency>-->
-<!--                            <groupId>com.puppycrawl.tools</groupId>-->
-<!--                            <artifactId>checkstyle</artifactId>-->
-<!--                            <version>${checkstyle.version}</version>-->
-<!--                        </dependency>-->
-<!--                        <dependency>-->
-<!--                            <groupId>io.spring.nohttp</groupId>-->
-<!--                            <artifactId>nohttp-checkstyle</artifactId>-->
-<!--                            <version>${spring-nohttp-checkstyle.version}</version>-->
-<!--                        </dependency>-->
-<!--                    </dependencies>-->
-<!--                    <configuration>-->
-<!--                        <configLocation>checkstyle.xml</configLocation>-->
-<!--                        <includes>pom.xml,README.md</includes>-->
-<!--                        <excludes>.git/**/*,target/**/*,node_modules/**/*,node/**/*</excludes>-->
-<!--                        <sourceDirectories>./</sourceDirectories>-->
-<!--                    </configuration>-->
-<!--                    <executions>-->
-<!--                        <execution>-->
-<!--                            <goals>-->
-<!--                                <goal>check</goal>-->
-<!--                            </goals>-->
-<!--                        </execution>-->
-<!--                    </executions>-->
-<!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.apache.maven.plugins</groupId>-->
+                <!--                    <artifactId>maven-checkstyle-plugin</artifactId>-->
+                <!--                    <version>${maven-checkstyle.version}</version>-->
+                <!--                    <dependencies>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>com.puppycrawl.tools</groupId>-->
+                <!--                            <artifactId>checkstyle</artifactId>-->
+                <!--                            <version>${checkstyle.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>io.spring.nohttp</groupId>-->
+                <!--                            <artifactId>nohttp-checkstyle</artifactId>-->
+                <!--                            <version>${spring-nohttp-checkstyle.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                    </dependencies>-->
+                <!--                    <configuration>-->
+                <!--                        <configLocation>checkstyle.xml</configLocation>-->
+                <!--                        <includes>pom.xml,README.md</includes>-->
+                <!--                        <excludes>.git/**/*,target/**/*,node_modules/**/*,node/**/*</excludes>-->
+                <!--                        <sourceDirectories>./</sourceDirectories>-->
+                <!--                    </configuration>-->
+                <!--                    <executions>-->
+                <!--                        <execution>-->
+                <!--                            <goals>-->
+                <!--                                <goal>check</goal>-->
+                <!--                            </goals>-->
+                <!--                        </execution>-->
+                <!--                    </executions>-->
+                <!--                </plugin>-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -595,24 +605,24 @@
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                     </configuration>
                 </plugin>
-<!--                <plugin>-->
-<!--                    <groupId>org.codehaus.mojo</groupId>-->
-<!--                    <artifactId>properties-maven-plugin</artifactId>-->
-<!--                    <version>${properties-maven-plugin.version}</version>-->
-<!--                    <executions>-->
-<!--                        <execution>-->
-<!--                            <phase>initialize</phase>-->
-<!--                            <goals>-->
-<!--                                <goal>read-project-properties</goal>-->
-<!--                            </goals>-->
-<!--                            <configuration>-->
-<!--                                <files>-->
-<!--                                    <file>sonar-project.properties</file>-->
-<!--                                </files>-->
-<!--                            </configuration>-->
-<!--                        </execution>-->
-<!--                    </executions>-->
-<!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.codehaus.mojo</groupId>-->
+                <!--                    <artifactId>properties-maven-plugin</artifactId>-->
+                <!--                    <version>${properties-maven-plugin.version}</version>-->
+                <!--                    <executions>-->
+                <!--                        <execution>-->
+                <!--                            <phase>initialize</phase>-->
+                <!--                            <goals>-->
+                <!--                                <goal>read-project-properties</goal>-->
+                <!--                            </goals>-->
+                <!--                            <configuration>-->
+                <!--                                <files>-->
+                <!--                                    <file>sonar-project.properties</file>-->
+                <!--                                </files>-->
+                <!--                            </configuration>-->
+                <!--                        </execution>-->
+                <!--                    </executions>-->
+                <!--                </plugin>-->
 
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
@@ -687,93 +697,93 @@
                         </execution>
                     </executions>
                 </plugin>
-<!--                <plugin>-->
-<!--                    <groupId>com.google.cloud.tools</groupId>-->
-<!--                    <artifactId>jib-maven-plugin</artifactId>-->
-<!--                    <version>${jib-maven-plugin.version}</version>-->
-<!--                    <configuration>-->
-<!--                        <from>-->
-<!--                            <image>adoptopenjdk:11-jre-hotspot</image>-->
-<!--                        </from>-->
-<!--                        <to>-->
-<!--                            <image>cloudasset-management-service:latest</image>-->
-<!--                        </to>-->
-<!--                        <container>-->
-<!--                            <entrypoint>-->
-<!--                                <shell>bash</shell>-->
-<!--                                <option>-c</option>-->
-<!--                                <arg>/entrypoint.sh</arg>-->
-<!--                            </entrypoint>-->
-<!--                            <ports>-->
-<!--                                <port>5057</port>-->
-<!--                            </ports>-->
-<!--                            <environment>-->
-<!--                                <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>-->
-<!--                                <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>-->
-<!--                            </environment>-->
-<!--                            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>-->
-<!--                        </container>-->
-<!--                        <extraDirectories>-->
-<!--                            <paths>src/main/jib</paths>-->
-<!--                            <permissions>-->
-<!--                                <permission>-->
-<!--                                    <file>/entrypoint.sh</file>-->
-<!--                                    <mode>755</mode>-->
-<!--                                </permission>-->
-<!--                            </permissions>-->
-<!--                        </extraDirectories>-->
-<!--                    </configuration>-->
-<!--                </plugin>-->
-<!--                <plugin>-->
-<!--                    <groupId>org.liquibase</groupId>-->
-<!--                    <artifactId>liquibase-maven-plugin</artifactId>-->
-<!--                    <version>${liquibase.version}</version>-->
-<!--                    <configuration>-->
-<!--                        <changeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</changeLogFile>-->
-<!--                        <diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>-->
-<!--                        <driver>org.postgresql.Driver</driver>-->
-<!--                        <url>jdbc:postgresql://localhost:5432/assetdb</url>-->
-<!--                        <defaultSchemaName></defaultSchemaName>-->
-<!--                        <username>postgres</username>-->
-<!--                        <password>postgres</password>-->
-<!--                        <referenceUrl>hibernate:spring:com.synectiks.asset.domain?dialect=io.github.jhipster.domain.util.FixedPostgreSQL10Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>-->
-<!--                        <verbose>true</verbose>-->
-<!--                        <logging>debug</logging>-->
-<!--                        <contexts>!test</contexts>-->
-<!--                    </configuration>-->
-<!--                    <dependencies>-->
-<!--                        <dependency>-->
-<!--                            <groupId>org.liquibase</groupId>-->
-<!--                            <artifactId>liquibase-core</artifactId>-->
-<!--                            <version>${liquibase.version}</version>-->
-<!--                        </dependency>-->
-<!--                        <dependency>-->
-<!--                            <groupId>org.liquibase.ext</groupId>-->
-<!--                            <artifactId>liquibase-hibernate5</artifactId>-->
-<!--                            <version>${liquibase-hibernate5.version}</version>-->
-<!--                        </dependency>-->
-<!--                        <dependency>-->
-<!--                            <groupId>org.springframework.boot</groupId>-->
-<!--                            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
-<!--                            <version>${spring-boot.version}</version>-->
-<!--                        </dependency>-->
-<!--                        <dependency>-->
-<!--                            <groupId>javax.validation</groupId>-->
-<!--                            <artifactId>validation-api</artifactId>-->
-<!--                            <version>${validation-api.version}</version>-->
-<!--                        </dependency>-->
-<!--                        <dependency>-->
-<!--                            <groupId>org.javassist</groupId>-->
-<!--                            <artifactId>javassist</artifactId>-->
-<!--                            <version>${javassist.version}</version>-->
-<!--                        </dependency>-->
-<!--                        <dependency>-->
-<!--                            <groupId>io.github.jhipster</groupId>-->
-<!--                            <artifactId>jhipster-framework</artifactId>-->
-<!--                            <version>${jhipster-dependencies.version}</version>-->
-<!--                        </dependency>-->
-<!--                    </dependencies>-->
-<!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>com.google.cloud.tools</groupId>-->
+                <!--                    <artifactId>jib-maven-plugin</artifactId>-->
+                <!--                    <version>${jib-maven-plugin.version}</version>-->
+                <!--                    <configuration>-->
+                <!--                        <from>-->
+                <!--                            <image>adoptopenjdk:11-jre-hotspot</image>-->
+                <!--                        </from>-->
+                <!--                        <to>-->
+                <!--                            <image>cloudasset-management-service:latest</image>-->
+                <!--                        </to>-->
+                <!--                        <container>-->
+                <!--                            <entrypoint>-->
+                <!--                                <shell>bash</shell>-->
+                <!--                                <option>-c</option>-->
+                <!--                                <arg>/entrypoint.sh</arg>-->
+                <!--                            </entrypoint>-->
+                <!--                            <ports>-->
+                <!--                                <port>5057</port>-->
+                <!--                            </ports>-->
+                <!--                            <environment>-->
+                <!--                                <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>-->
+                <!--                                <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>-->
+                <!--                            </environment>-->
+                <!--                            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>-->
+                <!--                        </container>-->
+                <!--                        <extraDirectories>-->
+                <!--                            <paths>src/main/jib</paths>-->
+                <!--                            <permissions>-->
+                <!--                                <permission>-->
+                <!--                                    <file>/entrypoint.sh</file>-->
+                <!--                                    <mode>755</mode>-->
+                <!--                                </permission>-->
+                <!--                            </permissions>-->
+                <!--                        </extraDirectories>-->
+                <!--                    </configuration>-->
+                <!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.liquibase</groupId>-->
+                <!--                    <artifactId>liquibase-maven-plugin</artifactId>-->
+                <!--                    <version>${liquibase.version}</version>-->
+                <!--                    <configuration>-->
+                <!--                        <changeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</changeLogFile>-->
+                <!--                        <diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>-->
+                <!--                        <driver>org.postgresql.Driver</driver>-->
+                <!--                        <url>jdbc:postgresql://localhost:5432/assetdb</url>-->
+                <!--                        <defaultSchemaName></defaultSchemaName>-->
+                <!--                        <username>postgres</username>-->
+                <!--                        <password>postgres</password>-->
+                <!--                        <referenceUrl>hibernate:spring:com.synectiks.asset.domain?dialect=io.github.jhipster.domain.util.FixedPostgreSQL10Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>-->
+                <!--                        <verbose>true</verbose>-->
+                <!--                        <logging>debug</logging>-->
+                <!--                        <contexts>!test</contexts>-->
+                <!--                    </configuration>-->
+                <!--                    <dependencies>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>org.liquibase</groupId>-->
+                <!--                            <artifactId>liquibase-core</artifactId>-->
+                <!--                            <version>${liquibase.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>org.liquibase.ext</groupId>-->
+                <!--                            <artifactId>liquibase-hibernate5</artifactId>-->
+                <!--                            <version>${liquibase-hibernate5.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>org.springframework.boot</groupId>-->
+                <!--                            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
+                <!--                            <version>${spring-boot.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>javax.validation</groupId>-->
+                <!--                            <artifactId>validation-api</artifactId>-->
+                <!--                            <version>${validation-api.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>org.javassist</groupId>-->
+                <!--                            <artifactId>javassist</artifactId>-->
+                <!--                            <version>${javassist.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                        <dependency>-->
+                <!--                            <groupId>io.github.jhipster</groupId>-->
+                <!--                            <artifactId>jhipster-framework</artifactId>-->
+                <!--                            <version>${jhipster-dependencies.version}</version>-->
+                <!--                        </dependency>-->
+                <!--                    </dependencies>-->
+                <!--                </plugin>-->
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>${maven-clean-plugin.version}</version>
@@ -824,51 +834,51 @@
                         </rules>
                     </configuration>
                 </plugin>
-<!--                <plugin>-->
-<!--                    <groupId>org.apache.maven.plugins</groupId>-->
-<!--                    <artifactId>maven-idea-plugin</artifactId>-->
-<!--                    <version>${maven-idea-plugin.version}</version>-->
-<!--                    <configuration>-->
-<!--                        <exclude>node_modules</exclude>-->
-<!--                    </configuration>-->
-<!--                </plugin>-->
-<!--                <plugin>-->
-<!--                    <groupId>org.apache.maven.plugins</groupId>-->
-<!--                    <artifactId>maven-resources-plugin</artifactId>-->
-<!--                    <version>${maven-resources-plugin.version}</version>-->
-<!--                    <executions>-->
-<!--                        <execution>-->
-<!--                            <id>default-resources</id>-->
-<!--                            <phase>validate</phase>-->
-<!--                            <goals>-->
-<!--                                <goal>copy-resources</goal>-->
-<!--                            </goals>-->
-<!--                            <configuration>-->
-<!--                                <outputDirectory>${project.build.directory}/classes</outputDirectory>-->
-<!--                                <useDefaultDelimiters>false</useDefaultDelimiters>-->
-<!--                                <delimiters>-->
-<!--                                    <delimiter>#</delimiter>-->
-<!--                                </delimiters>-->
-<!--                                <resources>-->
-<!--                                    <resource>-->
-<!--                                        <directory>src/main/resources/</directory>-->
-<!--                                        <filtering>true</filtering>-->
-<!--                                        <includes>-->
-<!--                                            <include>config/*.yml</include>-->
-<!--                                        </includes>-->
-<!--                                    </resource>-->
-<!--                                    <resource>-->
-<!--                                        <directory>src/main/resources/</directory>-->
-<!--                                        <filtering>false</filtering>-->
-<!--                                        <excludes>-->
-<!--                                            <exclude>config/*.yml</exclude>-->
-<!--                                        </excludes>-->
-<!--                                    </resource>-->
-<!--                                </resources>-->
-<!--                            </configuration>-->
-<!--                        </execution>-->
-<!--                    </executions>-->
-<!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.apache.maven.plugins</groupId>-->
+                <!--                    <artifactId>maven-idea-plugin</artifactId>-->
+                <!--                    <version>${maven-idea-plugin.version}</version>-->
+                <!--                    <configuration>-->
+                <!--                        <exclude>node_modules</exclude>-->
+                <!--                    </configuration>-->
+                <!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.apache.maven.plugins</groupId>-->
+                <!--                    <artifactId>maven-resources-plugin</artifactId>-->
+                <!--                    <version>${maven-resources-plugin.version}</version>-->
+                <!--                    <executions>-->
+                <!--                        <execution>-->
+                <!--                            <id>default-resources</id>-->
+                <!--                            <phase>validate</phase>-->
+                <!--                            <goals>-->
+                <!--                                <goal>copy-resources</goal>-->
+                <!--                            </goals>-->
+                <!--                            <configuration>-->
+                <!--                                <outputDirectory>${project.build.directory}/classes</outputDirectory>-->
+                <!--                                <useDefaultDelimiters>false</useDefaultDelimiters>-->
+                <!--                                <delimiters>-->
+                <!--                                    <delimiter>#</delimiter>-->
+                <!--                                </delimiters>-->
+                <!--                                <resources>-->
+                <!--                                    <resource>-->
+                <!--                                        <directory>src/main/resources/</directory>-->
+                <!--                                        <filtering>true</filtering>-->
+                <!--                                        <includes>-->
+                <!--                                            <include>config/*.yml</include>-->
+                <!--                                        </includes>-->
+                <!--                                    </resource>-->
+                <!--                                    <resource>-->
+                <!--                                        <directory>src/main/resources/</directory>-->
+                <!--                                        <filtering>false</filtering>-->
+                <!--                                        <excludes>-->
+                <!--                                            <exclude>config/*.yml</exclude>-->
+                <!--                                        </excludes>-->
+                <!--                                    </resource>-->
+                <!--                                </resources>-->
+                <!--                            </configuration>-->
+                <!--                        </execution>-->
+                <!--                    </executions>-->
+                <!--                </plugin>-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -914,32 +924,32 @@
                         </execution>
                     </executions>
                 </plugin>
-<!--                <plugin>-->
-<!--                    <groupId>org.sonarsource.scanner.maven</groupId>-->
-<!--                    <artifactId>sonar-maven-plugin</artifactId>-->
-<!--                    <version>${sonar-maven-plugin.version}</version>-->
-<!--                </plugin>-->
-<!--                <plugin>-->
-<!--                    <groupId>org.springframework.boot</groupId>-->
-<!--                    <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--                    <version>${spring-boot.version}</version>-->
-<!--                    <executions>-->
-<!--                        <execution>-->
-<!--                            <goals>-->
-<!--                                <goal>repackage</goal>-->
-<!--                            </goals>-->
-<!--                        </execution>-->
-<!--                    </executions>-->
-<!--                    <configuration>-->
-<!--                        <mainClass>${start-class}</mainClass>-->
-<!--                        <fork>true</fork>-->
-<!--                        &lt;!&ndash;-->
-<!--                        Enable the line below to have remote debugging of your application on port 5005-->
-<!--                        <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments>-->
-<!--                        &ndash;&gt;-->
-<!--                    </configuration>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.sonarsource.scanner.maven</groupId>-->
+                <!--                    <artifactId>sonar-maven-plugin</artifactId>-->
+                <!--                    <version>${sonar-maven-plugin.version}</version>-->
+                <!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.springframework.boot</groupId>-->
+                <!--                    <artifactId>spring-boot-maven-plugin</artifactId>-->
+                <!--                    <version>${spring-boot.version}</version>-->
+                <!--                    <executions>-->
+                <!--                        <execution>-->
+                <!--                            <goals>-->
+                <!--                                <goal>repackage</goal>-->
+                <!--                            </goals>-->
+                <!--                        </execution>-->
+                <!--                    </executions>-->
+                <!--                    <configuration>-->
+                <!--                        <mainClass>${start-class}</mainClass>-->
+                <!--                        <fork>true</fork>-->
+                <!--                        &lt;!&ndash;-->
+                <!--                        Enable the line below to have remote debugging of your application on port 5005-->
+                <!--                        <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments>-->
+                <!--                        &ndash;&gt;-->
+                <!--                    </configuration>-->
 
-<!--                </plugin>-->
+                <!--                </plugin>-->
                 <!-- jhipster-needle-maven-add-plugin-management -->
                 <plugin>
                     <groupId>org.flywaydb</groupId>
@@ -974,7 +984,7 @@
                 <!-- jhipster-needle-maven-property -->
 
                 <!-- mvn flyway configuraions-->
-                <flyway.url>jdbc:postgresql://localhost:5432/cmdb</flyway.url>
+                <flyway.url>jdbc:postgresql://localhost:5432/ptrcmdb</flyway.url>
                 <flyway.user>${fly.user}</flyway.user>
                 <flyway.password>${fly.pwd}</flyway.password>
                 <flyway.locations>filesystem:dbscript</flyway.locations>
@@ -1017,17 +1027,18 @@
             </dependencies>
             <properties>
                 <!-- default Spring profiles -->
-<!--                <spring.profiles.active>dev${profile.tls}${profile.no-liquibase}</spring.profiles.active>-->
+                <spring.profiles.active>dev${profile.tls}${profile.no-liquibase}</spring.profiles.active>
                 <fly.user><![CDATA[postgres]]></fly.user>
                 <fly.pwd><![CDATA[postgres]]></fly.pwd>
                 <!-- jhipster-needle-maven-property -->
 
                 <!-- mvn flyway configuraions-->
-                <flyway.url>jdbc:postgresql://localhost:5432/cmdb</flyway.url>
+                <flyway.url>jdbc:postgresql://localhost:5432/ptrcmdb</flyway.url>
                 <flyway.user>${fly.user}</flyway.user>
                 <flyway.password>${fly.pwd}</flyway.password>
                 <flyway.locations>filesystem:dbscript</flyway.locations>
                 <mvnflyway.version>9.8.1</mvnflyway.version>
+
             </properties>
         </profile>
         <profile>
@@ -1061,10 +1072,10 @@
                             </execution>
                         </executions>
                     </plugin>
-<!--                    <plugin>-->
-<!--                        <groupId>pl.project13.maven</groupId>-->
-<!--                        <artifactId>git-commit-id-plugin</artifactId>-->
-<!--                    </plugin>-->
+                    <plugin>
+                        <groupId>pl.project13.maven</groupId>
+                        <artifactId>git-commit-id-plugin</artifactId>
+                    </plugin>
                 </plugins>
             </build>
             <properties>
@@ -1072,26 +1083,29 @@
                 <spring.profiles.active>prod${profile.swagger}${profile.tls}${profile.no-liquibase}</spring.profiles.active>
             </properties>
         </profile>
-<!--        <profile>-->
-<!--            <id>war</id>-->
-<!--            <build>-->
-<!--                <plugins>-->
-<!--                    <plugin>-->
-<!--                        <groupId>org.apache.maven.plugins</groupId>-->
-<!--                        <artifactId>maven-war-plugin</artifactId>-->
-<!--                    </plugin>-->
-<!--                </plugins>-->
-<!--            </build>-->
-<!--        </profile>-->
-<!--        <profile>-->
-<!--            <id>zipkin</id>-->
-<!--            <dependencies>-->
-<!--                <dependency>-->
-<!--                    <groupId>org.springframework.cloud</groupId>-->
-<!--                    <artifactId>spring-cloud-starter-zipkin</artifactId>-->
-<!--                </dependency>-->
-<!--            </dependencies>-->
-<!--        </profile>-->
+        <profile>
+            <id>war</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!--
+                Profile for tracing requests with Zipkin.
+            -->
+            <id>zipkin</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-zipkin</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <!--
                 Profile for applying IDE-specific configuration.

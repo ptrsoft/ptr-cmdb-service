@@ -57,5 +57,19 @@ Spring Boot Starter Data JPA: for working with databases using the Java Persiste
 Spring Boot Starter Validation: for request validation using annotations.
 Springfox Swagger UI: for rendering the OpenAPI documentation in an interactive UI.
 These dependencies are defined in the pom.xml file in the project's root directory and are automatically resolved and downloaded by Maven.
+  
 
-Start with run.sh
+# **Command to Start**
+
+1. run.bat  
+
+    arguments: -Dserver.profile=%1 -Ddb.server.host=%2 -Ddb.server.port=%3 -Ddb.schema=%4 -Ddb.user=%5 -Ddb.password=%6  
+
+        cd c:\mycode\appkube-cmdb-service  
+        run.bat local localhost 5432 ptrcmdb postgres postgres  
+2. run.sh  
+
+   arguments: -Dserver.profile=%1 -Ddb.server.host=%2 -Ddb.server.port=%3 -Ddb.schema=%4 -Ddb.user=%5 -Ddb.password=%6  
+
+        ./run.sh local localhost 5432 ptrcmdb postgres postgres
+    
