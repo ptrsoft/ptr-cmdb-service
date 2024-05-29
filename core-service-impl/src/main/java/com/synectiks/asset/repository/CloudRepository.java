@@ -19,6 +19,7 @@ public interface CloudRepository extends JpaRepository<Cloud, Long> {
     List<Cloud> findByNameAndIsCronScheduled(String name, boolean isCronScheduled);
     List<Cloud> findByNameAndIsCronScheduledAndStatus(String name, boolean isCronScheduled, String status);
     Cloud findByNameAndElementType(String name, String elementType);
+    Cloud findByNameAndElementTypeAndIsCronScheduled(String name, String elementType, boolean isCronScheduled);
     List<Cloud> findByElementTypeAndNameAndStatus(String elementType, String name, String status);
     Cloud findByNameAndListQuery(String name, String listQuery);
 }

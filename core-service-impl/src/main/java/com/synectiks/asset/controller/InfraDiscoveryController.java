@@ -6,16 +6,10 @@ import com.synectiks.asset.api.controller.InfraDiscoveryApi;
 import com.synectiks.asset.api.model.CloudElementDTO;
 import com.synectiks.asset.api.model.LandingzoneDTO;
 import com.synectiks.asset.config.Constants;
-import com.synectiks.asset.domain.CloudElement;
-import com.synectiks.asset.domain.CloudElementCost;
-import com.synectiks.asset.domain.Config;
-import com.synectiks.asset.domain.Landingzone;
+import com.synectiks.asset.domain.*;
 import com.synectiks.asset.handler.CloudHandler;
 import com.synectiks.asset.handler.factory.AwsHandlerFactory;
-import com.synectiks.asset.service.CloudElementCostService;
-import com.synectiks.asset.service.CloudElementService;
-import com.synectiks.asset.service.ConfigService;
-import com.synectiks.asset.service.LandingzoneService;
+import com.synectiks.asset.service.*;
 import com.synectiks.asset.util.DateFormatUtil;
 import com.synectiks.asset.util.JsonAndObjectConverterUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -34,6 +28,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -55,6 +52,10 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
     @Autowired
     private JsonAndObjectConverterUtil jsonAndObjectConverterUtil;
 
+    @Autowired
+    private CloudService cloudService;
+
+    private static ConcurrentMap<Long, String> ELEMENT_DISCOVERY_REQUEST_QUEUE = new ConcurrentHashMap<>();
 
     @Override
     public ResponseEntity<Object> discoverCloudElements(Long orgId, String elementType, Long landingZoneId, String query )  {
@@ -70,20 +71,9 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
             Object object = cloudHandler.save(elementType, oLz.get(), query);
             return ResponseEntity.ok(object);
         }
+
         logger.info("REST request to pull all aws elements for landingZoneId: {}", landingZoneId);
-        for (String awsElementQuery : Constants.AWS_ELEMENT_QUERY) {
-            logger.debug("pulling aws elements for : {}", awsElementQuery);
-            try{
-                CloudHandler cloudHandler = AwsHandlerFactory.getHandlerByQuery(awsElementQuery);
-                if(cloudHandler == null){
-                    logger.warn("Handler not found to process element-type: {}",awsElementQuery);
-                    continue;
-                }
-                cloudHandler.save("landingZone", oLz.get(), awsElementQuery);
-            }catch (Exception e){
-                logger.error("Getting aws elements for landing-zone: {} and element-type: {} failed. Exception: ",oLz.get().getLandingZone(), awsElementQuery,e );
-            }
-        }
+        ELEMENT_DISCOVERY_REQUEST_QUEUE.put(landingZoneId, Constants.ALL);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -110,6 +100,44 @@ public class InfraDiscoveryController implements InfraDiscoveryApi {
             cloudHandler.processTag(cloudElement);
         }
         return ResponseEntity.ok("done");
+    }
+
+    @Scheduled(cron = "0 */2 * * * *") // Every 2 minutes
+    public void processDiscoverElementsRequest(){
+        for (Long landingZoneId: ELEMENT_DISCOVERY_REQUEST_QUEUE.keySet()) {
+            if(ELEMENT_DISCOVERY_REQUEST_QUEUE.get(landingZoneId).equalsIgnoreCase(Constants.ALL)){
+                Optional<Landingzone> ol = landingzoneService.findOne(landingZoneId);
+                if(ol.isPresent() && ol.get().getCloud().equalsIgnoreCase(Constants.AWS)){
+                    Cloud vpc = cloudService.findByNameAndElementType(ol.get().getCloud().toUpperCase(), Constants.VPC);
+                    if(vpc != null){
+                        CloudHandler vpcHandler = AwsHandlerFactory.getHandlerByQuery(vpc.getListQuery());
+                        if(vpcHandler != null){
+                            vpcHandler.save("landingZone", ol.get(), vpc.getListQuery());
+                        }
+                    }
+                    List<Cloud> cloudList = cloudService.findByName(ol.get().getCloud().toUpperCase())
+                            .stream().filter(obj -> !obj.getElementType().equalsIgnoreCase(Constants.VPC)).collect(Collectors.toList());
+
+                    for(Cloud cloud: cloudList){
+                        if(!StringUtils.isBlank(cloud.getListQuery())){
+                            try{
+                                logger.debug("Fetching elements of: {}",cloud.getElementType());
+                                CloudHandler cloudHandler = AwsHandlerFactory.getHandlerByQuery(cloud.getListQuery());
+                                if(cloudHandler == null){
+                                    logger.warn("Handler not found to process element-type: {}",cloud.getListQuery());
+                                    continue;
+                                }
+                                cloudHandler.save("landingZone", ol.get(), cloud.getListQuery());
+                            }catch (Exception e){
+                                logger.error("Element discovery failed for landing-zone: {} and element-type: {}. Exception: {}",ol.get().getLandingZone(), cloud.getListQuery(),e.getMessage() );
+                            }
+                        }
+                    }
+                }
+                ELEMENT_DISCOVERY_REQUEST_QUEUE.put(landingZoneId, Constants.COMPLETED);
+            }
+        }
+        ELEMENT_DISCOVERY_REQUEST_QUEUE.keySet().removeIf(key -> ELEMENT_DISCOVERY_REQUEST_QUEUE.get(key).equalsIgnoreCase(Constants.COMPLETED));
     }
 
     @Scheduled(cron = "0 0 1 * * *") // At 01:00 AM

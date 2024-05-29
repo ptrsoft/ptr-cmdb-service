@@ -143,6 +143,9 @@ public class CloudService {
 	public Cloud findByNameAndElementType(String name, String elementType){
 		return cloudRepository.findByNameAndElementType(name, elementType);
 	}
+	public Cloud findByNameAndElementTypeAndIsCronScheduled(String name, String elementType, boolean isCronScheduled){
+		return cloudRepository.findByNameAndElementTypeAndIsCronScheduled(name, elementType, isCronScheduled);
+	}
 	public List<Cloud> findByElementTypeAndNameAndStatus(String elementType, String name, String status){
 		return cloudRepository.findByElementTypeAndNameAndStatus(elementType, name, status);
 	}
