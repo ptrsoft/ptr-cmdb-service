@@ -150,7 +150,7 @@ hashicorp-vault:
   provider-gcp-creds-key: /PROVIDER/GCP/CREDS
 
 awsx-api:
-  base-url: http://localhost:7000/awsx-api/getQueryOutput
+  base-url: ${awsx-api-url:http://localhost:7000/awsx-api/getQueryOutput}
 
 # ===================================================================
 # Application specific properties

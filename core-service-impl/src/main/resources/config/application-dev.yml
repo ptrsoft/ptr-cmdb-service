@@ -148,7 +148,7 @@ hashicorp-vault:
   provider-aws-creds-key: /PROVIDER/AWS/CREDS
 
 awsx-api:
-  base-url: https://api.synectiks.net/awsx-api/getQueryOutput
+  base-url: ${awsx-api-url:https://api.synectiks.net/awsx-api/getQueryOutput}
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

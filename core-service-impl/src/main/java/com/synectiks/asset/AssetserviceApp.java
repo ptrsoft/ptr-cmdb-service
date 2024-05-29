@@ -135,13 +135,8 @@ public class AssetserviceApp {
         Constants.VAULT_LANDING_ZONE_PATH = env.getProperty("hashicorp-vault.landing-zone-path");
         Constants.VAULT_PROVIDER_AWS_CREDS_KEY = env.getProperty("hashicorp-vault.provider-aws-creds-key");
 
-//        log.info("VAULT_URL: {}",Constants.VAULT_URL);
 
         Constants.AWSX_API_BASE_URL = env.getProperty("awsx-api.base-url");
-//        Constants.AWSX_API_APPCONFIG_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.appconfig-api");
-//        Constants.AWSX_API_LAMBDA_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.lambda-api");
-//        Constants.AWSX_API_EKS_URL = env.getProperty("awsx-api.base-url")+env.getProperty("awsx-api.eks-api");
-
-//        log.info("AWSX_API_APPCONFIG_URL: {}",Constants.AWSX_API_APPCONFIG_URL);
+        log.info("awsx api url: {}",Constants.AWSX_API_BASE_URL);
     }
 }
